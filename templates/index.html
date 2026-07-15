@@ -1,217 +1,171 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-br" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Ferramentas - Rede Neutra</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <title>Gerador & Formatador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
 
-    <div class="spheres-container">
-        <div class="sphere s1"></div>
-        <div class="sphere s2"></div>
-        <div class="sphere s3"></div>
-        <div class="sphere s4"></div>
-        <div class="sphere s5"></div>
-        <div class="sphere s6"></div>
-        <div class="sphere s7"></div>
-        <div class="sphere s8"></div>
-        <div class="sphere s9"></div>
-        <div class="sphere s10"></div>
+<body onload="inicializarTema(); toggleRede(true);">
+
+<div class="spheres-container">
+    <div class="sphere s1"></div>
+    <div class="sphere s2"></div>
+    <div class="sphere s3"></div>
+    <div class="sphere s4"></div>
+    <div class="sphere s5"></div>
+    <div class="sphere s6"></div>
+    <div class="sphere s7"></div>
+    <div class="sphere s8"></div>
+    <div class="sphere s9"></div>
+    <div class="sphere s10"></div>
+</div>
+
+<div class="container">
+
+    <div class="header-wrapper">
+        <h2 id="app-title">Gerador de Login</h2>
+        <button class="theme-toggle-btn" onclick="toggleTema()" type="button" title="Alternar tema">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </button>
     </div>
 
-    <div class="container">
-        
-        <div class="header-wrapper">
-            <h2 id="app-title">Gerador de Login</h2>
-            
-            <div class="header-right">
-                <div class="navigation-tabs">
-                    <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
-                    <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
-                    <button id="tab-port" class="tab-btn" onclick="switchTab('port')">Portas</button>
-                </div>
-
-                <button class="theme-toggle-btn" onclick="toggleTema()" aria-label="Alternar tema">
-                    <svg id="theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <div id="panel-login">
-            <form action="/" method="POST" onsubmit="animarGerar(event)">
-                <div class="form-group">
-                    <label>Tipo de Login</label>
-                    <div class="radio-group">
-                        <label id="card-padrao" class="radio-card {% if not tipo_neutra %}active{% endif %}" onclick="selecionarTipo('padrao')">
-                            <input type="radio" name="tipo" value="padrao" {% if not tipo_neutra %}checked{% endif %}> Padrão
-                        </label>
-                        <label id="card-neutra" class="radio-card {% if tipo_neutra %}active{% endif %}" onclick="selecionarTipo('neutra')">
-                            <input type="radio" name="tipo" value="neutra" {% if tipo_neutra %}checked{% endif %}> Rede Neutra
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group" id="grupo-rede" style="display: {% if tipo_neutra %}block{% else %}none{% endif %};">
-                    <label for="rede">Operadora Neutra</label>
-                    <select id="rede" name="rede" onchange="atualizarCidades()">
-                        <option value="">Selecione...</option>
-                        <option value="Vtal" {% if rede == 'Vtal' %}selected{% endif %}>Vtal</option>
-                        <option value="I-Systems" {% if rede == 'I-Systems' %}selected{% endif %}>I-Systems</option>
-                        <option value="Arezzo" {% if rede == 'Arezzo' %}selected{% endif %}>Arezzo</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="cidade">Cidade</label>
-                    <select id="cidade" name="cidade" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="designador">Designador / ID do Cliente</label>
-                    <input type="text" id="designador" name="designador" placeholder="Ex: 123456" value="{{ designador }}" required autocomplete="off">
-                </div>
-
-                <button type="submit" id="submit-btn">
-                    <span class="btn-loader" id="btn-loader"></span>
-                    <span id="btn-text">Gerar Credenciais</span>
-                </button>
-            </form>
-
-            {% if login_pppoe %}
-            <div class="result">
-                <div class="result-item">
-                    <span class="result-label">Usuário PPPoE</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="val-user">{{ login_pppoe }}</span>
-                        <button class="copy-btn" onclick="copyValue('val-user')">Copiar</button>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Senha</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="val-pass">{{ senha_pppoe }}</span>
-                        <button class="copy-btn" onclick="copyValue('val-pass')">Copiar</button>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-
-        <div id="panel-mac" style="display: none;">
-            <form id="form-mac" onsubmit="formatarMacAjax(event)">
-                <div class="form-group">
-                    <label for="input-mac">Endereço MAC (Qualquer formato)</label>
-                    <input type="text" id="input-mac" placeholder="Ex: a1b2c3d4e5f6 ou aa:bb:cc..." required autocomplete="off">
-                </div>
-                <button type="submit" id="submit-mac-btn" class="btn-action">
-                    <span class="btn-loader" id="btn-mac-loader"></span>
-                    <span id="btn-mac-text">Formatar MAC</span>
-                </button>
-            </form>
-
-            <div class="result" id="resultado-mac-bloco" style="display: none;">
-                <div class="result-item">
-                    <span class="result-label">Fabricante (Vendor)</span>
-                    <div class="vendor-card" id="mac-vendor">Buscando...</div>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Cisco (aabb.ccdd.eeff)</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="mac-cisco"></span>
-                        <button class="copy-btn" onclick="copyValue('mac-cisco')">Copiar</button>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Linux (aa:bb:cc:dd:ee:ff)</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="mac-linux"></span>
-                        <button class="copy-btn" onclick="copyValue('mac-linux')">Copiar</button>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Windows (AA-BB-CC-DD-EE-FF)</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="mac-windows"></span>
-                        <button class="copy-btn" onclick="copyValue('mac-windows')">Copiar</button>
-                    </div>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Huawei (AABB-CCDD-EEFF)</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="mac-huawei"></span>
-                        <button class="copy-btn" onclick="copyValue('mac-huawei')">Copiar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-port" style="display: none;">
-            <form id="form-port" onsubmit="escanearPortasAjax(event)">
-                <div class="form-group">
-                    <label for="input-port-host">IP ou Domínio DDNS Valido</label>
-                    <input type="text" id="input-port-host" placeholder="Ex: cftvcliente.ddns.com.br ou 200.x.x.x" required autocomplete="off">
-                </div>
-                <button type="submit" id="submit-port-btn" class="btn-action">
-                    <span class="btn-loader" id="btn-port-loader"></span>
-                    <span id="btn-port-text">Escanear Portas Padrão</span>
-                </button>
-            </form>
-
-            <div class="result" id="resultado-port-bloco" style="display: none; margin-top: 18px;">
-                <div class="result-item">
-                    <span class="result-label">Status das Portas (TCP Connect)</span>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 10px; text-transform: uppercase;">
-                                <th style="padding: 6px 0;">Porta</th>
-                                <th style="padding: 6px 0;">Serviço</th>
-                                <th style="padding: 6px 0; text-align: right;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="port-table-body">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">Suporte Técnico Interno</div>
+    <div class="navigation-tabs">
+        <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Gerador de Login</button>
+        <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
     </div>
 
-    <div id="toast" class="toast">Copiado com sucesso!</div>
+    <div id="panel-login">
+        <form method="post" onsubmit="animarGerar(event)">
+            <div class="form-group">
+                <label>Nome do Cliente</label>
+                <input name="nome" placeholder="Ex: João Silva" required autocomplete="off" value="{{ request.form.get('nome', '') }}">
+            </div>
 
-    <script>
-        const redesCidades = {{ redes_cidades | tojson | safe if redes_cidades else '{}' }};
-        const cidadesSiglas = {{ cidades_siglas | tojson | safe if cidades_siglas else '{}' }};
-        const cidadeSelecionadaAnteriormente = "{{ cidade }}";
-    </script>
-    
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        // Inicializa o tema salvo e as listas ao carregar a página
-        inicializarTema();
-        {% if tipo_neutra %}
-        toggleRede(true);
-        {% else %}
-        toggleRede(false);
+            <div class="form-group">
+                <label>Tipo de Login</label>
+                <div class="radio-group">
+                    <label class="radio-card {% if tipo_login != 'padrao' %}active{% endif %}" id="card-neutra">
+                        <input type="radio" name="tipo_login" value="neutra" {% if tipo_login != 'padrao' %}checked{% endif %} onclick="selecionarTipo('neutra')"> Rede Neutra
+                    </label>
+                    <label class="radio-card {% if tipo_login == 'padrao' %}active{% endif %}" id="card-padrao">
+                        <input type="radio" name="tipo_login" value="padrao" {% if tipo_login == 'padrao' %}checked{% endif %} onclick="selecionarTipo('padrao')"> Padrão / Local
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" id="grupo-rede">
+                <label>Rede</label>
+                <select name="rede" id="rede" onchange="atualizarCidades()">
+                    <option value="">Selecione a rede</option>
+                    {% for r in redes %}
+                    <option value="{{ r }}" {% if request.form.get('rede') == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Cidade</label>
+                <select name="cidade" id="cidade" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn">
+                <span class="btn-loader" id="btn-loader"></span>
+                <span id="btn-text">Gerar Acesso</span>
+            </button>
+        </form>
+
+        {% if resultado %}
+        <div class="result" id="resultado-bloco">
+            <div class="result-item">
+                <span class="result-label">Usuário</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="login">{{ login }}</div>
+                    <button class="copy-btn" onclick="copyValue('login')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Senha</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="senha">{{ senha }}</div>
+                    <button class="copy-btn" onclick="copyValue('senha')">Copiar</button>
+                </div>
+            </div>
+        </div>
         {% endif %}
-    </script>
+    </div>
+
+    <div id="panel-mac" style="display: none;">
+        <form id="form-mac" onsubmit="formatarMacAjax(event)">
+            <div class="form-group">
+                <label>MAC Address</label>
+                <input id="input-mac" name="mac" placeholder="Ex: 2C:54:91:88:D7:A2" required autocomplete="off">
+            </div>
+
+            <button type="submit" id="submit-mac-btn" class="btn-action">
+                <span class="btn-loader" id="btn-mac-loader"></span>
+                <span id="btn-mac-text">Formatar</span>
+            </button>
+        </form>
+
+        <div class="result" id="resultado-mac-bloco" style="display: none; margin-top: 18px;">
+            <div class="result-item">
+                <span class="result-label">Cisco</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-cisco">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-cisco')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Linux</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-linux">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-linux')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Windows</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-windows">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-windows')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Huawei</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-huawei">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-huawei')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Vendor</span>
+                <div class="vendor-card" id="mac-vendor">Buscando...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Desenvolvido por Alysson Cordeiro
+    </div>
+
+</div>
+
+<div id="toast" class="toast">Copiado com sucesso!</div>
+
+<script>
+    const redesCidades = {{ redes_cidades | tojson }};
+    const cidadesSiglas = {{ cidades | tojson }};
+    const cidadeSelecionadaAnteriormente = "{{ request.form.get('cidade', '') }}";
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
