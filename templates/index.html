@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador & Formatador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body onload="inicializarTema(); toggleRede(true);">
+
+<div class="spheres-container">
+    <div class="sphere s1"></div>
+    <div class="sphere s2"></div>
+    <div class="sphere s3"></div>
+    <div class="sphere s4"></div>
+    <div class="sphere s5"></div>
+    <div class="sphere s6"></div>
+    <div class="sphere s7"></div>
+    <div class="sphere s8"></div>
+    <div class="sphere s9"></div>
+    <div class="sphere s10"></div>
+</div>
+
+<div class="container">
+
+    <div class="header-wrapper">
+        <h2 id="app-title">Gerador de Login</h2>
+        <button class="theme-toggle-btn" onclick="toggleTema()" type="button" title="Alternar tema">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </button>
+    </div>
+
+    <div class="navigation-tabs">
+        <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Gerador de Login</button>
+        <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
+    </div>
+
+    <div id="panel-login">
+        <form method="post" onsubmit="animarGerar(event)">
+            <div class="form-group">
+                <label>Nome do Cliente</label>
+                <input name="nome" placeholder="Ex: João Silva" required autocomplete="off" value="{{ request.form.get('nome', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Login</label>
+                <div class="radio-group">
+                    <label class="radio-card {% if tipo_login != 'padrao' %}active{% endif %}" id="card-neutra">
+                        <input type="radio" name="tipo_login" value="neutra" {% if tipo_login != 'padrao' %}checked{% endif %} onclick="selecionarTipo('neutra')"> Rede Neutra
+                    </label>
+                    <label class="radio-card {% if tipo_login == 'padrao' %}active{% endif %}" id="card-padrao">
+                        <input type="radio" name="tipo_login" value="padrao" {% if tipo_login == 'padrao' %}checked{% endif %} onclick="selecionarTipo('padrao')"> Padrão / Local
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" id="grupo-rede">
+                <label>Rede</label>
+                <select name="rede" id="rede" onchange="atualizarCidades()">
+                    <option value="">Selecione a rede</option>
+                    {% for r in redes %}
+                    <option value="{{ r }}" {% if request.form.get('rede') == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Cidade</label>
+                <select name="cidade" id="cidade" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn">
+                <span class="btn-loader" id="btn-loader"></span>
+                <span id="btn-text">Gerar Acesso</span>
+            </button>
+        </form>
+
+        {% if resultado %}
+        <div class="result" id="resultado-bloco">
+            <div class="result-item">
+                <span class="result-label">Usuário</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="login">{{ login }}</div>
+                    <button class="copy-btn" onclick="copyValue('login')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Senha</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="senha">{{ senha }}</div>
+                    <button class="copy-btn" onclick="copyValue('senha')">Copiar</button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="panel-mac" style="display: none;">
+        <form id="form-mac" onsubmit="formatarMacAjax(event)">
+            <div class="form-group">
+                <label>MAC Address</label>
+                <input id="input-mac" name="mac" placeholder="Ex: 2C:54:91:88:D7:A2" required autocomplete="off">
+            </div>
+
+            <button type="submit" id="submit-mac-btn" class="btn-action">
+                <span class="btn-loader" id="btn-mac-loader"></span>
+                <span id="btn-mac-text">Formatar</span>
+            </button>
+        </form>
+
+        <div class="result" id="resultado-mac-bloco" style="display: none; margin-top: 18px;">
+            <div class="result-item">
+                <span class="result-label">Cisco</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-cisco">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-cisco')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Linux</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-linux">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-linux')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Windows</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-windows">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-windows')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Huawei</span>
+                <div class="result-value-container">
+                    <div class="result-value" id="mac-huawei">-</div>
+                    <button class="copy-btn" onclick="copyValue('mac-huawei')">Copiar</button>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Vendor</span>
+                <div class="vendor-card" id="mac-vendor">Buscando...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Desenvolvido por Alysson Cordeiro
+    </div>
+
+</div>
+
+<div id="toast" class="toast">Copiado com sucesso!</div>
+
+<div id="flask-data" 
+     data-redes-cidades='{{ redes_cidades | tojson }}' 
+     data-cidades='{{ cidades | tojson }}' 
+     data-cidade-anterior="{{ request.form.get('cidade', '') }}" 
+     style="display: none;">
+</div>
+
+<script>
+    // Buscamos os dados do HTML de forma segura e convertemos para o JS
+    const flaskDataEl = document.getElementById('flask-data');
+    const redesCidades = JSON.parse(flaskDataEl.getAttribute('data-redes-cidades'));
+    const cidadesSiglas = JSON.parse(flaskDataEl.getAttribute('data-cidades'));
+    const cidadeSelecionadaAnteriormente = flaskDataEl.getAttribute('data-cidade-anterior');
+</script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
