@@ -115,23 +115,17 @@ body {
 /* ================= CONTAINER DO CARD ================= */
 .container {
     width: 100%;
-    max-width: 480px; /* Alargado ligeiramente para harmonizar o visual horizontal */
+    max-width: 520px;
     background: var(--card-bg);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    padding: 24px 28px 18px 28px;
+    padding: 24px 24px 18px 24px;
     border-radius: 28px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     position: relative;
     z-index: 1;
     animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s, border-color 0.4s;
-}
-
-/* Seletor dinâmico opcional caso queira alargar o card ao usar o Port Check */
-.container:has(#panel-port:not([style*="display: none"])) {
-    max-width: 580px; 
 }
 
 @keyframes scaleIn {
@@ -139,14 +133,14 @@ body {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ================= HEADER COLOCOADO LADO A LADO (HEADER-WRAPPER) ================= */
+/* ================= HEADER CORRIGIDO LADO A LADO ================= */
 .header-wrapper {
     display: flex;
-    justify-content: space-between; /* Empurra o Título para a esquerda e o restante para a direita */
+    justify-content: space-between; 
     align-items: center;
     width: 100%;
     margin-bottom: 24px;
-    gap: 16px;
+    gap: 12px;
 }
 
 h2 {
@@ -165,7 +159,7 @@ h2 {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 /* Ajustes finos no container das abas para caber na lateral */
@@ -174,17 +168,16 @@ h2 {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 0px; /* Removida a margem inferior para não quebrar o alinhamento */
-    gap: 4px;
+    padding: 2px;
+    gap: 2px;
 }
 
 .tab-btn {
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    padding: 6px 12px;
-    font-size: 11.5px;
+    padding: 6px 10px;
+    font-size: 11px;
     font-weight: 700;
     border-radius: 8px;
     cursor: pointer;
@@ -203,7 +196,7 @@ h2 {
     background: var(--input-bg);
     border: 1px solid var(--border-color);
     padding: 6px;
-    border-radius: 10px; /* Combinando com o estilo dos inputs */
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
