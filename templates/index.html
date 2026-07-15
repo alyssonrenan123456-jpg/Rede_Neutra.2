@@ -156,43 +156,6 @@
             </div>
         </div>
     </div>
-
-    <div id="panel-port" style="display: none;">
-        <form id="form-port" onsubmit="escanearPortasAjax(event)">
-            <div class="form-group">
-                <label>IP ou Domínio (DDNS)</label>
-                <input id="input-port-host" name="host" placeholder="Ex: 192.168.100.1 ou cliente.ddns.com" required autocomplete="off">
-            </div>
-
-            <div class="form-group">
-                <label>Porta Adicional (Opcional)</label>
-                <input id="input-port-custom" name="custom_port" placeholder="Ex: 3000 (Deixe em branco para usar as padrão)" autocomplete="off">
-            </div>
-
-            <button type="submit" id="submit-port-btn" class="btn-action">
-                <span class="btn-loader" id="btn-port-loader"></span>
-                <span id="btn-port-text">Escanear</span>
-            </button>
-        </form>
-
-        <div class="result" id="resultado-port-bloco" style="display: none; margin-top: 18px;">
-            <div class="result-item">
-                <span class="result-label">Status das Portas (TCP Connect)</span>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-color); text-align: left; color: var(--text-secondary); font-size: 10px; text-transform: uppercase;">
-                            <th style="padding: 6px 0;">Porta</th>
-                            <th style="padding: 6px 0;">Serviço</th>
-                            <th style="padding: 6px 0; text-align: right;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="port-table-body">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <div class="footer">
         Desenvolvido por Alysson Cordeiro
     </div>
