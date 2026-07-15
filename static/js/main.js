@@ -195,12 +195,11 @@ function formatarMacAjax(e) {
     });
 }
 
-// Processador AJAX do Port Check (Zero reload + Porta opcional)
+// Processador AJAX do Port Check (Apenas portas padrão)
 function escanearPortasAjax(e) {
     e.preventDefault();
     const hostInput = document.getElementById("input-port-host").value;
-    const customPortInput = document.getElementById("input-port-custom").value;
-    const btnText = document.getElementById("btn-port-text");
+    const btnText = document.getElementById("btn-port-text") || document.querySelector("#submit-port-btn span:not(.btn-loader)");
     const btnLoader = document.getElementById("btn-port-loader");
     const submitBtn = document.getElementById("submit-port-btn");
     const resultBlock = document.getElementById("resultado-port-bloco");
@@ -217,15 +216,12 @@ function escanearPortasAjax(e) {
     fetch("/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            host: hostInput,
-            custom_port: customPortInput
-        })
+        body: JSON.stringify({ host: hostInput })
     })
     .then(response => response.json())
     .then(data => {
         btnText.style.opacity = "1";
-        btnText.innerText = "Escanear";
+        btnText.innerText = "Escanear Portas Padrão";
         btnLoader.style.display = "none";
         submitBtn.style.pointerEvents = "auto";
 
@@ -248,7 +244,7 @@ function escanearPortasAjax(e) {
     })
     .catch(err => {
         btnText.style.opacity = "1";
-        btnText.innerText = "Escanear";
+        btnText.innerText = "Escanear Portas Padrão";
         btnLoader.style.display = "none";
         submitBtn.style.pointerEvents = "auto";
         alert("Ocorreu um erro ao escanear.");
