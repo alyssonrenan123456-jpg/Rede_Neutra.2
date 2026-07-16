@@ -32,8 +32,8 @@
             
             <div class="header-right">
                 <div class="navigation-tabs">
-                    <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
-                    <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
+                    <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Gerador de Login</button>
+                    <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
                     <button id="tab-cidr" class="tab-btn" onclick="switchTab('cidr')">CIDR</button>
                 </div>
 
@@ -55,22 +55,28 @@
 
         <div id="panel-login">
             <form action="/" method="POST" onsubmit="animarGerar(event)">
+                
                 <div class="form-group">
-                    <label>Tipo de Login</label>
+                    <label for="nome_cliente">NOME DO CLIENTE</label>
+                    <input type="text" id="nome_cliente" name="nome_cliente" placeholder="Ex: João Silva" value="{{ nome_cliente if nome_cliente else '' }}" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>TIPO DE LOGIN</label>
                     <div class="radio-group">
-                        <label id="card-padrao" class="radio-card {% if not tipo_neutra %}active{% endif %}" onclick="selecionarTipo('padrao')">
-                            <input type="radio" name="tipo" id="radio-padrao" value="padrao" {% if not tipo_neutra %}checked{% endif %} style="display:none;"> Padrão
-                        </label>
                         <label id="card-neutra" class="radio-card {% if tipo_neutra %}active{% endif %}" onclick="selecionarTipo('neutra')">
-                            <input type="radio" name="tipo" id="radio-neutra" value="neutra" {% if tipo_neutra %}checked{% endif %} style="display:none;"> Rede Neutra
+                            <input type="radio" name="tipo" id="radio-neutra" value="neutra" {% if tipo_neutra %}checked{% endif %} style="display:none;"> REDE NEUTRA
+                        </label>
+                        <label id="card-padrao" class="radio-card {% if not tipo_neutra %}active{% endif %}" onclick="selecionarTipo('padrao')">
+                            <input type="radio" name="tipo" id="radio-padrao" value="padrao" {% if not tipo_neutra %}checked{% endif %} style="display:none;"> PADRÃO / LOCAL
                         </label>
                     </div>
                 </div>
 
                 <div class="form-group" id="grupo-rede" style="display: {% if tipo_neutra %}block{% else %}none{% endif %};">
-                    <label for="rede">Operadora Neutra</label>
+                    <label for="rede">REDE</label>
                     <select id="rede" name="rede" onchange="atualizarCidades()">
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione a rede</option>
                         <option value="Vtal" {% if rede == 'Vtal' %}selected{% endif %}>Vtal</option>
                         <option value="I-Systems" {% if rede == 'I-Systems' %}selected{% endif %}>I-Systems</option>
                         <option value="Arezzo" {% if rede == 'Arezzo' %}selected{% endif %}>Arezzo</option>
@@ -78,34 +84,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="cidade">Cidade</label>
+                    <label for="cidade">CIDADE</label>
                     <select id="cidade" name="cidade" required>
                         <option value="">Selecione...</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="designador">Designador / ID do Cliente</label>
-                    <input type="text" id="designador" name="designador" placeholder="Ex: 123456" value="{{ designador }}" required autocomplete="off">
-                </div>
-
                 <button type="submit" id="submit-btn">
                     <span class="btn-loader" id="btn-loader"></span>
-                    <span id="btn-text">Gerar Credenciais</span>
+                    <span id="btn-text">Gerar Acesso</span>
                 </button>
             </form>
 
             {% if login_pppoe %}
             <div class="result">
                 <div class="result-item">
-                    <span class="result-label">Usuário PPPoE</span>
+                    <span class="result-label">USUÁRIO</span>
                     <div class="result-value-container">
                         <span class="result-value" id="val-user">{{ login_pppoe }}</span>
                         <button class="copy-btn" onclick="copyValue('val-user')">Copiar</button>
                     </div>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Senha</span>
+                    <span class="result-label">SENHA</span>
                     <div class="result-value-container">
                         <span class="result-value" id="val-pass">{{ senha_pppoe }}</span>
                         <button class="copy-btn" onclick="copyValue('val-pass')">Copiar</button>
@@ -236,7 +237,7 @@
             </div>
         </div>
 
-        <div class="footer">Suporte Técnico Interno</div>
+        <div class="footer">Desenvolvido por Alysson Cordeiro</div>
     </div>
 
     <div id="toast" class="toast">Copiado com sucesso!</div>
@@ -244,7 +245,7 @@
     <script>
         const redesCidades = {{ redes_cidades | tojson | safe if redes_cidades else '{}' }};
         const cidadesSiglas = {{ cidades_siglas | tojson | safe if cidades_siglas else '{}' }};
-        const cidadeSelecionadaAnteriormente = "{{ cidade }}";
+        const cidadeSelecionadaAnteriormente = "{{ cidade if cidade else '' }}";
     </script>
     
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
