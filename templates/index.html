@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -35,7 +34,6 @@
                     <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
                     <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
                     <button id="tab-port" class="tab-btn" onclick="switchTab('port')">Portas</button>
-                    <button id="tab-cidr" class="tab-btn" onclick="switchTab('cidr')">CIDR</button>
                 </div>
 
                 <button class="theme-toggle-btn" onclick="toggleTema()" aria-label="Alternar tema">
@@ -167,7 +165,7 @@
         <div id="panel-port" style="display: none;">
             <form id="form-port" onsubmit="escanearPortasAjax(event)">
                 <div class="form-group">
-                    <label for="input-port-host">IP ou Domínio DDNS Válido</label>
+                    <label for="input-port-host">IP ou Domínio DDNS Valido</label>
                     <input type="text" id="input-port-host" placeholder="Ex: cftvcliente.ddns.com.br ou 200.x.x.x" required autocomplete="off">
                 </div>
                 <button type="submit" id="submit-port-btn" class="btn-action">
@@ -188,81 +186,8 @@
                             </tr>
                         </thead>
                         <tbody id="port-table-body">
-                        </tbody>
+                            </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-cidr" style="display: none;">
-            <form id="form-cidr" onsubmit="calcularCidr(event)">
-                <div class="form-group">
-                    <label for="input-cidr-ip">Endereço IP (IPv4)</label>
-                    <input type="text" id="input-cidr-ip" placeholder="Ex: 192.168.1.1" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="select-cidr-prefix">Prefixo CIDR</label>
-                    <select id="select-cidr-prefix" required>
-                        <option value="">Selecione o prefixo...</option>
-                        </select>
-                </div>
-                <div class="cidr-btn-group">
-                    <button type="submit" class="btn-action" style="flex: 2;">
-                        <i data-lucide="calculator" class="icon-small"></i> Calcular
-                    </button>
-                    <button type="button" class="btn-secondary" onclick="limparCidr()" style="flex: 1;">
-                        <i data-lucide="trash-2" class="icon-small"></i> Limpar
-                    </button>
-                </div>
-            </form>
-
-            <div class="result" id="resultado-cidr-bloco" style="display: none; margin-top: 18px;">
-                <div class="cidr-result-header">
-                    <button class="cidr-copy-btn" onclick="copyFullCidrResult()"><i data-lucide="copy" class="icon-small"></i> Copiar Tudo</button>
-                    <button class="cidr-copy-btn" onclick="copyValue('cidr-res-net')"><i data-lucide="network" class="icon-small"></i> Copiar Rede</button>
-                    <button class="cidr-copy-btn" onclick="copyValue('cidr-res-broad')"><i data-lucide="radio" class="icon-small"></i> Copiar Broadcast</button>
-                </div>
-
-                <div class="cidr-grid">
-                    <div class="cidr-card-item">
-                        <span class="result-label">Endereço de Rede</span>
-                        <div class="cidr-box-value" id="cidr-res-net">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Endereço de Broadcast</span>
-                        <div class="cidr-box-value" id="cidr-res-broad">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Primeiro Host</span>
-                        <div class="cidr-box-value" id="cidr-res-first">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Último Host</span>
-                        <div class="cidr-box-value" id="cidr-res-last">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Hosts Utilizáveis</span>
-                        <div class="cidr-box-value" id="cidr-res-hosts">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Máscara de Sub-rede</span>
-                        <div class="cidr-box-value" id="cidr-res-mask">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Máscara Wildcard</span>
-                        <div class="cidr-box-value" id="cidr-res-wild">-</div>
-                    </div>
-                    <div class="cidr-card-item">
-                        <span class="result-label">Classe / Tipo</span>
-                        <div class="cidr-box-value" id="cidr-res-class-type">-</div>
-                    </div>
-                </div>
-
-                <div class="result-item" style="margin-top: 12px;">
-                    <span class="result-label">Endereço IP em Binário</span>
-                    <div class="result-value-container">
-                        <span class="result-value" id="cidr-res-binary" style="font-size: 11px; letter-spacing: 0.5px;">-</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -280,9 +205,8 @@
     
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
-        // Inicializa o tema salvo, os ícones e as listas ao carregar
+        // Inicializa o tema salvo e as listas ao carregar a página
         inicializarTema();
-        lucide.createIcons();
         {% if tipo_neutra %}
         toggleRede(true);
         {% else %}
