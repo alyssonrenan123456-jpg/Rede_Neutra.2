@@ -222,7 +222,7 @@ function toggleRede(mostrar) {
         for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
             let option = document.createElement("option");
             option.value = sigla;
-            option.text = cider = cidade;
+            option.text = cidade;
             if(sigla === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
@@ -245,7 +245,7 @@ function atualizarCidades() {
             if(cidadesSiglas[cidade] === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
-            cidadeSelect.appendChild(option);
+            citySelect.appendChild(option);
         });
     }
 }
