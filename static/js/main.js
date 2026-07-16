@@ -1,16 +1,14 @@
 // static/js/main.js
 
-// Função para Alternar Abas (Tabs) - Atualizada para 4 abas paralelas
+// Função para Alternar Abas (Tabs) - Atualizada para 3 abas paralelas
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
     const tabPort = document.getElementById("tab-port");
-    const tabCidr = document.getElementById("tab-cidr");
     
     const panelLogin = document.getElementById("panel-login");
     const panelMac = document.getElementById("panel-mac");
     const panelPort = document.getElementById("panel-port");
-    const panelCidr = document.getElementById("panel-cidr");
     
     const appTitle = document.getElementById("app-title");
 
@@ -18,12 +16,9 @@ function switchTab(target) {
     tabLogin.classList.remove("active");
     tabMac.classList.remove("active");
     tabPort.classList.remove("active");
-    tabCidr.classList.remove("active");
-    
     panelLogin.style.display = "none";
     panelMac.style.display = "none";
     panelPort.style.display = "none";
-    panelCidr.style.display = "none";
 
     // Ativa apenas a selecionada e altera o título
     if (target === 'login') {
@@ -38,167 +33,9 @@ function switchTab(target) {
         tabPort.classList.add("active");
         panelPort.style.display = "block";
         appTitle.innerText = "Scanner de Portas";
-    } else if (target === 'cidr') {
-        tabCidr.classList.add("active");
-        panelCidr.style.display = "block";
-        appTitle.innerText = "Calculadora CIDR";
-        inicializarOpcoesCidr();
     }
 }
 
-// Inicializa a lista de sub-redes de /8 a /32 dinamicamente
-function inicializarOpcoesCidr() {
-    const select = document.getElementById("select-cidr-prefix");
-    if (select.children.length > 1) return; // Já populado
-
-    for (let i = 32; i >= 8; i--) {
-        let opt = document.createElement("option");
-        opt.value = i;
-        opt.text = `/${i}`;
-        if (i === 24) opt.selected = true; // Padrão clássico
-        select.appendChild(opt);
-    }
-}
-
-// Matemática de Redes IPv4 puro em JavaScript
-function calcularCidr(e) {
-    e.preventDefault();
-    const ipStr = document.getElementById("input-cidr-ip").value.trim();
-    const prefix = parseInt(document.getElementById("select-cidr-prefix").value);
-
-    // Validação de IP via RegExp
-    const ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    if (!ipPattern.test(ipStr)) {
-        alert("Endereço IPv4 inválido! Use o formato decimal com pontos (ex: 192.168.1.1).");
-        return;
-    }
-
-    // Processamento de bits
-    const octetos = ipStr.split(".").map(Number);
-    const ipNum = (octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3];
-
-    // Cria as máscaras de sub-rede
-    const maskNum = prefix === 0 ? 0 : (~0 << (32 - prefix));
-    const wildcardNum = ~maskNum;
-
-    // Aplicação das máscaras bit-a-bit
-    const netNum = ipNum & maskNum;
-    const broadNum = netNum | wildcardNum;
-
-    // Helper de conversão para string
-    const numToIp = (num) => [
-        (num >>> 24) & 255,
-        (num >>> 16) & 255,
-        (num >>> 8) & 255,
-        num & 255
-    ].join(".");
-
-    // Cálculo das faixas utilizáveis
-    let firstHost = "-", lastHost = "-", usableHosts = 0;
-    if (prefix < 31) {
-        firstHost = numToIp(netNum + 1);
-        lastHost = numToIp(broadNum - 1);
-        usableHosts = Math.pow(2, 32 - prefix) - 2;
-    } else if (prefix === 31) {
-        // RFC 3021 links ponto-a-ponto
-        firstHost = numToIp(netNum);
-        lastHost = numToIp(broadNum);
-        usableHosts = 2;
-    } else {
-        // /32 Host único
-        firstHost = numToIp(netNum);
-        lastHost = numToIp(broadNum);
-        usableHosts = 1;
-    }
-
-    // Determinar a classe do IP
-    const firstOctet = octetos[0];
-    let ipClass = "Desconhecida";
-    if (firstOctet >= 1 && firstOctet <= 126) ipClass = "A";
-    else if (firstOctet === 127) ipClass = "Loopback (Classe A)";
-    else if (firstOctet >= 128 && firstOctet <= 191) ipClass = "B";
-    else if (firstOctet >= 192 && firstOctet <= 223) ipClass = "C";
-    else if (firstOctet >= 224 && firstOctet <= 239) ipClass = "D (Multicast)";
-    else if (firstOctet >= 240 && firstOctet <= 255) ipClass = "E (Experimental)";
-
-    // Determinar se é público ou privado
-    let ipType = "Público";
-    if (
-        (firstOctet === 10) ||
-        (firstOctet === 172 && octetos[1] >= 16 && octetos[1] <= 31) ||
-        (firstOctet === 192 && octetos[2] === 168)
-    ) {
-        ipType = "Privado";
-    } else if (firstOctet === 100 && octetos[1] >= 64 && octetos[1] <= 127) {
-        ipType = "Privado (CGNAT)";
-    } else if (firstOctet === 169 && octetos[1] === 254) {
-        ipType = "Link-Local (APIPA)";
-    }
-
-    // Geração do Binário
-    const toBin = (num) => {
-        let raw = (num >>> 0).toString(2).padStart(32, "0");
-        return `${raw.substring(0,8)}.${raw.substring(8,16)}.${raw.substring(16,24)}.${raw.substring(24,32)}`;
-    };
-
-    // Renderização dos resultados no DOM
-    document.getElementById("cidr-res-net").innerText = `${numToIp(netNum)} /${prefix}`;
-    document.getElementById("cidr-res-broad").innerText = numToIp(broadNum);
-    document.getElementById("cidr-res-first").innerText = firstHost;
-    document.getElementById("cidr-res-last").innerText = lastHost;
-    document.getElementById("cidr-res-hosts").innerText = usableHosts.toLocaleString("pt-BR");
-    document.getElementById("cidr-res-mask").innerText = numToIp(maskNum);
-    document.getElementById("cidr-res-wild").innerText = numToIp(wildcardNum);
-    document.getElementById("cidr-res-class-type").innerText = `Classe ${ipClass} (${ipType})`;
-    document.getElementById("cidr-res-binary").innerText = toBin(ipNum);
-
-    // Mostra o card com efeito de entrada
-    document.getElementById("resultado-cidr-bloco").style.display = "block";
-}
-
-// Limpa os campos da Calculadora CIDR
-function limparCidr() {
-    document.getElementById("input-cidr-ip").value = "";
-    document.getElementById("select-cidr-prefix").value = "24";
-    document.getElementById("resultado-cidr-bloco").style.display = "none";
-}
-
-// Copia o relatório completo formatado estruturalmente
-function copyFullCidrResult() {
-    const net = document.getElementById("cidr-res-net").innerText;
-    const broad = document.getElementById("cidr-res-broad").innerText;
-    const first = document.getElementById("cidr-res-first").innerText;
-    const last = document.getElementById("cidr-res-last").innerText;
-    const hosts = document.getElementById("cidr-res-hosts").innerText;
-    const mask = document.getElementById("cidr-res-mask").innerText;
-    const info = document.getElementById("cidr-res-class-type").innerText;
-    const bin = document.getElementById("cidr-res-binary").innerText;
-
-    const relatorio = `--- CÁLCULO DE SUB-REDE CIDR ---
-Rede: ${net}
-Máscara: ${mask}
-Primeiro Host: ${first}
-Último Host: ${last}
-Broadcast: ${broad}
-Hosts Utilizáveis: ${hosts}
-Classificação: ${info}
-Binário: ${bin}`;
-
-    navigator.clipboard.writeText(relatorio).then(() => {
-        exibirToast();
-    });
-}
-
-// Toast de confirmação visual ao copiar
-function exibirToast() {
-    const toast = document.getElementById("toast");
-    toast.classList.add("show");
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2000);
-}
-
-// Substitutos antigos de login/mac/rede neutra mantidos intactos...
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
     document.getElementById("card-padrao").classList.remove("active");
@@ -262,6 +99,7 @@ function atualizarCidades() {
     }
 }
 
+// Alternar entre temas
 function toggleTema() {
     const htmlEl = document.documentElement;
     const currentTheme = htmlEl.getAttribute("data-theme");
@@ -297,6 +135,7 @@ function atualizarIconeTema(tema) {
     }
 }
 
+// Animação para o submit do formulário padrão/login
 function animarGerar(e) {
     const btnText = document.getElementById("btn-text");
     const btnLoader = document.getElementById("btn-loader");
@@ -308,6 +147,7 @@ function animarGerar(e) {
     submitBtn.style.pointerEvents = "none";
 }
 
+// Processador AJAX do MAC (Zero reload)
 function formatarMacAjax(e) {
     e.preventDefault();
     const macInput = document.getElementById("input-mac").value;
@@ -316,6 +156,7 @@ function formatarMacAjax(e) {
     const submitBtn = document.getElementById("submit-mac-btn");
     const resultBlock = document.getElementById("resultado-mac-bloco");
 
+    // Feedback de carregamento
     btnText.style.opacity = "0.6";
     btnText.innerText = "Processando...";
     btnLoader.style.display = "inline-block";
@@ -354,15 +195,18 @@ function formatarMacAjax(e) {
     });
 }
 
+// Processador AJAX do Port Check (Zero reload + Porta opcional)
 function escanearPortasAjax(e) {
     e.preventDefault();
     const hostInput = document.getElementById("input-port-host").value;
-    const btnText = document.getElementById("btn-port-text") || document.querySelector("#submit-port-btn span:not(.btn-loader)");
+    const customPortInput = document.getElementById("input-port-custom").value;
+    const btnText = document.getElementById("btn-port-text");
     const btnLoader = document.getElementById("btn-port-loader");
     const submitBtn = document.getElementById("submit-port-btn");
     const resultBlock = document.getElementById("resultado-port-bloco");
     const tableBody = document.getElementById("port-table-body");
 
+    // Feedback visual de carregamento
     btnText.style.opacity = "0.6";
     btnText.innerText = "Escaneando...";
     btnLoader.style.display = "inline-block";
@@ -373,12 +217,15 @@ function escanearPortasAjax(e) {
     fetch("/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ host: hostInput })
+        body: JSON.stringify({ 
+            host: hostInput,
+            custom_port: customPortInput
+        })
     })
     .then(response => response.json())
     .then(data => {
         btnText.style.opacity = "1";
-        btnText.innerText = "Escanear Portas Padrão";
+        btnText.innerText = "Escanear";
         btnLoader.style.display = "none";
         submitBtn.style.pointerEvents = "auto";
 
@@ -401,17 +248,20 @@ function escanearPortasAjax(e) {
     })
     .catch(err => {
         btnText.style.opacity = "1";
-        btnText.innerText = "Escanear Portas Padrão";
+        btnText.innerText = "Escanear";
         btnLoader.style.display = "none";
         submitBtn.style.pointerEvents = "auto";
         alert("Ocorreu um erro ao escanear.");
     });
 }
 
-// Atalho para copiar valores de ids simples de forma genérica
 function copyValue(id) {
     const text = document.getElementById(id).innerText;
     navigator.clipboard.writeText(text).then(() => {
-        exibirToast();
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2000);
     });
 }
