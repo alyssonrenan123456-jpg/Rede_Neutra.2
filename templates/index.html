@@ -59,10 +59,10 @@
                     <label>Tipo de Login</label>
                     <div class="radio-group">
                         <label id="card-padrao" class="radio-card {% if not tipo_neutra %}active{% endif %}" onclick="selecionarTipo('padrao')">
-                            <input type="radio" name="tipo" value="padrao" {% if not tipo_neutra %}checked{% endif %}> Padrão
+                            <input type="radio" name="tipo" id="radio-padrao" value="padrao" {% if not tipo_neutra %}checked{% endif %} style="display:none;"> Padrão
                         </label>
                         <label id="card-neutra" class="radio-card {% if tipo_neutra %}active{% endif %}" onclick="selecionarTipo('neutra')">
-                            <input type="radio" name="tipo" value="neutra" {% if tipo_neutra %}checked{% endif %}> Rede Neutra
+                            <input type="radio" name="tipo" id="radio-neutra" value="neutra" {% if tipo_neutra %}checked{% endif %} style="display:none;"> Rede Neutra
                         </label>
                     </div>
                 </div>
