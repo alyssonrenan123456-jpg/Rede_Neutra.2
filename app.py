@@ -18,7 +18,7 @@ def index():
         rede = request.form.get("rede", "")
         cidade = request.form.get("cidade", "")
         
-      # --- AQUI VAI A SUA LÓGICA DE GERAÇÃO DO LOGIN E SENHA ---
+        # --- LÓGICA DE GERAÇÃO DO LOGIN E SENHA ---
         from datetime import datetime
         
         # 1. Tratamento do Nome
@@ -59,9 +59,18 @@ def index():
             # Nome completo em maiúsculo separado por hífens (Ex: ALYSSON-RENAN-ESSER-CORDEIRO)
             senha = "-".join(partes_nome).upper()
             
-        # ---------------------------------------------------------
         resultado = True
 
+        # AJUSTE PARA AJAX: Se a requisição veio do JavaScript (fetch),
+        # retornamos apenas os dados em formato JSON.
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.accept_mimetypes.accept_json:
+            return jsonify({
+                "status": "success",
+                "login": login,
+                "senha": senha
+            })
+
+    # Caso seja uma requisição convencional (GET), renderiza a página normalmente
     return render_template(
         "index.html",
         redes=REDES,
