@@ -21,7 +21,7 @@ function switchTab(target) {
     panelMac.style.display = "none";
     panelCidr.style.display = "none";
 
-    // Ativa apenas a selecionada e altera o título
+    // Ativa apenas a selecionada e altera o título no header
     if (target === 'login') {
         tabLogin.classList.add("active");
         panelLogin.style.display = "block";
@@ -38,16 +38,16 @@ function switchTab(target) {
     }
 }
 
-// Inicializa a lista de sub-redes de /8 a /32 dinamicamente
+// Inicializa a lista de sub-redes de /8 a /32
 function inicializarOpcoesCidr() {
     const select = document.getElementById("select-cidr-prefix");
-    if (select.children.length > 1) return; // Já populado
+    if (select.children.length > 1) return; 
 
     for (let i = 32; i >= 8; i--) {
         let opt = document.createElement("option");
         opt.value = i;
         opt.text = `/${i}`;
-        if (i === 24) opt.selected = true; // Padrão clássico
+        if (i === 24) opt.selected = true; 
         select.appendChild(opt);
     }
 }
@@ -58,26 +58,21 @@ function calcularCidr(e) {
     const ipStr = document.getElementById("input-cidr-ip").value.trim();
     const prefix = parseInt(document.getElementById("select-cidr-prefix").value);
 
-    // Validação de IP via RegExp
     const ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     if (!ipPattern.test(ipStr)) {
-        alert("Endereço IPv4 inválido! Use o formato decimal com pontos (ex: 192.168.1.1).");
+        alert("Endereço IPv4 inválido!");
         return;
     }
 
-    // Processamento de bits
     const octetos = ipStr.split(".").map(Number);
     const ipNum = (octetos[0] << 24) | (octetos[1] << 16) | (octetos[2] << 8) | octetos[3];
 
-    // Cria as máscaras de sub-rede
     const maskNum = prefix === 0 ? 0 : (~0 << (32 - prefix));
     const wildcardNum = ~maskNum;
 
-    // Aplicação das máscaras bit-a-bit
     const netNum = ipNum & maskNum;
     const broadNum = netNum | wildcardNum;
 
-    // Helper de conversão para string
     const numToIp = (num) => [
         (num >>> 24) & 255,
         (num >>> 16) & 255,
@@ -85,7 +80,6 @@ function calcularCidr(e) {
         num & 255
     ].join(".");
 
-    // Cálculo das faixas utilizáveis
     let firstHost = "-", lastHost = "-", usableHosts = 0;
     if (prefix < 31) {
         firstHost = numToIp(netNum + 1);
@@ -101,7 +95,6 @@ function calcularCidr(e) {
         usableHosts = 1;
     }
 
-    // Determinar a classe do IP
     const firstOctet = octetos[0];
     let ipClass = "Desconhecida";
     if (firstOctet >= 1 && firstOctet <= 126) ipClass = "A";
@@ -111,7 +104,6 @@ function calcularCidr(e) {
     else if (firstOctet >= 224 && firstOctet <= 239) ipClass = "D (Multicast)";
     else if (firstOctet >= 240 && firstOctet <= 255) ipClass = "E (Experimental)";
 
-    // Determinar se é público ou privado
     let ipType = "Público";
     if (
         (firstOctet === 10) ||
@@ -125,13 +117,11 @@ function calcularCidr(e) {
         ipType = "Link-Local (APIPA)";
     }
 
-    // Geração do Binário
     const toBin = (num) => {
         let raw = (num >>> 0).toString(2).padStart(32, "0");
         return `${raw.substring(0,8)}.${raw.substring(8,16)}.${raw.substring(16,24)}.${raw.substring(24,32)}`;
     };
 
-    // Renderização dos resultados no DOM
     document.getElementById("cidr-res-net").innerText = `${numToIp(netNum)} /${prefix}`;
     document.getElementById("cidr-res-broad").innerText = numToIp(broadNum);
     document.getElementById("cidr-res-first").innerText = firstHost;
@@ -145,14 +135,12 @@ function calcularCidr(e) {
     document.getElementById("resultado-cidr-bloco").style.display = "block";
 }
 
-// Limpa os campos da Calculadora CIDR
 function limparCidr() {
     document.getElementById("input-cidr-ip").value = "";
     document.getElementById("select-cidr-prefix").value = "24";
     document.getElementById("resultado-cidr-bloco").style.display = "none";
 }
 
-// Copia o relatório completo formatado
 function copyFullCidrResult() {
     const net = document.getElementById("cidr-res-net").innerText;
     const broad = document.getElementById("cidr-res-broad").innerText;
@@ -178,7 +166,6 @@ Binário: ${bin}`;
     });
 }
 
-// Toast de confirmação visual ao copiar
 function exibirToast() {
     const toast = document.getElementById("toast");
     toast.classList.add("show");
@@ -187,7 +174,7 @@ function exibirToast() {
     }, 2000);
 }
 
-// Gerenciamento de Cards de Seleção (Padrão vs Rede Neutra)
+// Alternar entre tipo de conexões no login original
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
     document.getElementById("card-padrao").classList.remove("active");
@@ -203,20 +190,19 @@ function selecionarTipo(tipo) {
     }
 }
 
-// Exibe ou oculta campos baseados no tipo de Login
 function toggleRede(mostrar) {
     const grupoRede = document.getElementById("grupo-rede");
     const redeSelect = document.getElementById("rede");
     const citySelect = document.getElementById("cidade");
 
     if (mostrar) {
-        if(grupoRede) {
+        if (grupoRede) {
             grupoRede.style.display = "block";
             redeSelect.required = true;
         }
         atualizarCidades();
     } else {
-        if(grupoRede) {
+        if (grupoRede) {
             grupoRede.style.display = "none";
             redeSelect.required = false;
             redeSelect.value = "";
@@ -226,8 +212,8 @@ function toggleRede(mostrar) {
         for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
             let option = document.createElement("option");
             option.value = sigla;
-            option.text = cidade; // Corrigido erro de atribuição cider anterior
-            if(sigla === cidadeSelecionadaAnteriormente) {
+            option.text = cidade;
+            if (sigla === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
             citySelect.appendChild(option);
@@ -235,7 +221,6 @@ function toggleRede(mostrar) {
     }
 }
 
-// Filtra e renderiza as cidades de acordo com a operadora neutra selecionada
 function atualizarCidades() {
     const rede = document.getElementById("rede").value;
     const cidadeSelect = document.getElementById("cidade");
@@ -247,7 +232,7 @@ function atualizarCidades() {
             let option = document.createElement("option");
             option.value = cidadesSiglas[cidade];
             option.text = cidade;
-            if(cidadesSiglas[cidade] === cidadeSelecionadaAnteriormente) {
+            if (cidadesSiglas[cidade] === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
             cidadeSelect.appendChild(option);
