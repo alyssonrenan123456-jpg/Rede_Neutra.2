@@ -37,21 +37,21 @@
         <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
     </div>
 
-    <div id="panel-login">
-        <form method="post" onsubmit="animarGerar(event)">
+<div id="panel-login">
+        <form id="form-login">
             <div class="form-group">
                 <label>Nome do Cliente</label>
-                <input name="nome" placeholder="Ex: João Silva" required autocomplete="off" value="{{ request.form.get('nome', '') }}">
+                <input name="nome" id="input-nome" placeholder="Ex: João Silva" required autocomplete="off">
             </div>
 
             <div class="form-group">
                 <label>Tipo de Login</label>
                 <div class="radio-group">
-                    <label class="radio-card {% if tipo_login != 'padrao' %}active{% endif %}" id="card-neutra">
-                        <input type="radio" name="tipo_login" value="neutra" {% if tipo_login != 'padrao' %}checked{% endif %} onclick="selecionarTipo('neutra')"> Rede Neutra
+                    <label class="radio-card active" id="card-neutra">
+                        <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')"> Rede Neutra
                     </label>
-                    <label class="radio-card {% if tipo_login == 'padrao' %}active{% endif %}" id="card-padrao">
-                        <input type="radio" name="tipo_login" value="padrao" {% if tipo_login == 'padrao' %}checked{% endif %} onclick="selecionarTipo('padrao')"> Padrão / Local
+                    <label class="radio-card" id="card-padrao">
+                        <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao')"> Padrão / Local
                     </label>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                 <select name="rede" id="rede" onchange="atualizarCidades()">
                     <option value="">Selecione a rede</option>
                     {% for r in redes %}
-                    <option value="{{ r }}" {% if request.form.get('rede') == r %}selected{% endif %}>{{ r }}</option>
+                    <option value="{{ r }}">{{ r }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -74,17 +74,16 @@
             </div>
 
             <button type="submit" id="submit-btn">
-                <span class="btn-loader" id="btn-loader"></span>
+                <span class="btn-loader" id="btn-loader" style="display: none;"></span>
                 <span id="btn-text">Gerar Acesso</span>
             </button>
         </form>
 
-        {% if resultado %}
-        <div class="result" id="resultado-bloco">
+        <div class="result" id="resultado-bloco" style="display: none; margin-top: 18px;">
             <div class="result-item">
                 <span class="result-label">Usuário</span>
                 <div class="result-value-container">
-                    <div class="result-value" id="login">{{ login }}</div>
+                    <div class="result-value" id="login">-</div>
                     <button class="copy-btn" onclick="copyValue('login')">Copiar</button>
                 </div>
             </div>
@@ -92,12 +91,11 @@
             <div class="result-item">
                 <span class="result-label">Senha</span>
                 <div class="result-value-container">
-                    <div class="result-value" id="senha">{{ senha }}</div>
+                    <div class="result-value" id="senha">-</div>
                     <button class="copy-btn" onclick="copyValue('senha')">Copiar</button>
                 </div>
             </div>
         </div>
-        {% endif %}
     </div>
 
     <div id="panel-mac" style="display: none;">
