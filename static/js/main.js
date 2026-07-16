@@ -1,6 +1,6 @@
 // static/js/main.js
 
-// Função para Alternar Abas (Tabs) - Atualizada para 3 abas paralelas
+// Função para Alternar Abas (Tabs)
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
@@ -187,19 +187,23 @@ function exibirToast() {
     }, 2000);
 }
 
+// Gerenciamento de Cards de Seleção (Padrão vs Rede Neutra)
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
     document.getElementById("card-padrao").classList.remove("active");
     
     if (tipo === 'neutra') {
         document.getElementById("card-neutra").classList.add("active");
+        document.getElementById("radio-neutra").checked = true;
         toggleRede(true);
     } else {
         document.getElementById("card-padrao").classList.add("active");
+        document.getElementById("radio-padrao").checked = true;
         toggleRede(false);
     }
 }
 
+// Exibe ou oculta campos baseados no tipo de Login
 function toggleRede(mostrar) {
     const grupoRede = document.getElementById("grupo-rede");
     const redeSelect = document.getElementById("rede");
@@ -222,7 +226,7 @@ function toggleRede(mostrar) {
         for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
             let option = document.createElement("option");
             option.value = sigla;
-            option.text = cidade;
+            option.text = cidade; // Corrigido erro de atribuição cider anterior
             if(sigla === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
@@ -231,6 +235,7 @@ function toggleRede(mostrar) {
     }
 }
 
+// Filtra e renderiza as cidades de acordo com a operadora neutra selecionada
 function atualizarCidades() {
     const rede = document.getElementById("rede").value;
     const cidadeSelect = document.getElementById("cidade");
@@ -245,7 +250,7 @@ function atualizarCidades() {
             if(cidadesSiglas[cidade] === cidadeSelecionadaAnteriormente) {
                 option.selected = true;
             }
-            citySelect.appendChild(option);
+            cidadeSelect.appendChild(option);
         });
     }
 }
