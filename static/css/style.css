@@ -115,7 +115,7 @@ body {
 /* ================= CONTAINER DO CARD ================= */
 .container {
     width: 100%;
-    max-width: 440px;
+    max-width: 480px; /* Alargado ligeiramente para harmonizar o visual horizontal */
     background: var(--card-bg);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
@@ -126,6 +126,12 @@ body {
     position: relative;
     z-index: 1;
     animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s, border-color 0.4s;
+}
+
+/* Seletor dinâmico opcional caso queira alargar o card ao usar o Port Check */
+.container:has(#panel-port:not([style*="display: none"])) {
+    max-width: 580px; 
 }
 
 @keyframes scaleIn {
@@ -133,66 +139,56 @@ body {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ================= HEADER ================= */
+/* ================= HEADER COLOCOADO LADO A LADO (HEADER-WRAPPER) ================= */
 .header-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Empurra o Título para a esquerda e o restante para a direita */
     align-items: center;
-    margin-bottom: 12px;
+    width: 100%;
+    margin-bottom: 24px;
+    gap: 16px;
 }
 
 h2 {
     color: var(--text-primary);
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.8px;
     background: linear-gradient(135deg, var(--text-primary) 30%, var(--text-secondary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
 }
 
-.theme-toggle-btn {
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    padding: 6px;
-    border-radius: 50%;
-    cursor: pointer;
+/* Agrupador do lado direito (Abas + Botão de Tema) */
+.header-right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    color: var(--text-secondary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
-}
-.theme-toggle-btn:hover {
-    transform: scale(1.1);
-    border-color: var(--text-secondary);
-    color: var(--text-primary);
+    gap: 12px;
 }
 
-/* ================= NAVIGATION TABS ================= */
+/* Ajustes finos no container das abas para caber na lateral */
 .navigation-tabs {
     display: flex;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 4px;
-    margin-bottom: 20px;
+    margin-bottom: 0px; /* Removida a margem inferior para não quebrar o alinhamento */
     gap: 4px;
 }
 
 .tab-btn {
-    flex: 1;
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 6px 12px;
+    font-size: 11.5px;
     font-weight: 700;
     border-radius: 8px;
     cursor: pointer;
+    white-space: nowrap;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -200,6 +196,29 @@ h2 {
     background: var(--accent);
     color: #ffffff;
     box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+/* Botão de alternar tema */
+.theme-toggle-btn {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    padding: 6px;
+    border-radius: 10px; /* Combinando com o estilo dos inputs */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: var(--text-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, border-color 0.2s;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.05);
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
 }
 
 /* ================= FORMULÁRIO ================= */
@@ -454,109 +473,4 @@ button[type="submit"]:active, .btn-action:active {
 }
 .footer:hover {
     opacity: 0.9;
-}
-
-/* ================= ADICIONAL CALCULADORA CIDR ================= */
-
-/* Alarga o container para acomodar o resultado de forma elegante */
-.container:has(#panel-cidr:not([style*="display: none"])) {
-    max-width: 600px;
-}
-
-/* Grupo de botões Calcular + Limpar */
-.cidr-btn-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* Botão Secundário Limpar */
-.btn-secondary {
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    font-weight: 700;
-    font-size: 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-/* Header dos resultados (Botões de Cópia Rápida) */
-.cidr-result-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.cidr-copy-btn {
-    flex: 1;
-    min-width: 100px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.cidr-copy-btn:hover {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent-hover);
-}
-
-/* Grid responsivo: 2 colunas no Desktop, 1 no Mobile */
-.cidr-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-@media (max-width: 480px) {
-    .cidr-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.cidr-card-item {
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 8px;
-    padding: 10px 14px;
-}
-
-.cidr-box-value {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13.5px;
-    font-weight: bold;
-    color: var(--text-primary);
-    margin-top: 4px;
-}
-
-/* Alinhamento de pequenos ícones */
-.icon-small {
-    width: 14px;
-    height: 14px;
-    stroke-width: 2.5px;
 }
