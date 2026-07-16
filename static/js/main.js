@@ -122,63 +122,60 @@ function atualizarIconeTema(tema) {
     }
 }
 
-function animarGerar(e) {
-    const btnText = document.getElementById("btn-text");
-    const btnLoader = document.getElementById("btn-loader");
-    const submitBtn = document.getElementById("submit-btn");
+async function animarGerar(event) {
+    event.preventDefault(); // impede o recarregamento da página!
 
-    btnText.style.opacity = "0.6";
-    btnText.innerText = "Processando...";
-    btnLoader.style.display = "inline-block";
-    submitBtn.style.pointerEvents = "none";
-}
+    const btn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const loader = document.getElementById('btn-loader');
+    const resultadoBloco = document.getElementById('resultado-bloco');
+    
+    // Elementos onde vamos injetar o login e a senha gerados
+    const txtLogin = document.getElementById('login');
+    const txtSenha = document.getElementById('senha');
 
-// Processador AJAX do MAC (Zero reload)
-function formatarMacAjax(e) {
-    e.preventDefault();
-    const macInput = document.getElementById("input-mac").value;
-    const btnText = document.getElementById("btn-mac-text");
-    const btnLoader = document.getElementById("btn-mac-loader");
-    const submitBtn = document.getElementById("submit-mac-btn");
-    const resultBlock = document.getElementById("resultado-mac-bloco");
+    // 1. Ativa o estado "Gerando..." e o spinner
+    btn.disabled = true;
+    btnText.textContent = "Gerando...";
+    loader.style.display = "inline-block"; // exibe o seu spinner do CSS
+    
+    // Se já existia um resultado anterior na tela, esconde ele antes de começar
+    if (resultadoBloco) {
+        resultadoBloco.style.display = "none"; 
+    }
 
-    // Feedback de carregamento
-    btnText.style.opacity = "0.6";
-    btnText.innerText = "Processando...";
-    btnLoader.style.display = "inline-block";
-    submitBtn.style.pointerEvents = "none";
+    // Captura os dados que estão preenchidos nos inputs do formulário
+    const form = event.target;
+    const formData = new FormData(form);
 
-    fetch("/formatar-mac", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ mac: macInput })
-    })
-    .then(response => response.json())
-    .then(data => {
-        btnText.style.opacity = "1";
-        btnText.innerText = "Formatar";
-        btnLoader.style.display = "none";
-        submitBtn.style.pointerEvents = "auto";
+    try {
+        // 2. Faz a requisição em segundo plano para o Flask
+        const response = await fetch('/', { // se a sua rota de envio for a principal, mantenha '/'
+            method: 'POST',
+            body: formData
+        });
 
-        if (data.status === "error") {
-            alert(data.message);
-            resultBlock.style.display = "none";
-        } else {
-            document.getElementById("mac-cisco").innerText = data.cisco;
-            document.getElementById("mac-linux").innerText = data.linux;
-            document.getElementById("mac-windows").innerText = data.windows;
-            document.getElementById("mac-huawei").innerText = data.huawei;
-            document.getElementById("mac-vendor").innerText = data.vendor;
-            resultBlock.style.display = "block";
-        }
-    })
-    .catch(err => {
-        btnText.style.opacity = "1";
-        btnText.innerText = "Formatar";
-        btnLoader.style.display = "none";
-        submitBtn.style.pointerEvents = "auto";
-        alert("Ocorreu um erro ao processar o endereço MAC.");
-    });
+        if (!response.ok) throw new Error("Erro na requisição");
+
+        // Se o Flask retornar um JSON com os dados:
+        const dados = await response.json();
+
+        // 3. Injeta as respostas nos campos de texto correspondentes
+        txtLogin.textContent = dados.login;
+        txtSenha.textContent = dados.senha;
+
+        // 4. Mostra o resultado na tela (dispara a animação slideUp automaticamente)
+        resultadoBloco.style.display = "block";
+
+    } catch (error) {
+        console.error("Erro:", error);
+        alert("Ocorreu um erro ao gerar o acesso.");
+    } finally {
+        // 5. Devolve o botão ao estado original independente de dar certo ou errado
+        btn.disabled = false;
+        btnText.textContent = "Gerar Acesso";
+        loader.style.display = "none";
+    }
 }
 
 function copyValue(id) {
@@ -190,4 +187,60 @@ function copyValue(id) {
             toast.classList.remove("show");
         }, 2000);
     });
+}
+
+async function formatarMacAjax(event) {
+    event.preventDefault(); // impede o recarregamento da página!
+
+    const btn = document.getElementById('submit-mac-btn');
+    const btnText = document.getElementById('btn-mac-text');
+    const loader = document.getElementById('btn-mac-loader');
+    const resultadoBloco = document.getElementById('resultado-mac-bloco');
+
+    // Elementos onde as respostas serão injetadas
+    const macCisco = document.getElementById('mac-cisco');
+    const macLinux = document.getElementById('mac-linux');
+    const macWindows = document.getElementById('mac-windows');
+    const macHuawei = document.getElementById('mac-huawei');
+    const macVendor = document.getElementById('mac-vendor');
+
+    // 1. Inicia o loader
+    btn.disabled = true;
+    btnText.textContent = "Formatando...";
+    loader.style.display = "inline-block";
+    resultadoBloco.style.display = "none";
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+        // 2. Faz o fetch para o Flask (defina a rota exata do seu backend para o MAC)
+        const response = await fetch('/formatar-mac', { 
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Erro na requisição");
+
+        const dados = await response.json();
+
+        // 3. Preenche os resultados formatados
+        macCisco.textContent = dados.cisco || '-';
+        macLinux.textContent = dados.linux || '-';
+        macWindows.textContent = dados.windows || '-';
+        macHuawei.textContent = dados.huawei || '-';
+        macVendor.textContent = dados.vendor || 'Não encontrado';
+
+        // 4. Mostra o painel com a animação suave
+        resultadoBloco.style.display = "block";
+
+    } catch (error) {
+        console.error("Erro:", error);
+        alert("Erro ao formatar MAC.");
+    } finally {
+        // 5. Restaura o botão
+        btn.disabled = false;
+        btnText.textContent = "Formatar";
+        loader.style.display = "none";
+    }
 }
