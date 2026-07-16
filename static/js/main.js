@@ -1,6 +1,12 @@
-// static/js/main.js
+// ==========================================
+// VARIÁVEIS GLOBAIS DE CONTROLE (DO HTML)
+// ==========================================
+// Essas variáveis garantem que o JS não quebre se o HTML demorar a renderizar os scripts do Flask
+const siglaAnterior = typeof cidadeSelecionadaAnteriormente !== 'undefined' ? cidadeSelecionadaAnteriormente : '';
 
-// Função para Alternar Abas (Tabs)
+// ==========================================
+// ALTERNAR ENTRE ABAS (TABS)
+// ==========================================
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
@@ -23,6 +29,9 @@ function switchTab(target) {
     }
 }
 
+// ==========================================
+// CONTROLE DO FORMULÁRIO DE LOGIN (CAMPOS)
+// ==========================================
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
     document.getElementById("card-padrao").classList.remove("active");
@@ -42,13 +51,13 @@ function toggleRede(mostrar) {
     const citySelect = document.getElementById("cidade");
 
     if (mostrar) {
-        if(grupoRede) {
+        if (grupoRede) {
             grupoRede.style.display = "block";
             redeSelect.required = true;
         }
         atualizarCidades();
     } else {
-        if(grupoRede) {
+        if (grupoRede) {
             grupoRede.style.display = "none";
             redeSelect.required = false;
             redeSelect.value = "";
@@ -59,7 +68,7 @@ function toggleRede(mostrar) {
             let option = document.createElement("option");
             option.value = sigla;
             option.text = cidade;
-            if(sigla === cidadeSelecionadaAnteriormente) {
+            if (sigla === siglaAnterior) {
                 option.selected = true;
             }
             citySelect.appendChild(option);
@@ -73,12 +82,12 @@ function atualizarCidades() {
 
     cidadeSelect.innerHTML = '<option value="">Selecione...</option>';
 
-    if (redesCidades[rede]) {
+    if (redesCidades && redesCidades[rede]) {
         redesCidades[rede].forEach(cidade => {
             let option = document.createElement("option");
             option.value = cidadesSiglas[cidade];
             option.text = cidade;
-            if(cidadesSiglas[cidade] === cidadeSelecionadaAnteriormente) {
+            if (cidadesSiglas[cidade] === siglaAnterior) {
                 option.selected = true;
             }
             cidadeSelect.appendChild(option);
@@ -86,7 +95,9 @@ function atualizarCidades() {
     }
 }
 
-// Alternar entre temas
+// ==========================================
+// SISTEMA DE TEMAS (DARK / LIGHT)
+// ==========================================
 function toggleTema() {
     const htmlEl = document.documentElement;
     const currentTheme = htmlEl.getAttribute("data-theme");
@@ -105,6 +116,8 @@ function inicializarTema() {
 
 function atualizarIconeTema(tema) {
     const icon = document.getElementById("theme-icon");
+    if (!icon) return;
+    
     if (tema === "light") {
         icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"></path>`;
     } else {
@@ -122,62 +135,112 @@ function atualizarIconeTema(tema) {
     }
 }
 
+// ==========================================
+// REQUISIÇÕES ASSÍNCRONAS (AJAX)
+// ==========================================
+
+// 1. Envio do Gerador de Login
 async function animarGerar(event) {
-    event.preventDefault(); // impede o recarregamento da página!
+    event.preventDefault();
 
     const btn = document.getElementById('submit-btn');
     const btnText = document.getElementById('btn-text');
     const loader = document.getElementById('btn-loader');
     const resultadoBloco = document.getElementById('resultado-bloco');
     
-    // Elementos onde vamos injetar o login e a senha gerados
     const txtLogin = document.getElementById('login');
     const txtSenha = document.getElementById('senha');
 
-    // 1. Ativa o estado "Gerando..." e o spinner
     btn.disabled = true;
     btnText.textContent = "Gerando...";
-    loader.style.display = "inline-block"; // exibe o seu spinner do CSS
+    loader.style.display = "inline-block";
     
-    // Se já existia um resultado anterior na tela, esconde ele antes de começar
     if (resultadoBloco) {
         resultadoBloco.style.display = "none"; 
     }
 
-    // Captura os dados que estão preenchidos nos inputs do formulário
     const form = event.target;
     const formData = new FormData(form);
 
     try {
-        // 2. Faz a requisição em segundo plano para o Flask
-        const response = await fetch('/', { // se a sua rota de envio for a principal, mantenha '/'
+        const response = await fetch('/', { 
             method: 'POST',
             body: formData
         });
 
         if (!response.ok) throw new Error("Erro na requisição");
 
-        // Se o Flask retornar um JSON com os dados:
         const dados = await response.json();
 
-        // 3. Injeta as respostas nos campos de texto correspondentes
         txtLogin.textContent = dados.login;
         txtSenha.textContent = dados.senha;
 
-        // 4. Mostra o resultado na tela (dispara a animação slideUp automaticamente)
         resultadoBloco.style.display = "block";
 
     } catch (error) {
         console.error("Erro:", error);
         alert("Ocorreu um erro ao gerar o acesso.");
     } finally {
-        // 5. Devolve o botão ao estado original independente de dar certo ou errado
         btn.disabled = false;
         btnText.textContent = "Gerar Acesso";
         loader.style.display = "none";
     }
 }
 
+// 2. Envio do Formatador de MAC
+async function formatarMacAjax(event) {
+    event.preventDefault();
+
+    const btn = document.getElementById('submit-mac-btn');
+    const btnText = document.getElementById('btn-mac-text');
+    const loader = document.getElementById('btn-mac-loader');
+    const resultadoBloco = document.getElementById('resultado-mac-bloco');
+
+    const macCisco = document.getElementById('mac-cisco');
+    const macLinux = document.getElementById('mac-linux');
+    const macWindows = document.getElementById('mac-windows');
+    const macHuawei = document.getElementById('mac-huawei');
+    const macVendor = document.getElementById('mac-vendor');
+
+    btn.disabled = true;
+    btnText.textContent = "Formatando...";
+    loader.style.display = "inline-block";
+    resultadoBloco.style.display = "none";
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/formatar-mac', { 
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Erro na requisição");
+
+        const dados = await response.json();
+
+        macCisco.textContent = dados.cisco || '-';
+        macLinux.textContent = dados.linux || '-';
+        macWindows.textContent = dados.windows || '-';
+        macHuawei.textContent = dados.huawei || '-';
+        macVendor.textContent = dados.vendor || 'Não encontrado';
+
+        resultadoBloco.style.display = "block";
+
+    } catch (error) {
+        console.error("Erro:", error);
+        alert("Erro ao formatar MAC.");
+    } finally {
+        btn.disabled = false;
+        btnText.textContent = "Formatar";
+        loader.style.display = "none";
+    }
+}
+
+// ==========================================
+// FUNÇÃO COPIAR VALOR (TOAST)
+// ==========================================
 function copyValue(id) {
     const text = document.getElementById(id).innerText;
     navigator.clipboard.writeText(text).then(() => {
@@ -189,58 +252,12 @@ function copyValue(id) {
     });
 }
 
-async function formatarMacAjax(event) {
-    event.preventDefault(); // impede o recarregamento da página!
-
-    const btn = document.getElementById('submit-mac-btn');
-    const btnText = document.getElementById('btn-mac-text');
-    const loader = document.getElementById('btn-mac-loader');
-    const resultadoBloco = document.getElementById('resultado-mac-bloco');
-
-    // Elementos onde as respostas serão injetadas
-    const macCisco = document.getElementById('mac-cisco');
-    const macLinux = document.getElementById('mac-linux');
-    const macWindows = document.getElementById('mac-windows');
-    const macHuawei = document.getElementById('mac-huawei');
-    const macVendor = document.getElementById('mac-vendor');
-
-    // 1. Inicia o loader
-    btn.disabled = true;
-    btnText.textContent = "Formatando...";
-    loader.style.display = "inline-block";
-    resultadoBloco.style.display = "none";
-
-    const form = event.target;
-    const formData = new FormData(form);
-
-    try {
-        // 2. Faz o fetch para o Flask (defina a rota exata do seu backend para o MAC)
-        const response = await fetch('/formatar-mac', { 
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error("Erro na requisição");
-
-        const dados = await response.json();
-
-        // 3. Preenche os resultados formatados
-        macCisco.textContent = dados.cisco || '-';
-        macLinux.textContent = dados.linux || '-';
-        macWindows.textContent = dados.windows || '-';
-        macHuawei.textContent = dados.huawei || '-';
-        macVendor.textContent = dados.vendor || 'Não encontrado';
-
-        // 4. Mostra o painel com a animação suave
-        resultadoBloco.style.display = "block";
-
-    } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro ao formatar MAC.");
-    } finally {
-        // 5. Restaura o botão
-        btn.disabled = false;
-        btnText.textContent = "Formatar";
-        loader.style.display = "none";
+// ==========================================
+// INICIALIZAÇÃO E ATRIBUIÇÃO DE EVENTOS
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const formLogin = document.getElementById('form-login');
+    if (formLogin) {
+        formLogin.addEventListener('submit', animarGerar);
     }
-}
+});
