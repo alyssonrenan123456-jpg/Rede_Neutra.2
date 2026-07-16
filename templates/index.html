@@ -37,7 +37,7 @@
         <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
     </div>
 
-<div id="panel-login">
+    <div id="panel-login">
         <form id="form-login">
             <div class="form-group">
                 <label>Nome do Cliente</label>
@@ -74,7 +74,7 @@
             </div>
 
             <button type="submit" id="submit-btn">
-                <span class="btn-loader" id="btn-loader" style="display: none;"></span>
+                <span class="btn-loader" id="btn-loader"></span>
                 <span id="btn-text">Gerar Acesso</span>
             </button>
         </form>
@@ -113,7 +113,7 @@
 
         <div class="result" id="resultado-mac-bloco" style="display: none; margin-top: 18px;">
             <div class="result-item">
-                <span class="result-label">1</span>
+                <span class="result-label">Cisco</span>
                 <div class="result-value-container">
                     <div class="result-value" id="mac-cisco">-</div>
                     <button class="copy-btn" onclick="copyValue('mac-cisco')">Copiar</button>
@@ -121,7 +121,7 @@
             </div>
 
             <div class="result-item">
-                <span class="result-label">2</span>
+                <span class="result-label">Linux / Padrão</span>
                 <div class="result-value-container">
                     <div class="result-value" id="mac-linux">-</div>
                     <button class="copy-btn" onclick="copyValue('mac-linux')">Copiar</button>
@@ -129,7 +129,7 @@
             </div>
 
             <div class="result-item">
-                <span class="result-label">3</span>
+                <span class="result-label">Windows</span>
                 <div class="result-value-container">
                     <div class="result-value" id="mac-windows">-</div>
                     <button class="copy-btn" onclick="copyValue('mac-windows')">Copiar</button>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="result-item">
-                <span class="result-label">4</span>
+                <span class="result-label">Huawei</span>
                 <div class="result-value-container">
                     <div class="result-value" id="mac-huawei">-</div>
                     <button class="copy-btn" onclick="copyValue('mac-huawei')">Copiar</button>
