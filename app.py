@@ -45,21 +45,19 @@ def index():
         
         # 3. Geração da Senha
         if tipo_login == "padrao":
-            # Primeira letra do primeiro nome + primeira letra do segundo nome + ano atual (Ex: ac2026)
+            # Primeira letra do primeiro nome + primeira letra do último nome + ano atual (Ex: ac2026)
             p_letra = primeiro_nome[0] if primeiro_nome else ""
             
-            # Pega a primeira letra do segundo nome (se existir)
-            s_letra = ""
-            if len(partes_nome) > 1:
-                s_letra = partes_nome[1][0].lower()
+            # Pega a primeira letra do último sobrenome (se ele existir), senão deixa vazio
+            u_letra = ultimo_sobrenome[0] if ultimo_sobrenome else ""
                 
             ano_atual = datetime.now().year
-            senha = f"{p_letra}{s_letra}{ano_atual}"
+            senha = f"{p_letra}{u_letra}{ano_atual}"
         else:
             # Nome completo em maiúsculo separado por hífens (Ex: ALYSSON-RENAN-ESSER-CORDEIRO)
             senha = "-".join(partes_nome).upper()
             
-        resultado = True
+            resultado = True
 
         # AJUSTE PARA AJAX: Se a requisição veio do JavaScript (fetch),
         # retornamos apenas os dados em formato JSON.
