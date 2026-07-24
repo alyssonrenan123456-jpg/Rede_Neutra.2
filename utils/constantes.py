@@ -47,7 +47,8 @@ REDES_INTERIOR = {
     "BLUFIBRA": ["Blumenau", "Indaial"],
     "LT": ["Caçador"],
     "FULLNET": ["Rio do Sul"],
-    "HP": ["Lages"]
+    "HP": ["Lages"],
+    "AT PLUS": ["Lages"]
 }
 
 REDES_LITORAL = [
