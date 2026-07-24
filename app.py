@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, render_template, jsonify
 from utils.constantes import REDES, CIDADES, REDES_CIDADES
 from utils.helpers import buscar_vendor, limpar_mac, limpar
@@ -17,6 +16,7 @@ def index():
         tipo_login = request.form.get("tipo_login", "neutra")
         rede = request.form.get("rede", "")
         cidade = request.form.get("cidade", "")
+        id_atplus = request.form.get("id_atplus", "").strip() # Captura o ID da ATPlus
         
         # --- LÓGICA DE GERAÇÃO DO LOGIN E SENHA ---
         from datetime import datetime
@@ -28,36 +28,43 @@ def index():
         primeiro_nome = partes_nome[0].lower() if partes_nome else ""
         ultimo_sobrenome = partes_nome[-1].lower() if len(partes_nome) > 1 else ""
         
-        # 2. Geração do Login
+        # 2. Verificação se é ATPLUS
+        rede_limpa = limpar(rede).lower().replace(" ", "")
+        eh_atplus = (tipo_login == "neutra" and "atplus" in rede_limpa)
+
+        # 3. Geração do Login
         if tipo_login == "padrao":
             # Formato: primeiro.ultimo.cidade (Ex: alysson.cordeiro.mca)
             if ultimo_sobrenome:
                 login = f"{primeiro_nome}.{ultimo_sobrenome}.{cidade}"
             else:
                 login = f"{primeiro_nome}.{cidade}"
+        elif eh_atplus:
+            # Formato ATPLUS: primeiro.id.cidade.atplus (Ex: israel.25282.lgs.atplus)
+            login = f"{primeiro_nome}.{id_atplus}.{cidade}.atplus"
         else:
-            # Formato: primeiro.ultimo.cidade.rede (Ex: alysson.cordeiro.fbg.login)
-            rede_formatada = limpar(rede).lower().replace(" ", "")
+            # Formato Neutra Padrão: primeiro.ultimo.cidade.rede
             if ultimo_sobrenome:
-                login = f"{primeiro_nome}.{ultimo_sobrenome}.{cidade}.{rede_formatada}"
+                login = f"{primeiro_nome}.{ultimo_sobrenome}.{cidade}.{rede_limpa}"
             else:
-                login = f"{primeiro_nome}.{cidade}.{rede_formatada}"
+                login = f"{primeiro_nome}.{cidade}.{rede_limpa}"
         
-        # 3. Geração da Senha
+        # 4. Geração da Senha
         if tipo_login == "padrao":
             # Primeira letra do primeiro nome + primeira letra do último nome + ano atual (Ex: ac2026)
             p_letra = primeiro_nome[0] if primeiro_nome else ""
-            
-            # Pega a primeira letra do último sobrenome (se ele existir), senão deixa vazio
             u_letra = ultimo_sobrenome[0] if ultimo_sobrenome else ""
-                
             ano_atual = datetime.now().year
             senha = f"{p_letra}{u_letra}{ano_atual}"
+        elif eh_atplus:
+            # Formato ATPLUS: NOME-COMPLETO|ID (Ex: ISRAEL-ALEXANDRE-SILVA-DOS-SANTOS|25282)
+            nome_hifen = "-".join(partes_nome).upper()
+            senha = f"{nome_hifen}|{id_atplus}"
         else:
             # Nome completo em maiúsculo separado por hífens (Ex: ALYSSON-RENAN-ESSER-CORDEIRO)
             senha = "-".join(partes_nome).upper()
             
-            resultado = True
+        resultado = True
 
         # AJUSTE PARA AJAX: Se a requisição veio do JavaScript (fetch),
         # retornamos apenas os dados em formato JSON.
