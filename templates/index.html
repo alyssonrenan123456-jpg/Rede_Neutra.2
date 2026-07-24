@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
-<body onload="inicializarTema(); toggleRede(true);">
+<body onload="inicializarTema(); toggleRede(true); verificarExibicaoIdAtplus();">
 
 <div class="spheres-container">
     <div class="sphere s1"></div>
@@ -48,22 +48,27 @@
                 <label>Tipo de Login</label>
                 <div class="radio-group">
                     <label class="radio-card active" id="card-neutra">
-                        <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')"> Rede Neutra
+                        <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra'); verificarExibicaoIdAtplus();"> Rede Neutra
                     </label>
                     <label class="radio-card" id="card-padrao">
-                        <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao')"> Padrão / Local
+                        <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao'); verificarExibicaoIdAtplus();"> Padrão / Local
                     </label>
                 </div>
             </div>
 
             <div class="form-group" id="grupo-rede">
                 <label>Rede</label>
-                <select name="rede" id="rede" onchange="atualizarCidades()">
+                <select name="rede" id="rede" onchange="atualizarCidades(); verificarExibicaoIdAtplus();">
                     <option value="">Selecione a rede</option>
                     {% for r in redes %}
                     <option value="{{ r }}">{{ r }}</option>
                     {% endfor %}
                 </select>
+            </div>
+
+            <div class="form-group" id="grupo-id-atplus" style="display: none;">
+                <label>ID do Cliente (ATPlus)</label>
+                <input name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -163,6 +168,23 @@
     const redesCidades = {{ redes_cidades | tojson }};
     const cidadesSiglas = {{ cidades | tojson }};
     const cidadeSelecionadaAnteriormente = "{{ request.form.get('cidade', '') }}";
+
+    // Função para controlar a exibição do campo ID ATPlus
+    function verificarExibicaoIdAtplus() {
+        const tipoLogin = document.querySelector('input[name="tipo_login"]:checked')?.value;
+        const redeSelecionada = document.getElementById('rede')?.value.toUpperCase();
+        const grupoIdAtplus = document.getElementById('grupo-id-atplus');
+        const inputIdAtplus = document.getElementById('input-id-atplus');
+
+        if (tipoLogin === 'neutra' && redeSelecionada.includes('ATPLUS')) {
+            grupoIdAtplus.style.display = 'block';
+            inputIdAtplus.setAttribute('required', 'required');
+        } else {
+            grupoIdAtplus.style.display = 'none';
+            inputIdAtplus.removeAttribute('required');
+            inputIdAtplus.value = '';
+        }
+    }
 </script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
