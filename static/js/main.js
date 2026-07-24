@@ -43,6 +43,7 @@ function selecionarTipo(tipo) {
         document.getElementById("card-padrao").classList.add("active");
         toggleRede(false);
     }
+    verificarExibicaoIdAtplus();
 }
 
 function toggleRede(mostrar) {
@@ -74,6 +75,7 @@ function toggleRede(mostrar) {
             citySelect.appendChild(option);
         }
     }
+    verificarExibicaoIdAtplus();
 }
 
 function atualizarCidades() {
@@ -92,6 +94,28 @@ function atualizarCidades() {
             }
             cidadeSelect.appendChild(option);
         });
+    }
+    verificarExibicaoIdAtplus();
+}
+
+// ==========================================
+// CONTROLE DE EXIBIÇÃO DO ID ATPLUS
+// ==========================================
+function verificarExibicaoIdAtplus() {
+    const tipoLogin = document.querySelector('input[name="tipo_login"]:checked')?.value;
+    const redeSelecionada = document.getElementById('rede')?.value.toUpperCase() || '';
+    const grupoIdAtplus = document.getElementById('grupo-id-atplus');
+    const inputIdAtplus = document.getElementById('input-id-atplus');
+
+    if (!grupoIdAtplus || !inputIdAtplus) return;
+
+    if (tipoLogin === 'neutra' && redeSelecionada.includes('ATPLUS')) {
+        grupoIdAtplus.style.display = 'block';
+        inputIdAtplus.setAttribute('required', 'required');
+    } else {
+        grupoIdAtplus.style.display = 'none';
+        inputIdAtplus.removeAttribute('required');
+        inputIdAtplus.value = '';
     }
 }
 
@@ -260,4 +284,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formLogin) {
         formLogin.addEventListener('submit', animarGerar);
     }
+
+    const selectRede = document.getElementById('rede');
+    if (selectRede) {
+        selectRede.addEventListener('change', verificarExibicaoIdAtplus);
+    }
+
+    // Executa uma verificação ao carregar a página
+    verificarExibicaoIdAtplus();
 });
