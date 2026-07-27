@@ -31,7 +31,7 @@ REDES = [
     "BLOOM", "BLUFIBRA", "DFS", "HCMRF", "USER", "AXTEL", "NEWBIG",
     "VIACLOUD", "VERSA", "FIBRAVILLE", "CONECT", "STARLYNK", "SPEEDNET",
     "TRIUNFO", "MEGALINK", "FRASANET", "EMOTION", "M&M", "4NET",
-    "MUNDODIGITAL", "MIXCONECT", "REDESUL", "MASTERINFO", "LT", "FULLNET"
+    "MUNDODIGITAL", "MIXCONECT", "REDESUL", "MASTERINFO", "LT", "DOTNET"
 ]
 
 REDES_INTERIOR = {
@@ -46,7 +46,7 @@ REDES_INTERIOR = {
     "BLOOM": ["Blumenau"],
     "BLUFIBRA": ["Blumenau", "Indaial"],
     "LT": ["Caçador"],
-    "FULLNET": ["Rio do Sul"],
+    "DOTNET": ["Rio do Sul"],
     "HP": ["Lages"],
     "AT PLUS": ["Lages"]
 }
