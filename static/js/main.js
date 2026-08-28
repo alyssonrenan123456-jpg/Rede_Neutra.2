@@ -235,8 +235,8 @@ async function animarGerar(event) {
 
         resultadoBloco.style.display = "block";
 
-        // REGISTRO SIMPLIFICADO: Login: aaaaa | Senha: aaaaa
-        registrarLog(Login: ${dados.login} | Senha: ${dados.senha}`);
+        // REGISTRA O LOGIN E SENHA GERADOS
+        registrarLog('Gerador de Login', `Login: ${dados.login} | Senha: ${dados.senha}`);
 
     } catch (error) {
         console.error("Erro:", error);
@@ -289,8 +289,9 @@ async function formatarMacAjax(event) {
 
         resultadoBloco.style.display = "block";
 
-        // REGISTRO SIMPLIFICADO: MAC: AA:AA:AA:AA:AA:AA
-       registrarLog('Formatador de MAC', `MAC: ${form.querySelector('input[name="mac_address"]')?.value || form.querySelector('input[type="text"]')?.value || '-'}`);
+        // REGISTRA O MAC DIGITADO NO INPUT
+        const macDigitado = form.querySelector('input[name="mac_address"]')?.value || form.querySelector('input[type="text"]')?.value || '-';
+        registrarLog('Formatador de MAC', `MAC: ${macDigitado}`);
 
     } catch (error) {
         console.error("Erro:", error);
