@@ -2,7 +2,7 @@
 // SISTEMA DE AUDITORIA / LOGS
 // ==========================================
 
-// 1. Pede o nome/login do operador no primeiro acesso e salva no navegador
+// 1. Pede o login/nome na 1ª vez que acessar o site
 document.addEventListener("DOMContentLoaded", () => {
     let operador = localStorage.getItem("operador_nome");
     if (!operador) {
@@ -24,7 +24,7 @@ function registrarLog(tipoAcao, detalhes) {
         acao: tipoAcao,
         detalhes: detalhes,
         data: agora.toLocaleDateString("pt-BR"),
-        hora: agora.toLocaleTimeString("pt-BR"), // HH:MM:SS
+        hora: agora.toLocaleTimeString("pt-BR"),
         timestamp: agora.getTime()
     };
 
@@ -36,7 +36,6 @@ function registrarLog(tipoAcao, detalhes) {
 // ==========================================
 // VARIÁVEIS GLOBAIS DE CONTROLE (DO HTML)
 // ==========================================
-// Essas variáveis garantem que o JS não quebre se o HTML demorar a renderizar os scripts do Flask
 const siglaAnterior = typeof cidadeSelecionadaAnteriormente !== 'undefined' ? cidadeSelecionadaAnteriormente : '';
 
 // ==========================================
@@ -236,9 +235,9 @@ async function animarGerar(event) {
 
         resultadoBloco.style.display = "block";
 
-        // REGISTRA O LOG DE ACESSO
-        const nomeCliente = formData.get('nome_cliente') || 'Não informado';
-        registrarLog('Gerador de Login', `Cliente: ${nomeCliente}`);
+        // Captura o nome do cliente do formulário e o login gerado
+        const inputNome = form.querySelector('input[type="text"]')?.value || 'Não informado';
+        registrarLog('Gerador de Login', `Cliente: ${inputNome} | Login Gerado: ${dados.login}`);
 
     } catch (error) {
         console.error("Erro:", error);
@@ -291,9 +290,9 @@ async function formatarMacAjax(event) {
 
         resultadoBloco.style.display = "block";
 
-        // REGISTRA O LOG DE MAC
-        const macDigitado = formData.get('mac_address') || 'Não informado';
-        registrarLog('Formatador de MAC', `MAC: ${macDigitado}`);
+        // Captura o MAC inserido no input e salva com a versão Cisco formatada
+        const inputMac = form.querySelector('input[type="text"]')?.value || 'Não informado';
+        registrarLog('Formatador de MAC', `Entrada: ${inputMac} | Cisco: ${dados.cisco}`);
 
     } catch (error) {
         console.error("Erro:", error);
@@ -338,6 +337,5 @@ document.addEventListener('DOMContentLoaded', () => {
         selectRede.addEventListener('change', verificarExibicaoIdAtplus);
     }
 
-    // Executa uma verificação ao carregar a página
     verificarExibicaoIdAtplus();
 });
