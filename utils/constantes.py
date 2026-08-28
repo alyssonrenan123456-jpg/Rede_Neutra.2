@@ -26,7 +26,7 @@ OUI_LOCAL = {
 }
 
 REDES = [
-    "LOGIN", "SEVEN", "RF", "PLUGNET", "BKUP", "SULTECH",
+    "LOGIN", "SEVEN", "PLUGNET", "BKUP", "SULTECH",
     "AC5G", "HP", "AT PLUS", "3SNET", "BLUVELLOX", "INFIX",
     "BLOOM", "BLUFIBRA", "DFS", "HCMRF", "USER", "AXTEL", "NEWBIG",
     "VIACLOUD", "VERSA", "FIBRAVILLE", "CONECT", "STARLYNK", "SPEEDNET",
@@ -37,7 +37,6 @@ REDES = [
 REDES_INTERIOR = {
     "LOGIN": ["Fraiburgo", "Pinheiro Preto", "Salto Veloso", "Tangará", "Videira", "Monte Carlo"],
     "SEVEN": ["Videira"],
-    "RF": ["Fraiburgo"],
     "PLUGNET": ["Fraiburgo"],
     "BKUP": ["Caçador", "Fraiburgo", "Iomerê", "Pinheiro Preto", "Tangará", "Videira"],
     "SULTECH": ["Pouso Redondo", "Rio do Sul", "Petrolândia", "Ituporanga"],
