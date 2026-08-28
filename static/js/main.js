@@ -1,4 +1,39 @@
 // ==========================================
+// SISTEMA DE AUDITORIA / LOGS
+// ==========================================
+
+// 1. Pede o nome/login do operador no primeiro acesso e salva no navegador
+document.addEventListener("DOMContentLoaded", () => {
+    let operador = localStorage.getItem("operador_nome");
+    if (!operador) {
+        operador = prompt("Por favor, digite seu nome/login para identificação no sistema:");
+        if (!operador || !operador.trim()) {
+            operador = "Operador Anônimo";
+        }
+        localStorage.setItem("operador_nome", operador.trim());
+    }
+});
+
+// 2. Função para salvar a ação no localStorage
+function registrarLog(tipoAcao, detalhes) {
+    const operador = localStorage.getItem("operador_nome") || "Desconhecido";
+    const agora = new Date();
+
+    const novoRegistro = {
+        operador: operador,
+        acao: tipoAcao,
+        detalhes: detalhes,
+        data: agora.toLocaleDateString("pt-BR"),
+        hora: agora.toLocaleTimeString("pt-BR"), // HH:MM:SS
+        timestamp: agora.getTime()
+    };
+
+    let historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
+    historico.push(novoRegistro);
+    localStorage.setItem("logs_auditoria", JSON.stringify(historico));
+}
+
+// ==========================================
 // VARIÁVEIS GLOBAIS DE CONTROLE (DO HTML)
 // ==========================================
 // Essas variáveis garantem que o JS não quebre se o HTML demorar a renderizar os scripts do Flask
@@ -201,6 +236,10 @@ async function animarGerar(event) {
 
         resultadoBloco.style.display = "block";
 
+        // REGISTRA O LOG DE ACESSO
+        const nomeCliente = formData.get('nome_cliente') || 'Não informado';
+        registrarLog('Gerador de Login', `Cliente: ${nomeCliente}`);
+
     } catch (error) {
         console.error("Erro:", error);
         alert("Ocorreu um erro ao gerar o acesso.");
@@ -252,6 +291,10 @@ async function formatarMacAjax(event) {
 
         resultadoBloco.style.display = "block";
 
+        // REGISTRA O LOG DE MAC
+        const macDigitado = formData.get('mac_address') || 'Não informado';
+        registrarLog('Formatador de MAC', `MAC: ${macDigitado}`);
+
     } catch (error) {
         console.error("Erro:", error);
         alert("Erro ao formatar MAC.");
@@ -283,6 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
     if (formLogin) {
         formLogin.addEventListener('submit', animarGerar);
+    }
+
+    const formMac = document.getElementById('form-mac');
+    if (formMac) {
+        formMac.addEventListener('submit', formatarMacAjax);
     }
 
     const selectRede = document.getElementById('rede');
