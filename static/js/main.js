@@ -338,3 +338,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     verificarExibicaoIdAtplus();
 });
+
+// ==========================================
+// FILTRO DE AUDITORIA POR USUÁRIO
+// ==========================================
+
+// 1. Carrega a lista de usuários únicos no <select> de filtro
+function carregarOpcoesUsuarios() {
+    const select = document.getElementById("filtro-usuario");
+    if (!select) return;
+
+    const historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
+    
+    // Extrai apenas os nomes dos operadores (sem duplicados)
+    const usuariosUnicos = [...new Set(historico.map(log => log.operador))];
+
+    // Mantém a opção "Todos os Usuários" e adiciona os encontrados
+    select.innerHTML = '<option value="TODOS">Todos os Usuários</option>';
+    
+    usuariosUnicos.forEach(usuario => {
+        const option = document.createElement("option");
+        option.value = usuario;
+        option.textContent = usuario;
+        select.appendChild(option);
+    });
+}
+
+// 2. Filtra e redesenha a lista de logs com base no usuário selecionado
+function filtrarLogsPorUsuario(usuarioSelecionado) {
+    const historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
+    const container = document.getElementById("container-logs");
+    
+    if (!container) return;
+
+    // Se selecionar "TODOS", pega tudo. Se não, filtra pelo nome exato do operador
+    const logsFiltrados = usuarioSelecionado === "TODOS" 
+        ? historico 
+        : historico.filter(log => log.operador === usuarioSelecionado);
+
+    renderizarListaLogs(logsFiltrados);
+}
+
+// 3. Renderiza os logs na tela
+function renderizarListaLogs(listaDeLogs) {
+    const container = document.getElementById("container-logs");
+    if (!container) return;
+
+    if (listaDeLogs.length === 0) {
+        container.innerHTML = "<p>Nenhum registro encontrado para este usuário.</p>";
+        return;
+    }
+
+    // Ordena do mais recente para o mais antigo
+    const logsOrdenados = [...listaDeLogs].sort((a, b) => b.timestamp - a.timestamp);
+
+    container.innerHTML = logsOrdenados.map(log => `
+        <div class="log-item" style="margin-bottom: 8px; padding: 8px; border-bottom: 1px solid #333;">
+            <small style="color: #aaa;">⏰ ${log.hora} — Operador: <strong>${log.operador}</strong></small><br>
+            📌 [${log.acao}] ${log.detalhes}
+        </div>
+    `).join('');
+}
+
+// Atualiza as opções do filtro e exibe os logs ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+    carregarOpcoesUsuarios();
+    filtrarLogsPorUsuario("TODOS");
+});
