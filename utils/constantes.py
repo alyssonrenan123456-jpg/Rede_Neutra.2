@@ -35,7 +35,7 @@ REDES = [
 ]
 
 REDES_INTERIOR = {
-    "LOGIN": ["Fraiburgo", "Pinheiro Preto", "Salto Veloso", "Tangará", "Videira", "Monte Carlo"],
+    "LOGIN": ["Fraiburgo", "Pinheiro Preto", "Salto Veloso", "Tangará", "Videira"],
     "SEVEN": ["Videira"],
     "PLUGNET": ["Fraiburgo"],
     "BKUP": ["Caçador", "Fraiburgo", "Iomerê", "Pinheiro Preto", "Tangará", "Videira"],
@@ -45,7 +45,7 @@ REDES_INTERIOR = {
     "BLOOM": ["Blumenau"],
     "BLUFIBRA": ["Blumenau", "Indaial"],
     "LT": ["Caçador"],
-    "DOTNET": ["Rio do Sul"],
+    "DOTNET": ["Rio do Sul", "Petrolandia"],
     "HP": ["Lages"],
     "AT PLUS": ["Lages"]
 }
