@@ -110,6 +110,11 @@ def formatar_mac():
         "huawei": huawei,
         "vendor": vendor
     })
+# Coloque a rota dos logs ANTES do bloco principal
+@app.route('/logs')
+def pagina_logs():
+    return render_template('logs.html')
 
+# O bloco que inicia a aplicação deve ser SEMPRE a última coisa no arquivo
 if __name__ == "__main__":
     app.run(debug=True)
