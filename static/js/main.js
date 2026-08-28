@@ -2,7 +2,7 @@
 // SISTEMA DE AUDITORIA / LOGS
 // ==========================================
 
-// 1. Pede o login/nome na 1ª vez que acessar o site
+// 1. Pede o nome/login do operador no primeiro acesso e salva no navegador
 document.addEventListener("DOMContentLoaded", () => {
     let operador = localStorage.getItem("operador_nome");
     if (!operador) {
@@ -235,9 +235,8 @@ async function animarGerar(event) {
 
         resultadoBloco.style.display = "block";
 
-        // Captura o nome do cliente do formulário e o login gerado
-        const inputNome = form.querySelector('input[type="text"]')?.value || 'Não informado';
-        registrarLog('Gerador de Login', `Cliente: ${inputNome} | Login Gerado: ${dados.login}`);
+        // REGISTRO SIMPLIFICADO: Login: aaaaa | Senha: aaaaa
+        registrarLog('Gerador de Login', `Login: ${dados.login} | Senha: ${dados.senha}`);
 
     } catch (error) {
         console.error("Erro:", error);
@@ -290,9 +289,8 @@ async function formatarMacAjax(event) {
 
         resultadoBloco.style.display = "block";
 
-        // Captura o MAC inserido no input e salva com a versão Cisco formatada
-        const inputMac = form.querySelector('input[type="text"]')?.value || 'Não informado';
-        registrarLog('Formatador de MAC', `Entrada: ${inputMac} | Cisco: ${dados.cisco}`);
+        // REGISTRO SIMPLIFICADO: MAC: AA:AA:AA:AA:AA:AA
+        registrarLog('Formatador de MAC', `MAC: ${dados.cisco || dados.windows || '-'}`);
 
     } catch (error) {
         console.error("Erro:", error);
