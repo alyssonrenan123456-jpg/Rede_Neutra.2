@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registros de Auditoria</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1b1035 0%, #080413 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(18, 10, 36, 0.75);
+      border: 1px solid rgba(138, 75, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .header h2 {
+      font-size: 1.4rem;
+      color: #fff;
+      margin-bottom: 25px;
+    }
+
+    .log-group {
+      border: 1px solid rgba(138, 75, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .log-header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .btn-ver-logs {
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .btn-ver-logs:hover {
+      background: #6d28d9;
+    }
+
+    .log-details {
+      display: none;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-top: 1px solid rgba(138, 75, 255, 0.15);
+      font-size: 0.85rem;
+    }
+
+    .log-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .log-item:last-child { border-bottom: none; }
+
+    .log-meta {
+      color: #a78bfa;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .log-info { color: #d1d5db; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #9ca3af;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .footer a {
+      color: #a78bfa;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <h2>📅 Registros de Auditoria de Acessos</h2>
+    </div>
+
+    <div id="container-logs"></div>
+
+    <div class="footer">
+      <a href="/">← Voltar para o Gerador</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", renderizarLogs);
+
+    function renderizarLogs() {
+      const historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
+      const container = document.getElementById("container-logs");
+
+      if (historico.length === 0) {
+        container.innerHTML = '<div class="empty-state">Nenhum registro de acesso encontrado.</div>';
+        return;
+      }
+
+      const agrupado = historico.reduce((acc, item) => {
+        if (!acc[item.data]) acc[item.data] = [];
+        acc[item.data].push(item);
+        return acc;
+      }, {});
+
+      container.innerHTML = "";
+
+      Object.keys(agrupado).reverse().forEach((data, index) => {
+        const itensDoDia = agrupado[data];
+        const qtd = itensDoDia.length;
+
+        const groupElement = document.createElement("div");
+        groupElement.className = "log-group";
+
+        groupElement.innerHTML = `
+          <div class="log-header">
+            <span>📅 ${data} (${qtd} ${qtd === 1 ? 'acesso' : 'acessos'})</span>
+            <button class="btn-ver-logs" onclick="toggleDetalhes(${index})">Ver logs</button>
+          </div>
+          <div class="log-details" id="detalhes-${index}">
+            ${itensDoDia.reverse().map(item => `
+              <div class="log-item">
+                <div class="log-meta">
+                  ⏰ <strong>${item.hora}</strong> — Operador: <strong>${item.operador}</strong>
+                </div>
+                <div class="log-info">
+                  📌 [${item.acao}] ${item.detalhes}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        container.appendChild(groupElement);
+      });
+    }
+
+    function toggleDetalhes(index) {
+      const el = document.getElementById(`detalhes-${index}`);
+      el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+  </script>
+</body>
+</html>
