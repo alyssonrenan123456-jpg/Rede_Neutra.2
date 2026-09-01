@@ -1,5 +1,5 @@
 // ==========================================
-// ALTERNAR ABAS
+// ALTERNAR ABAS E TÍTULO
 // ==========================================
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
@@ -31,7 +31,7 @@ function switchTab(target) {
 }
 
 // ==========================================
-// TIPO DE LOGIN & CIDADES
+// SELEÇÃO DE TIPO E CIDADE
 // ==========================================
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
@@ -88,7 +88,7 @@ function atualizarCidades() {
 }
 
 // ==========================================
-// REQUISIÇÕES
+// REQUISIÇÕES (LOGIN & MAC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// GERADOR GPON SIP
+// GERADOR GPON SIP CORRIGIDO
 // ==========================================
 function gerarGponConfig(event) {
     event.preventDefault();
@@ -135,7 +135,7 @@ function gerarGponConfig(event) {
     const porta = document.getElementById('gpon-porta').value.trim();
     const login = document.getElementById('gpon-login').value.trim();
     
-    // Mantém caracteres alfanuméricos preservando prefixos como HWTC, ZTE, FHTT, etc.
+    // Preserva prefixos como HWTC, ZTE, FHTT, etc.
     let serial = document.getElementById('gpon-serial').value.trim().replace(/[^a-zA-Z0-9]/g, '');
     
     const vlan = document.getElementById('gpon-vlan').value.trim();
