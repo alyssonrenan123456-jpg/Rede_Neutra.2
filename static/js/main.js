@@ -134,7 +134,10 @@ function gerarGponConfig(event) {
     const caixa = document.getElementById('gpon-caixa').value.trim();
     const porta = document.getElementById('gpon-porta').value.trim();
     const login = document.getElementById('gpon-login').value.trim();
-    let serial = document.getElementById('gpon-serial').value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    
+    // Mantém caracteres alfanuméricos preservando prefixos como HWTC, ZTE, FHTT, etc.
+    let serial = document.getElementById('gpon-serial').value.trim().replace(/[^a-zA-Z0-9]/g, '');
+    
     const vlan = document.getElementById('gpon-vlan').value.trim();
     const sip = document.getElementById('gpon-sip').value.trim();
     const spVoip = document.getElementById('gpon-sp-voip').value.trim();
@@ -158,7 +161,7 @@ function gerarGponConfig(event) {
    native vlan vlan-id ${vlan}
   !
   pots 1
-   sip-agent-profile 41
+   sip-agent-profile SIP
    sip-user-agent
     username ${sip}
     password ${sip}
@@ -170,6 +173,7 @@ function gerarGponConfig(event) {
 
 service-port ${spVoip}
  gpon ${pon} onu ${onu} gem 1 match vlan vlan-id 99 action vlan replace vlan-id 99
+
 service-port ${spDados}
  gpon ${pon} onu ${onu} gem 2 match vlan vlan-id ${vlan} action vlan replace vlan-id ${vlan}`;
 
