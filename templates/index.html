@@ -9,7 +9,7 @@
 <body>
 
     <div class="card-container">
-        <!-- Cabeçalho com Título Dinâmico e Alternador de Tema -->
+        <!-- Cabeçalho com Título e Alternador de Tema -->
         <div class="card-header">
             <h1 id="app-title">Gerador de Login</h1>
             <button type="button" class="theme-toggle" onclick="toggleTema()" aria-label="Alternar Tema">
@@ -27,7 +27,7 @@
             </button>
         </div>
 
-        <!-- Navegação pelas 3 Abas Superior: Login | MAC | SIP -->
+        <!-- Navegação de 3 Abas Superior -->
         <div class="tabs-nav">
             <button type="button" id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
             <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
@@ -85,13 +85,19 @@
             </form>
 
             <div id="resultado-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item" onclick="copyValue('login')">
-                    <small>LOGIN GENERATED</small>
-                    <strong id="login">-</strong>
+                <div class="res-item">
+                    <div class="res-content">
+                        <small>LOGIN GENERATED</small>
+                        <strong id="login">-</strong>
+                    </div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('login')">Copiar</button>
                 </div>
-                <div class="res-item" onclick="copyValue('senha')">
-                    <small>PASSWORD GENERATED</small>
-                    <strong id="senha">-</strong>
+                <div class="res-item">
+                    <div class="res-content">
+                        <small>PASSWORD GENERATED</small>
+                        <strong id="senha">-</strong>
+                    </div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('senha')">Copiar</button>
                 </div>
             </div>
         </div>
@@ -111,11 +117,25 @@
             </form>
 
             <div id="resultado-mac-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item" onclick="copyValue('mac-cisco')"><small>CISCO</small><strong id="mac-cisco">-</strong></div>
-                <div class="res-item" onclick="copyValue('mac-linux')"><small>LINUX</small><strong id="mac-linux">-</strong></div>
-                <div class="res-item" onclick="copyValue('mac-windows')"><small>WINDOWS</small><strong id="mac-windows">-</strong></div>
-                <div class="res-item" onclick="copyValue('mac-huawei')"><small>HUAWEI</small><strong id="mac-huawei">-</strong></div>
-                <div class="res-item"><small>FABRICANTE (OUI)</small><strong id="mac-vendor">-</strong></div>
+                <div class="res-item">
+                    <div class="res-content"><small>CISCO</small><strong id="mac-cisco">-</strong></div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-cisco')">Copiar</button>
+                </div>
+                <div class="res-item">
+                    <div class="res-content"><small>LINUX</small><strong id="mac-linux">-</strong></div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-linux')">Copiar</button>
+                </div>
+                <div class="res-item">
+                    <div class="res-content"><small>WINDOWS</small><strong id="mac-windows">-</strong></div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-windows')">Copiar</button>
+                </div>
+                <div class="res-item">
+                    <div class="res-content"><small>HUAWEI</small><strong id="mac-huawei">-</strong></div>
+                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-huawei')">Copiar</button>
+                </div>
+                <div class="res-item">
+                    <div class="res-content"><small>FABRICANTE (OUI)</small><strong id="mac-vendor">-</strong></div>
+                </div>
             </div>
         </div>
 
@@ -146,8 +166,11 @@
 
             <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
                 <div class="form-group">
-                    <label>SCRIPT DATACOM GERADO</label>
-                    <textarea id="gpon-script-out" rows="8" readonly onclick="copyValue('gpon-script-out')"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin-bottom: 0;">SCRIPT DATACOM GERADO</label>
+                        <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
+                    </div>
+                    <textarea id="gpon-script-out" rows="8" readonly></textarea>
                 </div>
             </div>
         </div>
