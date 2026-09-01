@@ -1,191 +1,168 @@
 <!DOCTYPE html>
-<html lang="pt-br" data-theme="dark">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador & Formatador</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Painel de Provisionamento</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+<body>
 
-<body onload="inicializarTema(); toggleRede(true); verificarExibicaoIdAtplus();">
-
-<div class="spheres-container">
-    <div class="sphere s1"></div>
-    <div class="sphere s2"></div>
-    <div class="sphere s3"></div>
-    <div class="sphere s4"></div>
-    <div class="sphere s5"></div>
-    <div class="sphere s6"></div>
-    <div class="sphere s7"></div>
-    <div class="sphere s8"></div>
-    <div class="sphere s9"></div>
-    <div class="sphere s10"></div>
-</div>
-
-<div class="container">
-
-    <div class="header-wrapper">
-        <h2 id="app-title">Gerador de Login</h2>
-        <button class="theme-toggle-btn" onclick="toggleTema()" type="button" title="Alternar tema">
-            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-        </button>
-    </div>
-
-    <div class="navigation-tabs">
-        <button id="tab-login" class="tab-btn active" onclick="switchTab('login')">Gerador de Login</button>
-        <button id="tab-mac" class="tab-btn" onclick="switchTab('mac')">Formatador de MAC</button>
-    </div>
-
-    <div id="panel-login">
-        <form id="form-login">
-            <div class="form-group">
-                <label>Nome do Cliente</label>
-                <input name="nome" id="input-nome" placeholder="Ex: João Silva" required autocomplete="off">
-            </div>
-
-            <div class="form-group">
-                <label>Tipo de Login</label>
-                <div class="radio-group">
-                    <label class="radio-card active" id="card-neutra">
-                        <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra'); verificarExibicaoIdAtplus();"> Rede Neutra
-                    </label>
-                    <label class="radio-card" id="card-padrao">
-                        <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao'); verificarExibicaoIdAtplus();"> Padrão / Local
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group" id="grupo-rede">
-                <label>Rede</label>
-                <select name="rede" id="rede" onchange="atualizarCidades(); verificarExibicaoIdAtplus();">
-                    <option value="">Selecione a rede</option>
-                    {% for r in redes %}
-                    <option value="{{ r }}">{{ r }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group" id="grupo-id-atplus" style="display: none;">
-                <label>ID do Cliente (ATPlus)</label>
-                <input name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
-            </div>
-
-            <div class="form-group">
-                <label>Cidade</label>
-                <select name="cidade" id="cidade" required>
-                    <option value="">Selecione...</option>
-                </select>
-            </div>
-
-            <button type="submit" id="submit-btn">
-                <span class="btn-loader" id="btn-loader"></span>
-                <span id="btn-text">Gerar Acesso</span>
+    <div class="card-container">
+        <!-- Cabeçalho com Título Dinâmico e Alternador de Tema -->
+        <div class="card-header">
+            <h1 id="app-title">Gerador de Login</h1>
+            <button type="button" class="theme-toggle" onclick="toggleTema()" aria-label="Alternar Tema">
+                <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"></line>
+                </svg>
             </button>
-        </form>
+        </div>
 
-        <div class="result" id="resultado-bloco" style="display: none; margin-top: 18px;">
-            <div class="result-item">
-                <span class="result-label">Usuário</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="login">-</div>
-                    <button class="copy-btn" onclick="copyValue('login')">Copiar</button>
+        <!-- Navegação pelas 3 Abas Superior: Login | MAC | SIP -->
+        <div class="tabs-nav">
+            <button type="button" id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
+            <button type="button" id="tab-gpon" class="tab-btn" onclick="switchTab('gpon')">SIP</button>
+        </div>
+
+        <!-- PAINEL 1: GERADOR DE LOGIN -->
+        <div id="panel-login" class="tab-panel">
+            <form id="form-login">
+                <div class="form-group">
+                    <label>NOME DO CLIENTE</label>
+                    <input type="text" name="nome" placeholder="Ex: João Silva" required autocomplete="off">
                 </div>
-            </div>
 
-            <div class="result-item">
-                <span class="result-label">Senha</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="senha">-</div>
-                    <button class="copy-btn" onclick="copyValue('senha')">Copiar</button>
+                <div class="form-group">
+                    <label>TIPO DE LOGIN</label>
+                    <div class="radio-toggle-group">
+                        <label class="radio-card active" id="card-neutra">
+                            <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')">
+                            <span>REDE NEUTRA</span>
+                        </label>
+                        <label class="radio-card" id="card-padrao">
+                            <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao')">
+                            <span>PADRÃO / LOCAL</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="grupo-rede">
+                    <label>REDE</label>
+                    <select name="rede" id="rede" onchange="atualizarCidades()" required>
+                        <option value="">Selecione a rede</option>
+                        {% for r in redes %}
+                            <option value="{{ r }}">{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" id="grupo-id-atplus" style="display: none;">
+                    <label>ID ATPLUS</label>
+                    <input type="text" name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>CIDADE</label>
+                    <select name="cidade" id="cidade" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn-primary">
+                    <span id="btn-text">Gerar Acesso</span>
+                    <span id="btn-loader" class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div id="resultado-bloco" class="resultado-box" style="display: none;">
+                <div class="res-item" onclick="copyValue('login')">
+                    <small>LOGIN GENERATED</small>
+                    <strong id="login">-</strong>
+                </div>
+                <div class="res-item" onclick="copyValue('senha')">
+                    <small>PASSWORD GENERATED</small>
+                    <strong id="senha">-</strong>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="panel-mac" style="display: none;">
-        <form id="form-mac" onsubmit="formatarMacAjax(event)">
-            <div class="form-group">
-                <label>MAC Address</label>
-                <input id="input-mac" name="mac" placeholder="Ex: 2C:54:91:88:D7:A2" required autocomplete="off">
+        <!-- PAINEL 2: FORMATADOR DE MAC -->
+        <div id="panel-mac" class="tab-panel" style="display: none;">
+            <form id="form-mac">
+                <div class="form-group">
+                    <label>ENDEREÇO MAC</label>
+                    <input type="text" name="mac" id="input-mac-raw" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF" required autocomplete="off">
+                </div>
+
+                <button type="submit" id="submit-mac-btn" class="btn-primary">
+                    <span id="btn-mac-text">Formatar MAC</span>
+                    <span id="btn-mac-loader" class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div id="resultado-mac-bloco" class="resultado-box" style="display: none;">
+                <div class="res-item" onclick="copyValue('mac-cisco')"><small>CISCO</small><strong id="mac-cisco">-</strong></div>
+                <div class="res-item" onclick="copyValue('mac-linux')"><small>LINUX</small><strong id="mac-linux">-</strong></div>
+                <div class="res-item" onclick="copyValue('mac-windows')"><small>WINDOWS</small><strong id="mac-windows">-</strong></div>
+                <div class="res-item" onclick="copyValue('mac-huawei')"><small>HUAWEI</small><strong id="mac-huawei">-</strong></div>
+                <div class="res-item"><small>FABRICANTE (OUI)</small><strong id="mac-vendor">-</strong></div>
             </div>
+        </div>
 
-            <button type="submit" id="submit-mac-btn" class="btn-action">
-                <span class="btn-loader" id="btn-mac-loader"></span>
-                <span id="btn-mac-text">Formatar</span>
-            </button>
-        </form>
+        <!-- PAINEL 3: GERADOR GPON / SIP -->
+        <div id="panel-gpon" class="tab-panel" style="display: none;">
+            <form id="form-gpon" onsubmit="gerarGponConfig(event)">
+                <div class="grid-2col">
+                    <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
+                    <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
+                </div>
+                <div class="grid-2col">
+                    <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
+                    <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
+                </div>
+                <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
+                <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
+                <div class="grid-2col">
+                    <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
+                    <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
+                </div>
+                <div class="grid-2col">
+                    <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
+                    <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
+                </div>
 
-        <div class="result" id="resultado-mac-bloco" style="display: none; margin-top: 18px;">
-            <div class="result-item">
-                <span class="result-label">1</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="mac-cisco">-</div>
-                    <button class="copy-btn" onclick="copyValue('mac-cisco')">Copiar</button>
+                <button type="submit" class="btn-primary">Gerar Script SIP</button>
+            </form>
+
+            <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
+                <div class="form-group">
+                    <label>SCRIPT DATACOM GERADO</label>
+                    <textarea id="gpon-script-out" rows="8" readonly onclick="copyValue('gpon-script-out')"></textarea>
                 </div>
             </div>
+        </div>
 
-            <div class="result-item">
-                <span class="result-label">2</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="mac-linux">-</div>
-                    <button class="copy-btn" onclick="copyValue('mac-linux')">Copiar</button>
-                </div>
-            </div>
-
-            <div class="result-item">
-                <span class="result-label">3</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="mac-windows">-</div>
-                    <button class="copy-btn" onclick="copyValue('mac-windows')">Copiar</button>
-                </div>
-            </div>
-
-            <div class="result-item">
-                <span class="result-label">4</span>
-                <div class="result-value-container">
-                    <div class="result-value" id="mac-huawei">-</div>
-                    <button class="copy-btn" onclick="copyValue('mac-huawei')">Copiar</button>
-                </div>
-            </div>
-
-            <div class="result-item">
-                <span class="result-label">Vendor</span>
-                <div class="vendor-card" id="mac-vendor">Buscando...</div>
-            </div>
+        <div class="card-footer">
+            <small>Desenvolvido por Alysson Cordeiro 🛠️</small>
         </div>
     </div>
 
-    <div class="footer">
-        Desenvolvido por Alysson Cordeiro🏃🏻‍♂️‍➡️
-    </div>
+    <div id="toast" class="toast">Copiado para a área de transferência!</div>
 
-</div>
-
-<div id="toast" class="toast">Copiado com sucesso!</div>
-
-<script>
-    const redesCidades = {{ redes_cidades | tojson }};
-    const cidadesSiglas = {{ cidades | tojson }};
-    const cidadeSelecionadaAnteriormente = "{{ request.form.get('cidade', '') }}";
-
-    // Função para controlar a exibição do campo ID ATPlus
-    function verificarExibicaoIdAtplus() {
-        const tipoLogin = document.querySelector('input[name="tipo_login"]:checked')?.value;
-        const redeSelecionada = document.getElementById('rede')?.value.toUpperCase();
-        const grupoIdAtplus = document.getElementById('grupo-id-atplus');
-        const inputIdAtplus = document.getElementById('input-id-atplus');
-
-        if (tipoLogin === 'neutra' && redeSelecionada.includes('ATPLUS')) {
-            grupoIdAtplus.style.display = 'block';
-            inputIdAtplus.setAttribute('required', 'required');
-        } else {
-            grupoIdAtplus.style.display = 'none';
-            inputIdAtplus.removeAttribute('required');
-            inputIdAtplus.value = '';
-        }
-    }
-</script>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        const redesCidades = {{ redes_cidades | tojson }};
+        const cidadesSiglas = {{ cidades | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
