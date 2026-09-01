@@ -1,5 +1,5 @@
 // ==========================================
-// ALTERNAR ENTRE ABAS (TABS)
+// ALTERNAR ABAS
 // ==========================================
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
@@ -31,7 +31,7 @@ function switchTab(target) {
 }
 
 // ==========================================
-// SELEÇÃO DO TIPO DE LOGIN
+// TIPO DE LOGIN & CIDADES
 // ==========================================
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
@@ -88,7 +88,7 @@ function atualizarCidades() {
 }
 
 // ==========================================
-// REQUISIÇÕES AJAX (LOGIN & MAC)
+// REQUISIÇÕES
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// GERAÇÃO DE SCRIPT GPON SIP
+// GERADOR GPON SIP
 // ==========================================
 function gerarGponConfig(event) {
     event.preventDefault();
@@ -178,10 +178,12 @@ service-port ${spDados}
 }
 
 // ==========================================
-// FUNÇÕES AUXILIARES (COPIAR & TOAST)
+// COPIAR COM TOAST
 // ==========================================
 function copyValue(id) {
     const el = document.getElementById(id);
+    if (!el) return;
+    
     const text = el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' ? el.value : el.innerText;
 
     navigator.clipboard.writeText(text).then(() => {
