@@ -198,3 +198,16 @@ function copyValue(id) {
         }
     });
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('input[required], select[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('invalid', function() {
+            this.setCustomValidity('falta aqui cabaço');
+        });
+        
+        input.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+    });
+});
