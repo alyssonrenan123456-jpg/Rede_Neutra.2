@@ -1,13 +1,12 @@
 :root {
   --bg-gradient: radial-gradient(circle at 80% 20%, #2b124c 0%, #0e0b16 60%, #05040a 100%);
-  --card-bg: rgba(18, 14, 29, 0.82);
+  --card-bg: rgba(18, 14, 29, 0.85);
   --card-border: rgba(255, 255, 255, 0.08);
   --input-bg: rgba(255, 255, 255, 0.04);
   --input-border: rgba(255, 255, 255, 0.1);
   --text-main: #ffffff;
   --text-sub: #8d8a9e;
   --accent-purple: #8a43f8;
-  --accent-hover: #732be2;
   --glow-shadow: rgba(138, 67, 248, 0.35);
 }
 
@@ -71,7 +70,7 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* NAVEGAÇÃO DAS 3 ABAS */
+/* ABAS SUPERIORES */
 .tabs-nav {
   display: flex;
   background: rgba(255, 255, 255, 0.04);
@@ -102,7 +101,7 @@ body {
   box-shadow: 0 4px 15px var(--glow-shadow);
 }
 
-/* CAMPOS DO FORMULÁRIO */
+/* CAMPOS E CORREÇÃO DO SELECT COM FUNDO ESCURO */
 .form-group {
   margin-bottom: 16px;
   display: flex;
@@ -129,12 +128,18 @@ input[type="text"], select, textarea {
   transition: 0.2s;
 }
 
+select option {
+  background-color: #120e1d !important;
+  color: #ffffff !important;
+  padding: 10px;
+}
+
 input[type="text"]:focus, select:focus, textarea:focus {
   border-color: var(--accent-purple);
   box-shadow: 0 0 10px var(--glow-shadow);
 }
 
-/* TOGGLE TIPO DE LOGIN */
+/* TOGGLE RADIOS */
 .radio-toggle-group {
   display: flex;
   gap: 8px;
@@ -191,7 +196,7 @@ input[type="text"]:focus, select:focus, textarea:focus {
   transform: translateY(-1px);
 }
 
-/* CAIXA DE RESULTADOS */
+/* BLOCOS DE RESULTADO E BOTÃO DE COPIAR */
 .resultado-box {
   margin-top: 20px;
   background: rgba(0, 0, 0, 0.3);
@@ -201,26 +206,46 @@ input[type="text"]:focus, select:focus, textarea:focus {
 }
 
 .res-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  transition: 0.2s;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
 }
 
-.res-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+.res-content {
+  display: flex;
+  flex-direction: column;
 }
 
-.res-item small {
-  display: block;
+.res-content small {
   font-size: 0.65rem;
   color: var(--text-sub);
 }
 
-.res-item strong {
+.res-content strong {
   font-size: 0.9rem;
   color: #38ef7d;
+}
+
+.btn-copy-icon {
+  background: rgba(138, 67, 248, 0.2);
+  border: 1px solid var(--accent-purple);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-copy-icon:hover {
+  background: var(--accent-purple);
+  box-shadow: 0 0 10px var(--glow-shadow);
 }
 
 .card-footer {
@@ -230,7 +255,6 @@ input[type="text"]:focus, select:focus, textarea:focus {
   font-size: 0.75rem;
 }
 
-/* TOAST COPIADO */
 .toast {
   position: fixed;
   bottom: 20px;
