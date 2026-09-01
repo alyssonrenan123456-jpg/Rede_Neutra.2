@@ -1,70 +1,37 @@
 // ==========================================
-// SISTEMA DE AUDITORIA / LOGS
-// ==========================================
-
-// 1. Pede o nome/login do operador no primeiro acesso e salva no navegador
-document.addEventListener("DOMContentLoaded", () => {
-    let operador = localStorage.getItem("operador_nome");
-    if (!operador) {
-        operador = prompt("Por favor, digite seu nome/login para identificação no sistema:");
-        if (!operador || !operador.trim()) {
-            operador = "Operador Anônimo";
-        }
-        localStorage.setItem("operador_nome", operador.trim());
-    }
-});
-
-// 2. Função para salvar a ação no localStorage
-function registrarLog(tipoAcao, detalhes) {
-    const operador = localStorage.getItem("operador_nome") || "Desconhecido";
-    const agora = new Date();
-
-    const novoRegistro = {
-        operador: operador,
-        acao: tipoAcao,
-        detalhes: detalhes,
-        data: agora.toLocaleDateString("pt-BR"),
-        hora: agora.toLocaleTimeString("pt-BR"),
-        timestamp: agora.getTime()
-    };
-
-    let historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
-    historico.push(novoRegistro);
-    localStorage.setItem("logs_auditoria", JSON.stringify(historico));
-}
-
-// ==========================================
-// VARIÁVEIS GLOBAIS DE CONTROLE (DO HTML)
-// ==========================================
-const siglaAnterior = typeof cidadeSelecionadaAnteriormente !== 'undefined' ? cidadeSelecionadaAnteriormente : '';
-
-// ==========================================
 // ALTERNAR ENTRE ABAS (TABS)
 // ==========================================
 function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
+    const tabGpon = document.getElementById("tab-gpon");
+    
     const panelLogin = document.getElementById("panel-login");
     const panelMac = document.getElementById("panel-mac");
+    const panelGpon = document.getElementById("panel-gpon");
+    
     const appTitle = document.getElementById("app-title");
+
+    [panelLogin, panelMac, panelGpon].forEach(p => { if (p) p.style.display = "none"; });
+    [tabLogin, tabMac, tabGpon].forEach(t => { if (t) t.classList.remove("active"); });
 
     if (target === 'login') {
         tabLogin.classList.add("active");
-        tabMac.classList.remove("active");
         panelLogin.style.display = "block";
-        panelMac.style.display = "none";
         appTitle.innerText = "Gerador de Login";
-    } else {
-        tabLogin.classList.remove("active");
+    } else if (target === 'mac') {
         tabMac.classList.add("active");
-        panelLogin.style.display = "none";
         panelMac.style.display = "block";
         appTitle.innerText = "Formatador de MAC";
+    } else if (target === 'gpon') {
+        tabGpon.classList.add("active");
+        panelGpon.style.display = "block";
+        appTitle.innerText = "GPON SIP Generator";
     }
 }
 
 // ==========================================
-// CONTROLE DO FORMULÁRIO DE LOGIN (CAMPOS)
+// SELEÇÃO DO TIPO DE LOGIN
 // ==========================================
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
@@ -77,7 +44,6 @@ function selecionarTipo(tipo) {
         document.getElementById("card-padrao").classList.add("active");
         toggleRede(false);
     }
-    verificarExibicaoIdAtplus();
 }
 
 function toggleRede(mostrar) {
@@ -86,322 +52,143 @@ function toggleRede(mostrar) {
     const citySelect = document.getElementById("cidade");
 
     if (mostrar) {
-        if (grupoRede) {
-            grupoRede.style.display = "block";
-            redeSelect.required = true;
-        }
+        grupoRede.style.display = "block";
+        redeSelect.required = true;
         atualizarCidades();
     } else {
-        if (grupoRede) {
-            grupoRede.style.display = "none";
-            redeSelect.required = false;
-            redeSelect.value = "";
-        }
+        grupoRede.style.display = "none";
+        redeSelect.required = false;
+        redeSelect.value = "";
         
         citySelect.innerHTML = '<option value="">Selecione...</option>';
-        for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
-            let option = document.createElement("option");
-            option.value = sigla;
-            option.text = cidade;
-            if (sigla === siglaAnterior) {
-                option.selected = true;
+        if (typeof cidadesSiglas !== 'undefined') {
+            for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
+                let option = document.createElement("option");
+                option.value = sigla;
+                option.text = cidade;
+                citySelect.appendChild(option);
             }
-            citySelect.appendChild(option);
         }
     }
-    verificarExibicaoIdAtplus();
 }
 
 function atualizarCidades() {
     const rede = document.getElementById("rede").value;
     const cidadeSelect = document.getElementById("cidade");
-
     cidadeSelect.innerHTML = '<option value="">Selecione...</option>';
 
-    if (redesCidades && redesCidades[rede]) {
+    if (typeof redesCidades !== 'undefined' && redesCidades[rede]) {
         redesCidades[rede].forEach(cidade => {
             let option = document.createElement("option");
             option.value = cidadesSiglas[cidade];
             option.text = cidade;
-            if (cidadesSiglas[cidade] === siglaAnterior) {
-                option.selected = true;
-            }
             cidadeSelect.appendChild(option);
         });
     }
-    verificarExibicaoIdAtplus();
 }
 
 // ==========================================
-// CONTROLE DE EXIBIÇÃO DO ID ATPLUS
-// ==========================================
-function verificarExibicaoIdAtplus() {
-    const tipoLogin = document.querySelector('input[name="tipo_login"]:checked')?.value;
-    const redeSelecionada = document.getElementById('rede')?.value.toUpperCase() || '';
-    const grupoIdAtplus = document.getElementById('grupo-id-atplus');
-    const inputIdAtplus = document.getElementById('input-id-atplus');
-
-    if (!grupoIdAtplus || !inputIdAtplus) return;
-
-    if (tipoLogin === 'neutra' && redeSelecionada.includes('ATPLUS')) {
-        grupoIdAtplus.style.display = 'block';
-        inputIdAtplus.setAttribute('required', 'required');
-    } else {
-        grupoIdAtplus.style.display = 'none';
-        inputIdAtplus.removeAttribute('required');
-        inputIdAtplus.value = '';
-    }
-}
-
-// ==========================================
-// SISTEMA DE TEMAS (DARK / LIGHT)
-// ==========================================
-function toggleTema() {
-    const htmlEl = document.documentElement;
-    const currentTheme = htmlEl.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    
-    htmlEl.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    atualizarIconeTema(newTheme);
-}
-
-function inicializarTema() {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    atualizarIconeTema(savedTheme);
-}
-
-function atualizarIconeTema(tema) {
-    const icon = document.getElementById("theme-icon");
-    if (!icon) return;
-    
-    if (tema === "light") {
-        icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"></path>`;
-    } else {
-        icon.innerHTML = `
-            <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
-            <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"></line>
-            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"></line>
-            <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"></line>
-            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"></line>
-        `;
-    }
-}
-
-// ==========================================
-// REQUISIÇÕES ASSÍNCRONAS (AJAX)
-// ==========================================
-
-// 1. Envio do Gerador de Login
-async function animarGerar(event) {
-    event.preventDefault();
-
-    const btn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const loader = document.getElementById('btn-loader');
-    const resultadoBloco = document.getElementById('resultado-bloco');
-    
-    const txtLogin = document.getElementById('login');
-    const txtSenha = document.getElementById('senha');
-
-    btn.disabled = true;
-    btnText.textContent = "Gerando...";
-    loader.style.display = "inline-block";
-    
-    if (resultadoBloco) {
-        resultadoBloco.style.display = "none"; 
-    }
-
-    const form = event.target;
-    const formData = new FormData(form);
-
-    try {
-        const response = await fetch('/', { 
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error("Erro na requisição");
-
-        const dados = await response.json();
-
-        txtLogin.textContent = dados.login;
-        txtSenha.textContent = dados.senha;
-
-        resultadoBloco.style.display = "block";
-
-        // REGISTRA O LOGIN E SENHA GERADOS
-        registrarLog('', `Login: ${dados.login} | Senha: ${dados.senha}`);
-
-    } catch (error) {
-        console.error("Erro:", error);
-        alert("Ocorreu um erro ao gerar o acesso.");
-    } finally {
-        btn.disabled = false;
-        btnText.textContent = "Gerar Acesso";
-        loader.style.display = "none";
-    }
-}
-
-// 2. Envio do Formatador de MAC
-async function formatarMacAjax(event) {
-    event.preventDefault();
-
-    const btn = document.getElementById('submit-mac-btn');
-    const btnText = document.getElementById('btn-mac-text');
-    const loader = document.getElementById('btn-mac-loader');
-    const resultadoBloco = document.getElementById('resultado-mac-bloco');
-
-    const macCisco = document.getElementById('mac-cisco');
-    const macLinux = document.getElementById('mac-linux');
-    const macWindows = document.getElementById('mac-windows');
-    const macHuawei = document.getElementById('mac-huawei');
-    const macVendor = document.getElementById('mac-vendor');
-
-    btn.disabled = true;
-    btnText.textContent = "Formatando...";
-    loader.style.display = "inline-block";
-    resultadoBloco.style.display = "none";
-
-    const form = event.target;
-    const formData = new FormData(form);
-
-    try {
-        const response = await fetch('/formatar-mac', { 
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error("Erro na requisição");
-
-        const dados = await response.json();
-
-        macCisco.textContent = dados.cisco || '-';
-        macLinux.textContent = dados.linux || '-';
-        macWindows.textContent = dados.windows || '-';
-        macHuawei.textContent = dados.huawei || '-';
-        macVendor.textContent = dados.vendor || 'Não encontrado';
-
-        resultadoBloco.style.display = "block";
-
-        // REGISTRA O MAC DIGITADO NO INPUT
-        const macDigitado = form.querySelector('input[name="mac_address"]')?.value || form.querySelector('input[type="text"]')?.value || '-';
-        registrarLog('', `MAC: ${dados.windows || '-'}`);
-
-    } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro ao formatar MAC.");
-    } finally {
-        btn.disabled = false;
-        btnText.textContent = "Formatar";
-        loader.style.display = "none";
-    }
-}
-
-// ==========================================
-// FUNÇÃO COPIAR VALOR (TOAST)
-// ==========================================
-function copyValue(id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("toast");
-        toast.classList.add("show");
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 2000);
-    });
-}
-
-// ==========================================
-// INICIALIZAÇÃO E ATRIBUIÇÃO DE EVENTOS
+// REQUISIÇÕES AJAX (LOGIN & MAC)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
     if (formLogin) {
-        formLogin.addEventListener('submit', animarGerar);
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(formLogin);
+            const response = await fetch('/', { method: 'POST', body: formData });
+            const dados = await response.json();
+            
+            document.getElementById('login').textContent = dados.login;
+            document.getElementById('senha').textContent = dados.senha;
+            document.getElementById('resultado-bloco').style.display = 'block';
+        });
     }
 
     const formMac = document.getElementById('form-mac');
     if (formMac) {
-        formMac.addEventListener('submit', formatarMacAjax);
-    }
+        formMac.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(formMac);
+            const response = await fetch('/formatar-mac', { method: 'POST', body: formData });
+            const dados = await response.json();
 
-    const selectRede = document.getElementById('rede');
-    if (selectRede) {
-        selectRede.addEventListener('change', verificarExibicaoIdAtplus);
+            document.getElementById('mac-cisco').textContent = dados.cisco || '-';
+            document.getElementById('mac-linux').textContent = dados.linux || '-';
+            document.getElementById('mac-windows').textContent = dados.windows || '-';
+            document.getElementById('mac-huawei').textContent = dados.huawei || '-';
+            document.getElementById('mac-vendor').textContent = dados.vendor || 'Não encontrado';
+            document.getElementById('resultado-mac-bloco').style.display = 'block';
+        });
     }
-
-    verificarExibicaoIdAtplus();
 });
 
 // ==========================================
-// FILTRO DE AUDITORIA POR USUÁRIO
+// GERAÇÃO DE SCRIPT GPON SIP
 // ==========================================
+function gerarGponConfig(event) {
+    event.preventDefault();
 
-// 1. Carrega a lista de usuários únicos no <select> de filtro
-function carregarOpcoesUsuarios() {
-    const select = document.getElementById("filtro-usuario");
-    if (!select) return;
+    const pon = document.getElementById('gpon-pon').value.trim();
+    const onu = document.getElementById('gpon-onu').value.trim();
+    const caixa = document.getElementById('gpon-caixa').value.trim();
+    const porta = document.getElementById('gpon-porta').value.trim();
+    const login = document.getElementById('gpon-login').value.trim();
+    let serial = document.getElementById('gpon-serial').value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    const vlan = document.getElementById('gpon-vlan').value.trim();
+    const sip = document.getElementById('gpon-sip').value.trim();
+    const spVoip = document.getElementById('gpon-sp-voip').value.trim();
+    const spDados = document.getElementById('gpon-sp-dados').value.trim();
 
-    const historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
-    
-    // Extrai apenas os nomes dos operadores (sem duplicados)
-    const usuariosUnicos = [...new Set(historico.map(log => log.operador))];
+    const configScript = `interface gpon ${pon}
+ onu ${onu}
+  name "${caixa}|${porta}|${login}"
+  serial-number ${serial}
+  line-profile SIP_Banda-Maxima_${vlan}
+  ipv4 vlan vlan-id 99
+  ipv4 dhcp
+  ethernet 1
+   negotiation
+   no shutdown
+   native vlan vlan-id ${vlan}
+  !
+  ethernet 2
+   negotiation
+   no shutdown
+   native vlan vlan-id ${vlan}
+  !
+  pots 1
+   sip-agent-profile 41
+   sip-user-agent
+    username ${sip}
+    password ${sip}
+    user-part-aor ${sip}
+   !
+  !
+ !
+!
 
-    // Mantém a opção "Todos os Usuários" e adiciona os encontrados
-    select.innerHTML = '<option value="TODOS">Todos os Usuários</option>';
-    
-    usuariosUnicos.forEach(usuario => {
-        const option = document.createElement("option");
-        option.value = usuario;
-        option.textContent = usuario;
-        select.appendChild(option);
+service-port ${spVoip}
+ gpon ${pon} onu ${onu} gem 1 match vlan vlan-id 99 action vlan replace vlan-id 99
+service-port ${spDados}
+ gpon ${pon} onu ${onu} gem 2 match vlan vlan-id ${vlan} action vlan replace vlan-id ${vlan}`;
+
+    document.getElementById('gpon-script-out').value = configScript;
+    document.getElementById('resultado-gpon-bloco').style.display = 'block';
+}
+
+// ==========================================
+// FUNÇÕES AUXILIARES (COPIAR & TOAST)
+// ==========================================
+function copyValue(id) {
+    const el = document.getElementById(id);
+    const text = el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' ? el.value : el.innerText;
+
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        if (toast) {
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 2000);
+        }
     });
 }
-
-// 2. Filtra e redesenha a lista de logs com base no usuário selecionado
-function filtrarLogsPorUsuario(usuarioSelecionado) {
-    const historico = JSON.parse(localStorage.getItem("logs_auditoria")) || [];
-    const container = document.getElementById("container-logs");
-    
-    if (!container) return;
-
-    // Se selecionar "TODOS", pega tudo. Se não, filtra pelo nome exato do operador
-    const logsFiltrados = usuarioSelecionado === "TODOS" 
-        ? historico 
-        : historico.filter(log => log.operador === usuarioSelecionado);
-
-    renderizarListaLogs(logsFiltrados);
-}
-
-// 3. Renderiza os logs na tela
-function renderizarListaLogs(listaDeLogs) {
-    const container = document.getElementById("container-logs");
-    if (!container) return;
-
-    if (listaDeLogs.length === 0) {
-        container.innerHTML = "<p>Nenhum registro encontrado para este usuário.</p>";
-        return;
-    }
-
-    // Ordena do mais recente para o mais antigo
-    const logsOrdenados = [...listaDeLogs].sort((a, b) => b.timestamp - a.timestamp);
-
-    container.innerHTML = logsOrdenados.map(log => `
-        <div class="log-item" style="margin-bottom: 8px; padding: 8px; border-bottom: 1px solid #333;">
-            <small style="color: #aaa;">⏰ ${log.hora} — Operador: <strong>${log.operador}</strong></small><br>
-            📌 [${log.acao}] ${log.detalhes}
-        </div>
-    `).join('');
-}
-
-// Atualiza as opções do filtro e exibe os logs ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
-    carregarOpcoesUsuarios();
-    filtrarLogsPorUsuario("TODOS");
-});
