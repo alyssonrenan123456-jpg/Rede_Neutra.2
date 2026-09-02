@@ -1,11 +1,9 @@
 :root {
-    --bg-dark: #050b14;
-    --card-bg: rgba(15, 23, 42, 0.75);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --ultra-blue: #00d2ff;
-    --ultra-blue-glow: rgba(0, 210, 255, 0.4);
-    --text-main: #f8fafc;
-    --text-sub: #94a3b8;
+    --bg-dark: #000000;
+    --ultra-blue: #00a2ff;
+    --ultra-blue-glow: rgba(0, 162, 255, 0.4);
+    --text-sub: #8a99ad;
+    --border-color: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -18,27 +16,24 @@
 body {
     background-color: var(--bg-dark);
     background-image: 
-        radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.12), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(0, 102, 255, 0.12), transparent 25%);
+        radial-gradient(circle at 20% 40%, rgba(0, 162, 255, 0.15), transparent 30%),
+        radial-gradient(circle at 80% 60%, rgba(0, 80, 200, 0.15), transparent 30%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--text-main);
+    color: #fff;
     padding: 20px;
 }
 
-/* CARD GLASSMORPHISM */
 .glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
+    background: rgba(10, 16, 26, 0.85);
+    border: 1px solid rgba(0, 162, 255, 0.2);
     border-radius: 20px;
-    padding: 28px;
+    padding: 24px;
     width: 100%;
-    max-width: 440px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    max-width: 420px;
+    box-shadow: 0 0 30px rgba(0, 162, 255, 0.15);
 }
 
 .card-header {
@@ -49,40 +44,39 @@ body {
 }
 
 .card-header h2 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
-/* BOTÃO DE TEMA */
 .theme-btn {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
     border-radius: 50%;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
+    color: #00a2ff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
 }
 
-/* BOTÃO '?' RETRO COM HOVER ANIMADO */
+/* BOTÃO DE INTERROGAÇÃO ANIMADO */
 .btn-help-pixel {
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(10, 16, 26, 0.9);
     border: 2px solid var(--ultra-blue);
     color: var(--ultra-blue);
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
@@ -93,18 +87,18 @@ body {
 .btn-help-pixel:hover {
     transform: scale(1.18) rotate(8deg);
     background: var(--ultra-blue);
-    color: #050b14;
-    box-shadow: 0 0 15px var(--ultra-blue), 0 0 30px var(--ultra-blue-glow);
+    color: #000;
+    box-shadow: 0 0 12px var(--ultra-blue);
 }
 
-/* ABAS CENTRALIZADAS */
+/* NAVEGAÇÃO DE ABAS (EXATO FOTO 1) */
 .tabs-nav {
     display: flex;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.5);
     padding: 4px;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 .tab-btn {
@@ -112,93 +106,79 @@ body {
     background: transparent;
     border: none;
     color: var(--text-sub);
-    padding: 10px 0;
+    padding: 8px 0;
     font-weight: 600;
-    font-size: 0.85rem;
-    border-radius: 8px;
+    font-size: 0.8rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .tab-btn.active {
     background: var(--ultra-blue);
-    color: #000;
-    font-weight: 700;
-    box-shadow: 0 0 15px var(--ultra-blue-glow);
+    color: #fff;
+    box-shadow: 0 0 12px var(--ultra-blue-glow);
 }
 
 /* FORMULÁRIOS */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .form-group label {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-sub);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
+    margin-bottom: 4px;
 }
 
 .form-control {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px 12px;
+    border-radius: 6px;
+    padding: 8px 10px;
     color: #fff;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     outline: none;
-    transition: border-color 0.3s;
-}
-
-.form-control:focus {
-    border-color: var(--ultra-blue);
 }
 
 .btn-primary {
     width: 100%;
     background: linear-gradient(135deg, #0088ff, #00d2ff);
     border: none;
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 8px;
+    padding: 10px;
     color: #fff;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 4px 20px var(--ultra-blue-glow);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 210, 255, 0.6);
+    margin-top: 8px;
+    box-shadow: 0 4px 15px var(--ultra-blue-glow);
 }
 
 .card-footer {
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--text-sub);
-    margin-top: 18px;
+    margin-top: 15px;
 }
 
-/* POP-UP RETRO VIDEO GAME */
+/* MODAL DE AJUDA */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(5, 11, 20, 0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -207,53 +187,35 @@ body {
 
 .modal-content-pixel {
     width: 90%;
-    max-width: 440px;
-    background: rgba(15, 23, 42, 0.9);
+    max-width: 400px;
+    background: rgba(10, 16, 26, 0.95);
     border: 2px solid var(--ultra-blue);
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: 12px;
+    padding: 20px;
     position: relative;
-    box-shadow: 0 0 25px var(--ultra-blue-glow), inset 0 0 15px rgba(0, 210, 255, 0.1);
-    animation: popUpIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    box-shadow: 0 0 20px var(--ultra-blue-glow);
 }
 
 .pixel-title {
     font-family: 'Press Start 2P', monospace;
     color: var(--ultra-blue);
-    font-size: 0.85rem;
-    margin-bottom: 16px;
-    text-shadow: 0 0 8px var(--ultra-blue-glow);
+    font-size: 0.75rem;
+    margin-bottom: 12px;
 }
 
 .pixel-text {
     font-family: 'Press Start 2P', monospace;
-    color: #e2e8f0;
-    font-size: 0.62rem;
+    color: #d1d5db;
+    font-size: 0.58rem;
     line-height: 1.8;
 }
 
 .close-btn-pixel {
     position: absolute;
-    top: 12px;
-    right: 16px;
+    top: 10px;
+    right: 12px;
     font-family: 'Press Start 2P', monospace;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--text-sub);
     cursor: pointer;
-}
-
-.close-btn-pixel:hover {
-    color: #ff0055;
-    text-shadow: 0 0 8px #ff0055;
-}
-
-@keyframes popUpIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.8) translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
 }
