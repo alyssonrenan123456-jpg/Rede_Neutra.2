@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultra Telecom</title>
+    <!-- Fonte Estilo Video Game + Fonte Padrão -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- Caminho corrigido para a pasta static do Flask -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
     <main class="glass-card">
-        <!-- HEADER -->
+        <!-- HEADER DO CARD -->
         <div class="card-header">
             <h2 id="app-title">GPON SIP Generator</h2>
             <div class="header-actions">
@@ -19,14 +21,32 @@
             </div>
         </div>
 
-        <!-- MENU DE ABAS -->
+        <!-- MENU DE ABAS CENTRALIZADO -->
         <div class="tabs-nav">
             <button type="button" id="tab-login" class="tab-btn" onclick="switchTab('login')">Login</button>
             <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
             <button type="button" id="tab-sip" class="tab-btn active" onclick="switchTab('sip')">SIP</button>
         </div>
 
-        <!-- PAINEL SIP -->
+        <!-- PAINEL LOGIN -->
+        <div id="panel-login" class="tab-panel" style="display: none;">
+            <div class="form-group">
+                <label for="login-input">LOGIN DO CLIENTE</label>
+                <input type="text" id="login-input" class="form-control" placeholder="Ex: joao.amaral.lgs">
+            </div>
+            <button type="button" class="btn-primary" onclick="formatarLogin()">Formatador de Login</button>
+        </div>
+
+        <!-- PAINEL MAC -->
+        <div id="panel-mac" class="tab-panel" style="display: none;">
+            <div class="form-group">
+                <label for="mac-input">ENDEREÇO MAC</label>
+                <input type="text" id="mac-input" class="form-control" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF">
+            </div>
+            <button type="button" class="btn-primary" onclick="formatarMAC()">Formatar MAC</button>
+        </div>
+
+        <!-- PAINEL GPON / SIP -->
         <div id="panel-sip" class="tab-panel">
             <div class="form-grid">
                 <div class="form-group">
@@ -84,17 +104,18 @@
 
             <button type="button" class="btn-primary" onclick="gerarScriptSIP()">Gerar Script SIP</button>
 
-            <div class="form-group" style="margin-top: 12px; display: none;" id="box-resultado">
-                <textarea id="sip-resultado" class="form-control" rows="4" readonly></textarea>
+            <div class="form-group" style="margin-top: 15px;">
+                <textarea id="sip-resultado" class="form-control" rows="4" readonly placeholder="O script gerado aparecerá aqui..."></textarea>
             </div>
         </div>
 
+        <!-- FOOTER -->
         <footer class="card-footer">
             Desenvolvido por Alysson Cordeiro 🛠️
         </footer>
     </main>
 
-    <!-- POP-UP RETRO AJUDA -->
+    <!-- POP-UP RETRO / PIXEL DE AJUDA -->
     <div id="help-modal" class="modal-overlay" style="display: none;" onclick="fecharAjuda(event)">
         <div class="modal-content-pixel">
             <span class="close-btn-pixel" onclick="fecharAjudaDirect()">&times;</span>
@@ -105,6 +126,7 @@
         </div>
     </div>
 
-    <script src="main.js"></script>
+    <!-- Caminho corrigido para o JS do Flask -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
