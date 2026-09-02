@@ -1,4 +1,14 @@
 // ==========================================
+// ALTERNAR TEMA (CLARO / ESCURO)
+// ==========================================
+function toggleTema() {
+    const htmlEl = document.documentElement;
+    const currentTheme = htmlEl.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    htmlEl.setAttribute('data-theme', newTheme);
+}
+
+// ==========================================
 // ALTERNAR ABAS E TÍTULO
 // ==========================================
 function switchTab(target) {
