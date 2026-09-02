@@ -5,11 +5,11 @@ function switchTab(target) {
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
     const tabGpon = document.getElementById("tab-gpon");
-    
+
     const panelLogin = document.getElementById("panel-login");
     const panelMac = document.getElementById("panel-mac");
     const panelGpon = document.getElementById("panel-gpon");
-    
+
     const appTitle = document.getElementById("app-title");
 
     [panelLogin, panelMac, panelGpon].forEach(p => { if (p) p.style.display = "none"; });
@@ -36,7 +36,7 @@ function switchTab(target) {
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
     document.getElementById("card-padrao").classList.remove("active");
-    
+
     if (tipo === 'neutra') {
         document.getElementById("card-neutra").classList.add("active");
         toggleRede(true);
@@ -59,7 +59,7 @@ function toggleRede(mostrar) {
         grupoRede.style.display = "none";
         redeSelect.required = false;
         redeSelect.value = "";
-        
+
         citySelect.innerHTML = '<option value="">Selecione...</option>';
         if (typeof cidadesSiglas !== 'undefined') {
             for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(formLogin);
             const response = await fetch('/', { method: 'POST', body: formData });
             const dados = await response.json();
-            
+
             document.getElementById('login').textContent = dados.login;
             document.getElementById('senha').textContent = dados.senha;
             document.getElementById('resultado-bloco').style.display = 'block';
@@ -134,10 +134,10 @@ function gerarGponConfig(event) {
     const caixa = document.getElementById('gpon-caixa').value.trim();
     const porta = document.getElementById('gpon-porta').value.trim();
     const login = document.getElementById('gpon-login').value.trim();
-    
+
     // Preserva prefixos como HWTC, ZTE, FHTT, etc.
     let serial = document.getElementById('gpon-serial').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-    
+
     const vlan = document.getElementById('gpon-vlan').value.trim();
     const sip = document.getElementById('gpon-sip').value.trim();
     const spVoip = document.getElementById('gpon-sp-voip').value.trim();
@@ -187,7 +187,7 @@ service-port ${spDados}
 function copyValue(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    
+
     const text = el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' ? el.value : el.innerText;
 
     navigator.clipboard.writeText(text).then(() => {
@@ -198,3 +198,16 @@ function copyValue(id) {
         }
     });
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('input[required], select[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('invalid', function() {
+            this.setCustomValidity('falta aqui cabaço');
+        });
+        
+        input.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+    });
+});
