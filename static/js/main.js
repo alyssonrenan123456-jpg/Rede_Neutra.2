@@ -1,213 +1,67 @@
-// ==========================================
-// ALTERNAR ABAS E TÍTULO
-// ==========================================
-function switchTab(target) {
-    const tabLogin = document.getElementById("tab-login");
-    const tabMac = document.getElementById("tab-mac");
-    const tabGpon = document.getElementById("tab-gpon");
-    
-    const panelLogin = document.getElementById("panel-login");
-    const panelMac = document.getElementById("panel-mac");
-    const panelGpon = document.getElementById("panel-gpon");
-    
-    const appTitle = document.getElementById("app-title");
+// CONTROLE DE ABAS
+function switchTab(tab) {
+    // Esconde todos os painéis
+    document.getElementById('panel-login').style.display = 'none';
+    document.getElementById('panel-mac').style.display = 'none';
+    document.getElementById('panel-sip').style.display = 'none';
 
-    [panelLogin, panelMac, panelGpon].forEach(p => { if (p) p.style.display = "none"; });
-    [tabLogin, tabMac, tabGpon].forEach(t => { if (t) t.classList.remove("active"); });
+    // Remove classe ativa das abas
+    document.getElementById('tab-login').classList.remove('active');
+    document.getElementById('tab-mac').classList.remove('active');
+    document.getElementById('tab-sip').classList.remove('active');
 
-    if (target === 'login') {
-        tabLogin.classList.add("active");
-        panelLogin.style.display = "block";
-        appTitle.innerText = "Gerador de Login";
-    } else if (target === 'mac') {
-        tabMac.classList.add("active");
-        panelMac.style.display = "block";
-        appTitle.innerText = "Formatador de MAC";
-    } else if (target === 'gpon') {
-        tabGpon.classList.add("active");
-        panelGpon.style.display = "block";
-        appTitle.innerText = "GPON SIP Generator";
+    // Mostra o painel selecionado e atualiza o título
+    const appTitle = document.getElementById('app-title');
+
+    if (tab === 'login') {
+        document.getElementById('panel-login').style.display = 'block';
+        document.getElementById('tab-login').classList.add('active');
+        appTitle.innerText = 'Formatador de Login';
+    } else if (tab === 'mac') {
+        document.getElementById('panel-mac').style.display = 'block';
+        document.getElementById('tab-mac').classList.add('active');
+        appTitle.innerText = 'Formatador de MAC';
+    } else if (tab === 'sip') {
+        document.getElementById('panel-sip').style.display = 'block';
+        document.getElementById('tab-sip').classList.add('active');
+        appTitle.innerText = 'GPON SIP Generator';
     }
 }
 
-// ==========================================
-// SELEÇÃO DE TIPO E CIDADE
-// ==========================================
-function selecionarTipo(tipo) {
-    document.getElementById("card-neutra").classList.remove("active");
-    document.getElementById("card-padrao").classList.remove("active");
-    
-    if (tipo === 'neutra') {
-        document.getElementById("card-neutra").classList.add("active");
-        toggleRede(true);
-    } else {
-        document.getElementById("card-padrao").classList.add("active");
-        toggleRede(false);
+// CONTROLE DO MODAL DE AJUDA RETRO
+function abrirAjuda() {
+    document.getElementById('help-modal').style.display = 'flex';
+}
+
+function fecharAjudaDirect() {
+    document.getElementById('help-modal').style.display = 'none';
+}
+
+function fecharAjuda(event) {
+    if (event.target.id === 'help-modal') {
+        fecharAjudaDirect();
     }
 }
 
-function toggleRede(mostrar) {
-    const grupoRede = document.getElementById("grupo-rede");
-    const redeSelect = document.getElementById("rede");
-    const citySelect = document.getElementById("cidade");
+// GERADOR DO SCRIPT SIP
+function gerarScriptSIP() {
+    const pon = document.getElementById("sip-pon").value.trim();
+    const onuId = document.getElementById("sip-onuid").value.trim();
+    const vlan = document.getElementById("sip-vlan").value.trim();
+    const user = document.getElementById("sip-user").value.trim();
+    const spVoip = document.getElementById("sip-sp-voip").value.trim();
+    const spInternet = document.getElementById("sip-sp-internet").value.trim();
 
-    if (mostrar) {
-        grupoRede.style.display = "block";
-        redeSelect.required = true;
-        atualizarCidades();
-    } else {
-        grupoRede.style.display = "none";
-        redeSelect.required = false;
-        redeSelect.value = "";
-        
-        citySelect.innerHTML = '<option value="">Selecione...</option>';
-        if (typeof cidadesSiglas !== 'undefined') {
-            for (const [cidade, sigla] of Object.entries(cidadesSiglas).sort()) {
-                let option = document.createElement("option");
-                option.value = sigla;
-                option.text = cidade;
-                citySelect.appendChild(option);
-            }
-        }
-    }
-}
-
-function atualizarCidades() {
-    const rede = document.getElementById("rede").value;
-    const cidadeSelect = document.getElementById("cidade");
-    cidadeSelect.innerHTML = '<option value="">Selecione...</option>';
-
-    if (typeof redesCidades !== 'undefined' && redesCidades[rede]) {
-        redesCidades[rede].forEach(cidade => {
-            let option = document.createElement("option");
-            option.value = cidadesSiglas[cidade];
-            option.text = cidade;
-            cidadeSelect.appendChild(option);
-        });
-    }
-}
-
-// ==========================================
-// REQUISIÇÕES (LOGIN & MAC)
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const formLogin = document.getElementById('form-login');
-    if (formLogin) {
-        formLogin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(formLogin);
-            const response = await fetch('/', { method: 'POST', body: formData });
-            const dados = await response.json();
-            
-            document.getElementById('login').textContent = dados.login;
-            document.getElementById('senha').textContent = dados.senha;
-            document.getElementById('resultado-bloco').style.display = 'block';
-        });
+    if (!pon || !onuId || !vlan || !user) {
+        alert("Preencha os campos obrigatórios para gerar o script.");
+        return;
     }
 
-    const formMac = document.getElementById('form-mac');
-    if (formMac) {
-        formMac.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(formMac);
-            const response = await fetch('/formatar-mac', { method: 'POST', body: formData });
-            const dados = await response.json();
+    const script = 
+`ont modify ${pon} ${onuId} line-profile-name Banda_Maxima_101
+service-port ${spVoip} vlan ${vlan} gpon ${pon}/${onuId} gemport 1 multi-service user-vlan ${vlan} tag-transform translate
+service-port ${spInternet} vlan 101 gpon ${pon}/${onuId} gemport 2 multi-service user-vlan 101 tag-transform translate
+ont sip-config ${pon} ${onuId} user ${user} vlan ${vlan}`;
 
-            document.getElementById('mac-cisco').textContent = dados.cisco || '-';
-            document.getElementById('mac-linux').textContent = dados.linux || '-';
-            document.getElementById('mac-windows').textContent = dados.windows || '-';
-            document.getElementById('mac-huawei').textContent = dados.huawei || '-';
-            document.getElementById('mac-vendor').textContent = dados.vendor || 'Não encontrado';
-            document.getElementById('resultado-mac-bloco').style.display = 'block';
-        });
-    }
-});
-
-// ==========================================
-// GERADOR GPON SIP CORRIGIDO
-// ==========================================
-function gerarGponConfig(event) {
-    event.preventDefault();
-
-    const pon = document.getElementById('gpon-pon').value.trim();
-    const onu = document.getElementById('gpon-onu').value.trim();
-    const caixa = document.getElementById('gpon-caixa').value.trim();
-    const porta = document.getElementById('gpon-porta').value.trim();
-    const login = document.getElementById('gpon-login').value.trim();
-    
-    // Preserva prefixos como HWTC, ZTE, FHTT, etc.
-    let serial = document.getElementById('gpon-serial').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-    
-    const vlan = document.getElementById('gpon-vlan').value.trim();
-    const sip = document.getElementById('gpon-sip').value.trim();
-    const spVoip = document.getElementById('gpon-sp-voip').value.trim();
-    const spDados = document.getElementById('gpon-sp-dados').value.trim();
-
-    const configScript = `interface gpon ${pon}
- onu ${onu}
-  name "${caixa}|${porta}|${login}"
-  serial-number ${serial}
-  line-profile SIP_Banda-Maxima_${vlan}
-  ipv4 vlan vlan-id 99
-  ipv4 dhcp
-  ethernet 1
-   negotiation
-   no shutdown
-   native vlan vlan-id ${vlan}
-  !
-  ethernet 2
-   negotiation
-   no shutdown
-   native vlan vlan-id ${vlan}
-  !
-  pots 1
-   sip-agent-profile SIP
-   sip-user-agent
-    username ${sip}
-    password ${sip}
-    user-part-aor ${sip}
-   !
-  !
- !
-!
-
-service-port ${spVoip}
- gpon ${pon} onu ${onu} gem 1 match vlan vlan-id 99 action vlan replace vlan-id 99
-
-service-port ${spDados}
- gpon ${pon} onu ${onu} gem 2 match vlan vlan-id ${vlan} action vlan replace vlan-id ${vlan}`;
-
-    document.getElementById('gpon-script-out').value = configScript;
-    document.getElementById('resultado-gpon-bloco').style.display = 'block';
+    document.getElementById("sip-resultado").value = script;
 }
-
-// ==========================================
-// COPIAR COM TOAST
-// ==========================================
-function copyValue(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    
-    const text = el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' ? el.value : el.innerText;
-
-    navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("toast");
-        if (toast) {
-            toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 2000);
-        }
-    });
-}
-document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('input[required], select[required]');
-    
-    inputs.forEach(input => {
-        input.addEventListener('invalid', function() {
-            this.setCustomValidity('falta aqui cabaço');
-        });
-        
-        input.addEventListener('input', function() {
-            this.setCustomValidity('');
-        });
-    });
-});
