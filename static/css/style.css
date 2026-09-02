@@ -26,6 +26,7 @@ body {
     padding: 20px;
 }
 
+/* CARD GLASSMORPHISM EXATO DA FOTO 1 */
 .glass-card {
     background: rgba(10, 16, 26, 0.85);
     border: 1px solid rgba(0, 162, 255, 0.2);
@@ -67,7 +68,7 @@ body {
     justify-content: center;
 }
 
-/* BOTÃO DE INTERROGAÇÃO ANIMADO */
+/* BOTÃO '?' ANIMADO */
 .btn-help-pixel {
     background: rgba(10, 16, 26, 0.9);
     border: 2px solid var(--ultra-blue);
@@ -91,7 +92,7 @@ body {
     box-shadow: 0 0 12px var(--ultra-blue);
 }
 
-/* NAVEGAÇÃO DE ABAS (EXATO FOTO 1) */
+/* MENU DE ABAS */
 .tabs-nav {
     display: flex;
     background: rgba(0, 0, 0, 0.5);
@@ -119,7 +120,7 @@ body {
     box-shadow: 0 0 12px var(--ultra-blue-glow);
 }
 
-/* FORMULÁRIOS */
+/* FORMULÁRIO E INPUTS */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -149,6 +150,10 @@ body {
     outline: none;
 }
 
+.form-control:focus {
+    border-color: var(--ultra-blue);
+}
+
 .btn-primary {
     width: 100%;
     background: linear-gradient(135deg, #0088ff, #00d2ff);
@@ -170,7 +175,7 @@ body {
     margin-top: 15px;
 }
 
-/* MODAL DE AJUDA */
+/* MODAL DE AJUDA RETRO */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -194,6 +199,7 @@ body {
     padding: 20px;
     position: relative;
     box-shadow: 0 0 20px var(--ultra-blue-glow);
+    animation: popUpIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .pixel-title {
@@ -218,4 +224,19 @@ body {
     font-size: 0.8rem;
     color: var(--text-sub);
     cursor: pointer;
+}
+
+.close-btn-pixel:hover {
+    color: #ff0055;
+}
+
+@keyframes popUpIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
