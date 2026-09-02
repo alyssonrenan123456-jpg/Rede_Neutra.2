@@ -1,16 +1,13 @@
-// CONTROLE DE ABAS
+// TROCA DE ABAS
 function switchTab(tab) {
-    // Esconde todos os painéis
     document.getElementById('panel-login').style.display = 'none';
     document.getElementById('panel-mac').style.display = 'none';
     document.getElementById('panel-sip').style.display = 'none';
 
-    // Remove classe ativa das abas
     document.getElementById('tab-login').classList.remove('active');
     document.getElementById('tab-mac').classList.remove('active');
     document.getElementById('tab-sip').classList.remove('active');
 
-    // Mostra o painel selecionado e atualiza o título
     const appTitle = document.getElementById('app-title');
 
     if (tab === 'login') {
@@ -28,7 +25,7 @@ function switchTab(tab) {
     }
 }
 
-// CONTROLE DO MODAL DE AJUDA RETRO
+// POP-UP RETRO DE AJUDA
 function abrirAjuda() {
     document.getElementById('help-modal').style.display = 'flex';
 }
@@ -43,7 +40,7 @@ function fecharAjuda(event) {
     }
 }
 
-// GERADOR DO SCRIPT SIP
+// GERAR SCRIPT SIP
 function gerarScriptSIP() {
     const pon = document.getElementById("sip-pon").value.trim();
     const onuId = document.getElementById("sip-onuid").value.trim();
@@ -53,7 +50,7 @@ function gerarScriptSIP() {
     const spInternet = document.getElementById("sip-sp-internet").value.trim();
 
     if (!pon || !onuId || !vlan || !user) {
-        alert("Preencha os campos obrigatórios para gerar o script.");
+        alert("Preencha os campos para gerar o script.");
         return;
     }
 
