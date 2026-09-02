@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Provisionamento</title>
     <title>Painel de Provisionamento - Ultra</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -14,9 +16,11 @@
     <div class="blob blob-3"></div>
 
     <div class="card-container">
+        <!-- Cabeçalho com Título e Alternador de Tema -->
         <!-- Cabeçalho -->
         <div class="card-header">
             <h1 id="app-title">Gerador de Login</h1>
+            <button type="button" class="theme-toggle" onclick="toggleTema()" aria-label="Alternar Tema">
             <button type="button" class="theme-toggle" aria-label="Tema">
                 <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
@@ -32,6 +36,7 @@
             </button>
         </div>
 
+        <!-- Navegação de 3 Abas Superior -->
         <!-- Abas Superiores -->
         <div class="tabs-nav">
             <button type="button" id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
@@ -39,6 +44,7 @@
             <button type="button" id="tab-gpon" class="tab-btn" onclick="switchTab('gpon')">SIP</button>
         </div>
 
+        <!-- PAINEL 1: GERADOR DE LOGIN -->
         <!-- PAINEL 1: LOGIN -->
         <div id="panel-login" class="tab-panel">
             <form id="form-login">
@@ -107,6 +113,7 @@
             </div>
         </div>
 
+        <!-- PAINEL 2: FORMATADOR DE MAC -->
         <!-- PAINEL 2: MAC -->
         <div id="panel-mac" class="tab-panel" style="display: none;">
             <form id="form-mac">
@@ -144,24 +151,35 @@
             </div>
         </div>
 
+        <!-- PAINEL 3: GERADOR GPON / SIP -->
         <!-- PAINEL 3: SIP -->
         <div id="panel-gpon" class="tab-panel" style="display: none;">
             <form id="form-gpon" onsubmit="gerarGponConfig(event)">
                 <div class="grid-2col">
+                    <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
+                    <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
                     <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1-1-11-7" required></div>
                     <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="56" required></div>
                 </div>
                 <div class="grid-2col">
+                    <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
+                    <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
                     <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="LG2-1107-8" required></div>
                     <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="8" required></div>
                 </div>
+                <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
+                <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
                 <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="joao.amaral.lgs" required></div>
                 <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="HWTC1c9f2180" required></div>
                 <div class="grid-2col">
+                    <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
+                    <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
                     <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="2117" required></div>
                     <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="08003091000" required></div>
                 </div>
                 <div class="grid-2col">
+                    <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
+                    <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
                     <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="100" required></div>
                     <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="101" required></div>
                 </div>
@@ -175,6 +193,7 @@
                         <label style="margin-bottom: 0;">SCRIPT DATACOM GERADO</label>
                         <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
                     </div>
+                    <textarea id="gpon-script-out" rows="8" readonly></textarea>
                     <textarea id="gpon-script-out" rows="12" readonly></textarea>
                 </div>
             </div>
