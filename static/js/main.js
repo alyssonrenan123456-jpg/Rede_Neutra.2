@@ -31,7 +31,7 @@ function switchTab(target) {
 }
 
 // ==========================================
-// SELEÇÃO DE TIPO E CIDADE
+// SELEÇÃO DE TIPO, REDE E CIDADE
 // ==========================================
 function selecionarTipo(tipo) {
     document.getElementById("card-neutra").classList.remove("active");
@@ -59,6 +59,9 @@ function toggleRede(mostrar) {
         grupoRede.style.display = "none";
         redeSelect.required = false;
         redeSelect.value = "";
+        
+        const grupoAtplus = document.getElementById("grupo-id-atplus");
+        if (grupoAtplus) grupoAtplus.style.display = "none";
 
         citySelect.innerHTML = '<option value="">Selecione...</option>';
         if (typeof cidadesSiglas !== 'undefined') {
@@ -73,8 +76,23 @@ function toggleRede(mostrar) {
 }
 
 function atualizarCidades() {
-    const rede = document.getElementById("rede").value;
+    const redeSelect = document.getElementById("rede");
+    const rede = redeSelect.value;
     const cidadeSelect = document.getElementById("cidade");
+    const grupoAtplus = document.getElementById("grupo-id-atplus");
+    const inputAtplus = document.getElementById("input-id-atplus");
+
+    if (grupoAtplus && inputAtplus) {
+        if (rede.toUpperCase().includes("ATPLUS")) {
+            grupoAtplus.style.display = "block";
+            inputAtplus.required = true;
+        } else {
+            grupoAtplus.style.display = "none";
+            inputAtplus.required = false;
+            inputAtplus.value = "";
+        }
+    }
+
     cidadeSelect.innerHTML = '<option value="">Selecione...</option>';
 
     if (typeof redesCidades !== 'undefined' && redesCidades[rede]) {
@@ -88,7 +106,7 @@ function atualizarCidades() {
 }
 
 // ==========================================
-// REQUISIÇÕES (LOGIN & MAC)
+// REQUISIÇÕES (LOGIN & MAC) E EVENTOS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
@@ -121,10 +139,21 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('resultado-mac-bloco').style.display = 'block';
         });
     }
+
+    const inputs = document.querySelectorAll('input[required], select[required]');
+    inputs.forEach(input => {
+        input.addEventListener('invalid', function() {
+            this.setCustomValidity('falta aqui cabaço');
+        });
+        
+        input.addEventListener('input', function() {
+            this.setCustomValidity('');
+        });
+    });
 });
 
 // ==========================================
-// GERADOR GPON SIP CORRIGIDO
+// GERADOR GPON SIP
 // ==========================================
 function gerarGponConfig(event) {
     event.preventDefault();
@@ -135,7 +164,6 @@ function gerarGponConfig(event) {
     const porta = document.getElementById('gpon-porta').value.trim();
     const login = document.getElementById('gpon-login').value.trim();
 
-    // Preserva prefixos como HWTC, ZTE, FHTT, etc.
     let serial = document.getElementById('gpon-serial').value.trim().replace(/[^a-zA-Z0-9]/g, '');
 
     const vlan = document.getElementById('gpon-vlan').value.trim();
@@ -198,16 +226,3 @@ function copyValue(id) {
         }
     });
 }
-document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('input[required], select[required]');
-    
-    inputs.forEach(input => {
-        input.addEventListener('invalid', function() {
-            this.setCustomValidity('falta aqui cabaço');
-        });
-        
-        input.addEventListener('input', function() {
-            this.setCustomValidity('');
-        });
-    });
-});
