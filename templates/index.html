@@ -3,118 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Telecom - Dashboard</title>
-    <!-- Fonte Estilo Video Game -->
+    <title>Ultra Telecom</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <main class="glass-card">
-        <!-- HEADER DO CARD -->
+        <!-- HEADER -->
         <div class="card-header">
             <h2 id="app-title">GPON SIP Generator</h2>
             <div class="header-actions">
-                <button type="button" class="btn-help-pixel" onclick="abrirAjuda()" title="O que esta aba faz?">?</button>
+                <button type="button" class="btn-help-pixel" onclick="abrirAjuda()" title="Ajuda">?</button>
                 <button type="button" id="theme-toggle" class="theme-btn">☀️</button>
             </div>
         </div>
 
-        <!-- MENU DE ABAS CENTRALIZADO -->
+        <!-- MENU DE ABAS -->
         <div class="tabs-nav">
             <button type="button" id="tab-login" class="tab-btn" onclick="switchTab('login')">Login</button>
             <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
             <button type="button" id="tab-sip" class="tab-btn active" onclick="switchTab('sip')">SIP</button>
         </div>
 
-        <!-- PAINEL LOGIN -->
-        <div id="panel-login" class="tab-panel" style="display: none;">
-            <div class="form-group">
-                <label for="login-input">LOGIN DO CLIENTE</label>
-                <input type="text" id="login-input" class="form-control" placeholder="Ex: joao.amaral.lgs">
-            </div>
-            <button type="button" class="btn-primary" onclick="formatarLogin()">Formatador de Login</button>
-        </div>
-
-        <!-- PAINEL MAC -->
-        <div id="panel-mac" class="tab-panel" style="display: none;">
-            <div class="form-group">
-                <label for="mac-input">ENDEREÇO MAC</label>
-                <input type="text" id="mac-input" class="form-control" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF">
-            </div>
-            <button type="button" class="btn-primary" onclick="formatarMAC()">Formatar MAC</button>
-        </div>
-
-        <!-- PAINEL GPON / SIP -->
+        <!-- PAINEL SIP -->
         <div id="panel-sip" class="tab-panel">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="sip-pon">PON</label>
-                    <input type="text" id="sip-pon" class="form-control" placeholder="1-1-11-7" value="1-1-11-7">
+                    <label>PON</label>
+                    <input type="text" id="sip-pon" class="form-control" value="1-1-11-7">
                 </div>
                 <div class="form-group">
-                    <label for="sip-onuid">ONU ID</label>
-                    <input type="text" id="sip-onuid" class="form-control" placeholder="56" value="56">
+                    <label>ONU ID</label>
+                    <input type="text" id="sip-onuid" class="form-control" value="56">
                 </div>
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="sip-caixa">CAIXA</label>
-                    <input type="text" id="sip-caixa" class="form-control" placeholder="LG2-1107-8" value="LG2-1107-8">
+                    <label>CAIXA</label>
+                    <input type="text" id="sip-caixa" class="form-control" value="LG2-1107-8">
                 </div>
                 <div class="form-group">
-                    <label for="sip-porta">PORTA</label>
-                    <input type="text" id="sip-porta" class="form-control" placeholder="8" value="8">
+                    <label>PORTA</label>
+                    <input type="text" id="sip-porta" class="form-control" value="8">
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="sip-login">LOGIN</label>
-                <input type="text" id="sip-login" class="form-control" placeholder="joao.amaral.lgs" value="joao.amaral.lgs">
+                <label>LOGIN</label>
+                <input type="text" id="sip-login" class="form-control" value="joao.amaral.lgs">
             </div>
 
             <div class="form-group">
-                <label for="sip-serial">SERIAL / MAC</label>
-                <input type="text" id="sip-serial" class="form-control" placeholder="HWTC1c9f2180" value="HWTC1c9f2180">
+                <label>SERIAL / MAC</label>
+                <input type="text" id="sip-serial" class="form-control" value="HWTC1c9f2180">
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="sip-vlan">VLAN</label>
-                    <input type="text" id="sip-vlan" class="form-control" placeholder="2117" value="2117">
+                    <label>VLAN</label>
+                    <input type="text" id="sip-vlan" class="form-control" value="2117">
                 </div>
                 <div class="form-group">
-                    <label for="sip-user">USUÁRIO SIP</label>
-                    <input type="text" id="sip-user" class="form-control" placeholder="08003091000" value="08003091000">
+                    <label>USUÁRIO SIP</label>
+                    <input type="text" id="sip-user" class="form-control" value="08003091000">
                 </div>
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="sip-sp-voip">Service-port VOIP</label>
-                    <input type="text" id="sip-sp-voip" class="form-control" placeholder="100" value="100">
+                    <label>Service-port VOIP</label>
+                    <input type="text" id="sip-sp-voip" class="form-control" value="100">
                 </div>
                 <div class="form-group">
-                    <label for="sip-sp-internet">Service-port INTERNET</label>
-                    <input type="text" id="sip-sp-internet" class="form-control" placeholder="101" value="101">
+                    <label>Service-port INTERNET</label>
+                    <input type="text" id="sip-sp-internet" class="form-control" value="101">
                 </div>
             </div>
 
             <button type="button" class="btn-primary" onclick="gerarScriptSIP()">Gerar Script SIP</button>
 
-            <div class="form-group" style="margin-top: 15px;">
-                <textarea id="sip-resultado" class="form-control" rows="4" readonly placeholder="O script gerado aparecerá aqui..."></textarea>
+            <div class="form-group" style="margin-top: 12px; display: none;" id="box-resultado">
+                <textarea id="sip-resultado" class="form-control" rows="4" readonly></textarea>
             </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="card-footer">
             Desenvolvido por Alysson Cordeiro 🛠️
         </footer>
     </main>
 
-    <!-- POP-UP DE AJUDA RETRO / PIXEL -->
+    <!-- POP-UP RETRO AJUDA -->
     <div id="help-modal" class="modal-overlay" style="display: none;" onclick="fecharAjuda(event)">
         <div class="modal-content-pixel">
             <span class="close-btn-pixel" onclick="fecharAjudaDirect()">&times;</span>
