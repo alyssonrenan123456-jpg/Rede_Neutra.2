@@ -1,242 +1,320 @@
 :root {
-    --bg-dark: #000000;
-    --ultra-blue: #00a2ff;
-    --ultra-blue-glow: rgba(0, 162, 255, 0.4);
-    --text-sub: #8a99ad;
-    --border-color: rgba(255, 255, 255, 0.08);
+  /* Cores Estilo Ultra Telecom */
+  --bg-dark: #05070a;
+  --ultra-blue: #00d2ff;
+  --ultra-blue-deep: #0052d4;
+  
+  /* Vidro Preto Fosco */
+  --card-bg: rgba(8, 10, 15, 0.78);
+  --card-border: rgba(0, 210, 255, 0.25);
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --select-option-bg: #080a0f;
+  --text-main: #ffffff;
+  --text-sub: #8d9bb0;
+  --glow-shadow: rgba(0, 210, 255, 0.4);
 }
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-    background-color: var(--bg-dark);
-    background-image: 
-        radial-gradient(circle at 20% 40%, rgba(0, 162, 255, 0.15), transparent 30%),
-        radial-gradient(circle at 80% 60%, rgba(0, 80, 200, 0.15), transparent 30%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    padding: 20px;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-main);
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* CARD GLASSMORPHISM EXATO DA FOTO 1 */
-.glass-card {
-    background: rgba(10, 16, 26, 0.85);
-    border: 1px solid rgba(0, 162, 255, 0.2);
-    border-radius: 20px;
-    padding: 24px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 0 30px rgba(0, 162, 255, 0.15);
+/* ==========================================
+   ESFERAS AZUIS FLUTUANTES (FUNDO)
+   ========================================== */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+  opacity: 0.55;
+  animation: float 12s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+  width: 320px;
+  height: 320px;
+  background: var(--ultra-blue);
+  top: 10%;
+  left: 15%;
+}
+
+.blob-2 {
+  width: 280px;
+  height: 280px;
+  background: var(--ultra-blue-deep);
+  bottom: 10%;
+  right: 15%;
+  animation-delay: -4s;
+}
+
+.blob-3 {
+  width: 220px;
+  height: 220px;
+  background: #00a8ff;
+  top: 45%;
+  right: 35%;
+  animation-delay: -8s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.1); }
+  100% { transform: translate(-30px, -50px) scale(0.95); }
+}
+
+/* ==========================================
+   CARD PRINCIPAL - VIDRO FOSCO + AURA AZUL
+   ========================================== */
+.card-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 0 35px rgba(0, 210, 255, 0.25), 0 20px 50px rgba(0, 0, 0, 0.85);
+  transition: box-shadow 0.3s ease;
+}
+
+.card-container:hover {
+  box-shadow: 0 0 50px rgba(0, 210, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.95);
 }
 
 .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.card-header h2 {
-    font-size: 1.2rem;
-    font-weight: 700;
+.card-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--ultra-blue);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.theme-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    color: #00a2ff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* BOTÃO '?' ANIMADO */
-.btn-help-pixel {
-    background: rgba(10, 16, 26, 0.9);
-    border: 2px solid var(--ultra-blue);
-    color: var(--ultra-blue);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-help-pixel:hover {
-    transform: scale(1.18) rotate(8deg);
-    background: var(--ultra-blue);
-    color: #000;
-    box-shadow: 0 0 12px var(--ultra-blue);
-}
-
-/* MENU DE ABAS */
+/* NAVEGAÇÃO ABAS */
 .tabs-nav {
-    display: flex;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 4px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 20px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 4px;
 }
 
 .tab-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text-sub);
-    padding: 8px 0;
-    font-weight: 600;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-sub);
+  padding: 10px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
 }
 
 .tab-btn.active {
-    background: var(--ultra-blue);
-    color: #fff;
-    box-shadow: 0 0 12px var(--ultra-blue-glow);
+  background: linear-gradient(135deg, #00d2ff 0%, #0052d4 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 15px var(--glow-shadow);
 }
 
-/* FORMULÁRIO E INPUTS */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
+/* FORMULÁRIO E SELECT CORRIGIDO */
 .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--text-sub);
-    margin-bottom: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-sub);
+  margin-bottom: 8px;
 }
 
-.form-control {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 8px 10px;
-    color: #fff;
-    font-size: 0.82rem;
-    outline: none;
+input[type="text"], select, textarea {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: 0.2s;
 }
 
-.form-control:focus {
-    border-color: var(--ultra-blue);
+select option {
+  background-color: var(--select-option-bg) !important;
+  color: #ffffff !important;
+  padding: 10px;
 }
 
+input[type="text"]:focus, select:focus, textarea:focus {
+  border-color: var(--ultra-blue);
+  box-shadow: 0 0 10px var(--glow-shadow);
+}
+
+/* RADIOS */
+.radio-toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.radio-card {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  transition: 0.2s;
+}
+
+.radio-card input { display: none; }
+
+.radio-card.active {
+  border-color: var(--ultra-blue);
+  background: rgba(0, 210, 255, 0.15);
+  color: #fff;
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* BOTÃO PRINCIPAL */
 .btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, #0088ff, #00d2ff);
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    margin-top: 8px;
-    box-shadow: 0 4px 15px var(--ultra-blue-glow);
+  width: 100%;
+  background: linear-gradient(135deg, #00d2ff 0%, #0052d4 100%);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 6px 20px var(--glow-shadow);
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+/* RESULTADOS E BOTÃO DE COPIAR */
+.resultado-box {
+  margin-top: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.res-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.res-content { display: flex; flex-direction: column; }
+.res-content small { font-size: 0.65rem; color: var(--text-sub); }
+.res-content strong { font-size: 0.9rem; color: #38ef7d; }
+
+.btn-copy-icon {
+  background: rgba(0, 210, 255, 0.15);
+  border: 1px solid var(--ultra-blue);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-copy-icon:hover {
+  background: var(--ultra-blue);
+  color: #000;
+  box-shadow: 0 0 10px var(--glow-shadow);
 }
 
 .card-footer {
-    text-align: center;
-    font-size: 0.7rem;
-    color: var(--text-sub);
-    margin-top: 15px;
+  text-align: center;
+  margin-top: 22px;
+  color: var(--text-sub);
+  font-size: 0.75rem;
 }
 
-/* MODAL DE AJUDA RETRO */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(6px);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #38ef7d;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: 100;
 }
 
-.modal-content-pixel {
-    width: 90%;
-    max-width: 400px;
-    background: rgba(10, 16, 26, 0.95);
-    border: 2px solid var(--ultra-blue);
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    box-shadow: 0 0 20px var(--ultra-blue-glow);
-    animation: popUpIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-.pixel-title {
-    font-family: 'Press Start 2P', monospace;
-    color: var(--ultra-blue);
-    font-size: 0.75rem;
-    margin-bottom: 12px;
-}
-
-.pixel-text {
-    font-family: 'Press Start 2P', monospace;
-    color: #d1d5db;
-    font-size: 0.58rem;
-    line-height: 1.8;
-}
-
-.close-btn-pixel {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 0.8rem;
-    color: var(--text-sub);
-    cursor: pointer;
-}
-
-.close-btn-pixel:hover {
-    color: #ff0055;
-}
-
-@keyframes popUpIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.8) translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
