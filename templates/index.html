@@ -602,7 +602,6 @@
                 });
             }
 
-            // Gera um ponto de entrada e outro de saída aleatórios em qualquer borda ou cantinho
             function randomEdgePath(margin) {
                 const edges = ['left', 'right', 'top', 'bottom'];
                 const entryEdge = edges[Math.floor(Math.random() * edges.length)];
@@ -625,7 +624,6 @@
                 const start = pointOnEdge(entryEdge);
                 const end = pointOnEdge(exitEdge);
 
-                // Pequena variação para permitir passagens rentes aos cantos da tela
                 if (Math.random() < 0.35) {
                     const cornerX = Math.random() < 0.5 ? 24 : width - 24;
                     const cornerY = Math.random() < 0.5 ? 24 : height - 24;
@@ -730,7 +728,6 @@
 
             function triggerRadarPulse() {
                 radarPulse.active = true;
-                // Pode surgir em qualquer ponto, inclusive perto de cantos/bordas
                 radarPulse.x = Math.random() * width;
                 radarPulse.y = Math.random() * height;
                 radarPulse.frame = 0;
@@ -1046,17 +1043,22 @@
                 triggerSatellite,
                 triggerRadarPulse
             ];
-            let step = 0;
+            let lastIndex = -1;
 
+            function runRandomEvent() {
+                let nextIndex = Math.floor(Math.random() * sequence.length);
+                if (sequence.length > 1 && nextIndex === lastIndex) {
+                    nextIndex = (nextIndex + 1) % sequence.length;
+                }
+                lastIndex = nextIndex;
+                sequence[nextIndex]();
+            }
+
+            // Inicia após 2 minutos (120000 ms) e dispara um evento aleatório a cada 30s (30000 ms)
             setTimeout(() => {
-                sequence[step % sequence.length]();
-                step++;
-
-                setInterval(() => {
-                    sequence[step % sequence.length]();
-                    step++;
-                }, 11000);
-            }, 2500);
+                runRandomEvent();
+                setInterval(runRandomEvent, 30000);
+            }, 120000);
         })();
     </script>
 </body>
