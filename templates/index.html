@@ -1,1207 +1,533 @@
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Provisionamento - Ultra</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        html, body {
-            width: 100%;
-            height: 100vh;
-            max-height: 100vh;
-            overflow: hidden !important;
-            margin: 0;
-            padding: 0;
-        }
-
-        #tech-canvas,
-        #holo-fx-canvas {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-        }
-
-        #tech-canvas {
-            z-index: 0;
-        }
-
-        #holo-fx-canvas {
-            z-index: 1;
-        }
-
-        .card-container {
-            z-index: 3 !important;
-            max-height: 92vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
-        }
-
-        .script-mode-switch {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-
-        .script-mode-btn {
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            background: rgba(15, 23, 42, 0.55);
-            color: rgba(186, 230, 253, 0.75);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .script-mode-btn.active {
-            background: rgba(56, 189, 248, 0.18);
-            border-color: rgba(56, 189, 248, 0.7);
-            color: #e0f2fe;
-            box-shadow: 0 0 14px rgba(56, 189, 248, 0.22);
-        }
-
-        #holo-char-layer {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        #egg-personagem {
-            position: fixed;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            pointer-events: none;
-            cursor: pointer;
-            transform-origin: center center;
-            will-change: transform, opacity;
-        }
-
-        #egg-personagem.is-clickable {
-            pointer-events: auto;
-        }
-
-        .holo-char-projection {
-            position: relative;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            color: #38bdf8;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 22px rgba(0, 210, 255, 0.3));
-            transition: filter 0.15s ease;
-        }
-
-        #egg-personagem:hover .holo-char-projection {
-            filter: drop-shadow(0 0 16px rgba(186, 230, 253, 0.9)) drop-shadow(0 0 28px rgba(0, 210, 255, 0.55));
-        }
-
-        .holo-char-projection::after {
-            content: "";
-            position: absolute;
-            inset: -4px;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0px,
-                transparent 3px,
-                rgba(186, 230, 253, 0.12) 4px,
-                rgba(186, 230, 253, 0.12) 5px
-            );
-            pointer-events: none;
-        }
-
-        .holo-tag-floating {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 9px;
-            letter-spacing: 0.16em;
-            color: rgba(186, 230, 253, 0.78);
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
-            margin-bottom: 2px;
-        }
-
-        .holo-banner {
-            position: fixed;
-            top: 22px;
-            left: 50%;
-            transform: translate3d(-50%, -24px, 0);
-            z-index: 90;
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: rgba(8, 13, 26, 0.92);
-            border: 1px solid rgba(56, 189, 248, 0.6);
-            box-shadow: 0 0 24px rgba(0, 210, 255, 0.38);
-            color: #e0f2fe;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-
-        .holo-banner.show {
-            opacity: 1;
-            transform: translate3d(-50%, 0, 0);
-        }
-    </style>
-</head>
-<body>
-
-    <canvas id="tech-canvas"></canvas>
-    <canvas id="holo-fx-canvas"></canvas>
-
-    <div id="galysson-found-banner" class="holo-banner" role="status" aria-live="polite">
-        parabens vc encontrou o galysson
-    </div>
-    <div id="meteor-hit-banner" class="holo-banner" role="status" aria-live="polite">
-        impacto detectado // meteoro interceptado
-    </div>
-
-    <div id="holo-char-layer">
-        <div id="egg-personagem" title="Clique aqui!">
-            <div class="holo-char-projection">
-                <span class="holo-tag-floating">HOLO // GALO-01</span>
-                <svg width="96" height="196" viewBox="0 0 120 245" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="holoBodyGrad" x1="20" y1="8" x2="100" y2="235" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.95"/>
-                            <stop offset="35%" stop-color="#38bdf8" stop-opacity="0.82"/>
-                            <stop offset="75%" stop-color="#0284c7" stop-opacity="0.68"/>
-                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.75"/>
-                        </linearGradient>
-                        <linearGradient id="holoGlassFill" x1="30" y1="10" x2="90" y2="220" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.28"/>
-                            <stop offset="55%" stop-color="#38bdf8" stop-opacity="0.12"/>
-                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.16"/>
-                        </linearGradient>
-                        <clipPath id="neckClip">
-                            <path d="M44 58 L38 128 L68 128 L66 58 Z"/>
-                        </clipPath>
-                    </defs>
-
-                    <path d="M38 22 C38 9, 72 9, 72 23 L73 43 C73 54, 63 60, 54 60 C45 60, 38 53, 38 41 Z"
-                          fill="url(#holoGlassFill)" stroke="url(#holoBodyGrad)" stroke-width="2.1"/>
-                    <path d="M37 22 C38 8, 55 4, 70 11 C74 14, 74 20, 72 24 C66 18, 56 17, 47 19 C42 20, 39 22, 37 22 Z"
-                          fill="rgba(56, 189, 248, 0.34)" stroke="#e0f2fe" stroke-width="1.5" stroke-linejoin="round"/>
-                    <path d="M45 11 L49 18 M54 9 L56 18 M62 11 L62 19"
-                          stroke="#bae6fd" stroke-width="1.1" stroke-linecap="round" opacity="0.75"/>
-
-                    <path d="M42 31 C45 29, 49 29, 51 30" stroke="#f0f9ff" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M59 30 C62 29, 66 29, 69 31" stroke="#f0f9ff" stroke-width="1.6" stroke-linecap="round"/>
-
-                    <ellipse cx="46.5" cy="34.5" rx="3" ry="1.7" fill="#e0f2fe"/>
-                    <circle cx="46.8" cy="34.5" r="1.1" fill="#0369a1"/>
-                    <ellipse cx="63.5" cy="34.5" rx="3" ry="1.7" fill="#e0f2fe"/>
-                    <circle cx="63.8" cy="34.5" r="1.1" fill="#0369a1"/>
-
-                    <path d="M55 33 L54 44.5 L58 46" stroke="#bae6fd" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="53.5" cy="45" r="1" fill="#7dd3fc"/>
-                    <path d="M49 51.5 Q55 53.5 61 51.5" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
-
-                    <path d="M44 58 L38 128 L68 128 L66 58 Z"
-                          fill="url(#holoGlassFill)" stroke="url(#holoBodyGrad)" stroke-width="2.1" stroke-linejoin="round"/>
-
-                    <g clip-path="url(#neckClip)">
-                        <line x1="48" y1="58" x2="43" y2="128" stroke="#7dd3fc" stroke-width="1" stroke-dasharray="5 4" opacity="0.55"/>
-                        <line x1="54" y1="58" x2="51" y2="128" stroke="#38bdf8" stroke-width="1" stroke-dasharray="7 4" opacity="0.45"/>
-                        <line x1="60" y1="58" x2="59" y2="128" stroke="#bae6fd" stroke-width="1" stroke-dasharray="4 4" opacity="0.55"/>
-                        <line x1="36" y1="74" x2="70" y2="74" stroke="#7dd3fc" stroke-width="0.8" opacity="0.25"/>
-                        <line x1="36" y1="94" x2="70" y2="94" stroke="#38bdf8" stroke-width="0.8" opacity="0.25"/>
-                        <line x1="36" y1="114" x2="70" y2="114" stroke="#bae6fd" stroke-width="0.8" opacity="0.25"/>
-                    </g>
-
-                    <path d="M38 126 C31 131, 25 142, 26 156 C27 169, 34 179, 44 183 L72 185 C84 176, 87 156, 81 140 C77 131, 72 127, 68 126"
-                          fill="rgba(56, 189, 248, 0.18)" stroke="url(#holoBodyGrad)" stroke-width="2.1" stroke-linejoin="round"/>
-
-                    <path d="M36 134 L45 141 M32 145 L43 151 M31 156 L43 161 M34 167 L46 171"
-                          stroke="#7dd3fc" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
-                    <path d="M64 134 L56 141 M68 145 L58 151"
-                          stroke="#bae6fd" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
-
-                    <path d="M49 138 C68 135, 81 148, 77 170 C64 173, 50 163, 49 138 Z"
-                          fill="rgba(168, 85, 247, 0.16)" stroke="#bae6fd" stroke-width="1.7" stroke-linejoin="round"/>
-                    <path d="M55 146 C66 146, 72 154, 70 163" stroke="#7dd3fc" stroke-width="1.2" opacity="0.75"/>
-                    <path d="M53 154 C62 155, 66 161, 65 167" stroke="#38bdf8" stroke-width="1.1" opacity="0.65"/>
-
-                    <path d="M79 154 C96 139, 111 144, 114 159 C100 162, 88 165, 79 171"
-                          fill="rgba(56, 189, 248, 0.16)" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M80 165 C98 157, 110 164, 108 176 C95 174, 85 173, 77 177"
-                          fill="rgba(168, 85, 247, 0.12)" stroke="#bae6fd" stroke-width="1.7" stroke-linejoin="round"/>
-                    <path d="M77 173 C93 171, 102 178, 98 187 C88 183, 81 181, 74 183"
-                          stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
-
-                    <path d="M43 182 L40 222" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M63 184 L66 224" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
-
-                    <path d="M40 222 L24 232 M40 222 L39 236 M40 222 L53 231"
-                          stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M66 224 L51 234 M66 224 L67 238 M66 224 L80 233"
-                          stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-container">
-        <div class="card-header">
-            <h1 id="app-title">Gerador de Login</h1>
-            <div class="header-actions">
-                <button type="button" class="theme-toggle" onclick="toggleTema()" aria-label="Alternar Tema">
-                    <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="5" fill="currentColor"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="tabs-nav">
-            <button type="button" id="tab-login" class="tab-btn active" onclick="handleMainTab('login')">Login</button>
-            <button type="button" id="tab-mac" class="tab-btn" onclick="handleMainTab('mac')">MAC</button>
-            <button type="button" id="tab-gpon" class="tab-btn" onclick="handleMainTab('gpon')">Scripts</button>
-        </div>
-
-        <div id="panel-login" class="tab-panel" style="display: block;">
-            <form id="form-login">
-                <div class="form-group">
-                    <label>NOME DO CLIENTE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <input type="text" name="nome" placeholder="Ex: João Silva" required autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>TIPO DE LOGIN</label>
-                    <div class="radio-toggle-group">
-                        <label class="radio-card active" id="card-neutra">
-                            <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="2" y1="12" x2="22" y2="12"></line>
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                            </svg>
-                            <span>REDE NEUTRA</span>
-                        </label>
-                        <label class="radio-card" id="card-padrao">
-                            <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao')">
-                            <span>PADRÃO / LOCAL</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group" id="grupo-rede">
-                    <label>REDE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                            <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                        </svg>
-                        <select name="rede" id="rede" onchange="atualizarCidades()" required>
-                            <option value="">Selecione a rede</option>
-                            {% for r in redes %}
-                                <option value="{{ r }}">{{ r }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" id="grupo-id-atplus" style="display: none;">
-                    <label>ID ATPLUS</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="4" y1="9" x2="20" y2="9"></line>
-                            <line x1="4" y1="15" x2="20" y2="15"></line>
-                            <line x1="10" y1="3" x2="8" y2="21"></line>
-                            <line x1="16" y1="3" x2="14" y2="21"></line>
-                        </svg>
-                        <input type="text" name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>CIDADE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                            <line x1="8" y1="2" x2="8" y2="18"></line>
-                            <line x1="16" y1="6" x2="16" y2="22"></line>
-                        </svg>
-                        <select name="cidade" id="cidade" required>
-                            <option value="">Selecione...</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-btn" class="btn-primary">
-                    <span id="btn-text">Gerar Acesso</span>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-                    </svg>
-                    <span id="btn-loader" class="spinner" style="display: none;"></span>
-                </button>
-            </form>
-
-            <div id="resultado-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item">
-                    <div class="res-content">
-                        <small>LOGIN GENERATED</small>
-                        <strong id="login">-</strong>
-                    </div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('login')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content">
-                        <small>PASSWORD GENERATED</small>
-                        <strong id="senha">-</strong>
-                    </div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('senha')">Copiar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-mac" class="tab-panel" style="display: none;">
-            <form id="form-mac">
-                <div class="form-group">
-                    <label>ENDEREÇO MAC</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                            <rect x="9" y="9" width="6" height="6"></rect>
-                            <line x1="9" y1="1" x2="9" y2="4"></line>
-                            <line x1="15" y1="1" x2="15" y2="4"></line>
-                            <line x1="9" y1="20" x2="9" y2="23"></line>
-                            <line x1="15" y1="20" x2="15" y2="23"></line>
-                            <line x1="20" y1="9" x2="23" y2="9"></line>
-                            <line x1="20" y1="14" x2="23" y2="14"></line>
-                            <line x1="1" y1="9" x2="4" y2="9"></line>
-                            <line x1="1" y1="14" x2="4" y2="14"></line>
-                        </svg>
-                        <input type="text" name="mac" id="input-mac-raw" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF" required autocomplete="off">
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-mac-btn" class="btn-primary">
-                    <span id="btn-mac-text">Formatar MAC</span>
-                    <span id="btn-mac-loader" class="spinner" style="display: none;"></span>
-                </button>
-            </form>
-
-            <div id="resultado-mac-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item">
-                    <div class="res-content"><small>CISCO</small><strong id="mac-cisco">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-cisco')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>LINUX</small><strong id="mac-linux">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-linux')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>WINDOWS</small><strong id="mac-windows">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-windows')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>HUAWEI</small><strong id="mac-huawei">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-huawei')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>FABRICANTE (OUI)</small><strong id="mac-vendor">-</strong></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-gpon" class="tab-panel" style="display: none;">
-            <div class="script-mode-switch">
-                <button type="button" id="btn-mode-sip" class="script-mode-btn active" onclick="switchScriptMode('sip')">SIP</button>
-                <button type="button" id="btn-mode-datacom" class="script-mode-btn" onclick="switchScriptMode('datacom')">ONU FAST DATACOM</button>
-            </div>
-
-            <div id="script-subpanel-sip" style="display: block;">
-                <form id="form-gpon" onsubmit="gerarGponConfig(event)">
-                    <div class="grid-2col">
-                        <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
-                        <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
-                    </div>
-                    <div class="grid-2col">
-                        <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
-                        <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
-                    </div>
-                    <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
-                    <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
-                    <div class="grid-2col">
-                        <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
-                        <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
-                    </div>
-                    <div class="grid-2col">
-                        <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
-                        <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
-                    </div>
-
-                    <button type="submit" class="btn-primary">Gerar Script SIP</button>
-                </form>
-
-                <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label style="margin-bottom: 0;">SCRIPT GERADO</label>
-                            <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
-                        </div>
-                        <textarea id="gpon-script-out" rows="4" readonly></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div id="script-subpanel-datacom" style="display: none;">
-                <form id="form-datacom" onsubmit="gerarDatacomOnuFast(event)">
-                    <div class="grid-2col">
-                        <div class="form-group"><label>PON</label><input type="text" id="dc-pon" placeholder="1/1/4" required></div>
-                        <div class="form-group"><label>ONU ID</label><input type="text" id="dc-onu" placeholder="8" required></div>
-                    </div>
-                    <div class="grid-2col">
-                        <div class="form-group"><label>CAIXA</label><input type="text" id="dc-caixa" placeholder="VDA-AB04-5" required></div>
-                        <div class="form-group"><label>PORTA</label><input type="text" id="dc-porta" placeholder="9" required></div>
-                    </div>
-                    <div class="form-group"><label>LOGIN</label><input type="text" id="dc-login" placeholder="rodrigo.lima.vda" required></div>
-                    <div class="form-group"><label>SERIAL</label><input type="text" id="dc-serial" placeholder="FSTT00003095" required></div>
-                    <div class="grid-2col">
-                        <div class="form-group"><label>VLAN</label><input type="text" id="dc-vlan" placeholder="204" required></div>
-                        <div class="form-group"><label>SERVICE-PORT</label><input type="text" id="dc-sp" placeholder="103" required></div>
-                    </div>
-
-                    <button type="submit" class="btn-primary">Gerar Script ONU Fast</button>
-                </form>
-
-                <div id="resultado-datacom-bloco" class="resultado-box" style="display: none;">
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label style="margin-bottom: 0;">SCRIPT DATACOM</label>
-                            <button type="button" class="btn-copy-icon" onclick="copyValue('dc-script-out')">Copiar Script</button>
-                        </div>
-                        <textarea id="dc-script-out" rows="12" readonly></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-footer">
-            <small>Desenvolvido por Alysson Cordeiro 🛠️</small>
-        </div>
-    </div>
-
-    <div id="toast" class="toast">Copiado para a área de transferência!</div>
-
-    <script>
-        const redesCidades = {{ redes_cidades | tojson }};
-        const cidadesSiglas = {{ cidades | tojson }};
-    </script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-    <!-- Controle exclusivo de abas e sub-modos SIP / ONU Fast Datacom -->
-    <script>
-        function handleMainTab(tabName) {
-            if (typeof switchTab === 'function') {
-                switchTab(tabName);
-            }
-            const panels = {
-                login: document.getElementById('panel-login'),
-                mac: document.getElementById('panel-mac'),
-                gpon: document.getElementById('panel-gpon')
-            };
-            const tabs = {
-                login: document.getElementById('tab-login'),
-                mac: document.getElementById('tab-mac'),
-                gpon: document.getElementById('tab-gpon')
-            };
-
-            Object.keys(panels).forEach((key) => {
-                if (panels[key]) {
-                    panels[key].style.display = key === tabName ? 'block' : 'none';
-                }
-                if (tabs[key]) {
-                    tabs[key].classList.toggle('active', key === tabName);
-                }
-            });
-        }
-
-        function switchScriptMode(mode) {
-            const sipPanel = document.getElementById('script-subpanel-sip');
-            const dcPanel = document.getElementById('script-subpanel-datacom');
-            const btnSip = document.getElementById('btn-mode-sip');
-            const btnDc = document.getElementById('btn-mode-datacom');
-
-            const isDc = mode === 'datacom';
-            sipPanel.style.display = isDc ? 'none' : 'block';
-            dcPanel.style.display = isDc ? 'block' : 'none';
-            btnSip.classList.toggle('active', !isDc);
-            btnDc.classList.toggle('active', isDc);
-        }
-
-        function gerarDatacomOnuFast(event) {
-            event.preventDefault();
-
-            const pon = document.getElementById('dc-pon').value.trim();
-            const onu = document.getElementById('dc-onu').value.trim();
-            const caixa = document.getElementById('dc-caixa').value.trim();
-            const porta = document.getElementById('dc-porta').value.trim();
-            const login = document.getElementById('dc-login').value.trim();
-            const serial = document.getElementById('dc-serial').value.trim();
-            const vlan = document.getElementById('dc-vlan').value.trim();
-            const sp = document.getElementById('dc-sp').value.trim();
-
-            const script = [
-                `interface gpon ${pon}`,
-                ` onu ${onu}`,
-                `  name "${caixa}|${porta}|${login}"`,
-                `  serial-number ${serial}`,
-                `  line-profile Banda-Maxima`,
-                `  ethernet 1`,
-                `   negotiation`,
-                `   no shutdown`,
-                `   native vlan vlan-id ${vlan}`,
-                `  !`,
-                ` !`,
-                `!`,
-                ``,
-                `service-port ${sp}`,
-                ` gpon ${pon} onu ${onu} gem 1 match vlan vlan-id ${vlan} action vlan replace vlan-id ${vlan}`
-            ].join('\n');
-
-            const out = document.getElementById('dc-script-out');
-            const bloco = document.getElementById('resultado-datacom-bloco');
-            out.value = script;
-            bloco.style.display = 'block';
-        }
-    </script>
-
-    <!-- Malha de Rede Lenta no Fundo -->
-    <script>
-        (function () {
-            const canvas = document.getElementById('tech-canvas');
-            const ctx = canvas.getContext('2d');
-            let width, height, nodes = [], pulses = [];
-            const mouse = { x: null, y: null, radius: 170 };
-
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                initNodes();
-            }
-
-            function initNodes() {
-                const count = Math.min(75, Math.floor((width * height) / 18000));
-                nodes = [];
-                for (let i = 0; i < count; i++) {
-                    const isPurple = Math.random() < 0.3;
-                    nodes.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        vx: (Math.random() - 0.5) * 0.14,
-                        vy: (Math.random() - 0.5) * 0.14,
-                        r: Math.random() * 1.8 + 1.1,
-                        color: isPurple ? '168, 85, 247' : '56, 189, 248'
-                    });
-                }
-            }
-
-            window.addEventListener('resize', resize);
-            window.addEventListener('mousemove', (e) => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-            window.addEventListener('mouseleave', () => {
-                mouse.x = null;
-                mouse.y = null;
-            });
-
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-                const maxDist = 145;
-
-                for (let i = 0; i < nodes.length; i++) {
-                    const a = nodes[i];
-                    a.x += a.vx;
-                    a.y += a.vy;
-
-                    if (a.x < 0 || a.x > width) a.vx *= -1;
-                    if (a.y < 0 || a.y > height) a.vy *= -1;
-
-                    for (let j = i + 1; j < nodes.length; j++) {
-                        const b = nodes[j];
-                        const dx = a.x - b.x;
-                        const dy = a.y - b.y;
-                        const dist = Math.hypot(dx, dy);
-
-                        if (dist < maxDist) {
-                            const alpha = (1 - dist / maxDist) * 0.28;
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(${a.color}, ${alpha})`;
-                            ctx.lineWidth = 0.8;
-                            ctx.moveTo(a.x, a.y);
-                            ctx.lineTo(b.x, b.y);
-                            ctx.stroke();
-
-                            if (pulses.length < 12 && Math.random() < 0.00018) {
-                                pulses.push({ ax: a.x, ay: a.y, bx: b.x, by: b.y, t: 0, speed: 0.004 + Math.random() * 0.004 });
-                            }
-                        }
-                    }
-
-                    if (mouse.x !== null) {
-                        const mdx = a.x - mouse.x;
-                        const mdy = a.y - mouse.y;
-                        const mdist = Math.hypot(mdx, mdy);
-                        if (mdist < mouse.radius) {
-                            const alpha = (1 - mdist / mouse.radius) * 0.45;
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-                            ctx.lineWidth = 1;
-                            ctx.moveTo(a.x, a.y);
-                            ctx.lineTo(mouse.x, mouse.y);
-                            ctx.stroke();
-                        }
-                    }
-
-                    ctx.beginPath();
-                    ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(${a.color}, 0.85)`;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = `rgba(${a.color}, 0.9)`;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-
-                for (let k = pulses.length - 1; k >= 0; k--) {
-                    const p = pulses[k];
-                    p.t += p.speed;
-                    if (p.t >= 1) {
-                        pulses.splice(k, 1);
-                        continue;
-                    }
-                    const px = p.ax + (p.bx - p.ax) * p.t;
-                    const py = p.ay + (p.by - p.ay) * p.t;
-                    ctx.beginPath();
-                    ctx.arc(px, py, 2, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(224, 242, 254, 0.95)';
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#38bdf8';
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-
-                requestAnimationFrame(draw);
-            }
-
-            resize();
-            draw();
-        })();
-    </script>
-
-    <!-- Eventos Minimalistas de 5s + Clique no Meteoro + Galysson Raro (1 a cada 30 eventos) -->
-    <script>
-        (function () {
-            const canvas = document.getElementById('holo-fx-canvas');
-            const ctx = canvas.getContext('2d');
-            const charEl = document.getElementById('egg-personagem');
-            const galyssonBannerEl = document.getElementById('galysson-found-banner');
-            const meteorBannerEl = document.getElementById('meteor-hit-banner');
-
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-            let galyssonBannerTimer = null;
-            let meteorBannerTimer = null;
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            function showGalyssonMessage() {
-                if (!galyssonBannerEl) return;
-                galyssonBannerEl.classList.add('show');
-                clearTimeout(galyssonBannerTimer);
-                galyssonBannerTimer = setTimeout(() => {
-                    galyssonBannerEl.classList.remove('show');
-                }, 3200);
-            }
-
-            function showMeteorMessage() {
-                if (!meteorBannerEl) return;
-                meteorBannerEl.classList.add('show');
-                clearTimeout(meteorBannerTimer);
-                meteorBannerTimer = setTimeout(() => {
-                    meteorBannerEl.classList.remove('show');
-                }, 3000);
-            }
-
-            if (charEl) {
-                charEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showGalyssonMessage();
-                });
-            }
-
-            function randomEdgePath(margin) {
-                const edges = ['left', 'right', 'top', 'bottom'];
-                const entryEdge = edges[Math.floor(Math.random() * edges.length)];
-                const otherEdges = edges.filter((e) => e !== entryEdge);
-                const exitEdge = otherEdges[Math.floor(Math.random() * otherEdges.length)];
-
-                function pointOnEdge(edge) {
-                    if (edge === 'left') return { x: -margin, y: Math.random() * height };
-                    if (edge === 'right') return { x: width + margin, y: Math.random() * height };
-                    if (edge === 'top') return { x: Math.random() * width, y: -margin };
-                    return { x: Math.random() * width, y: height + margin };
-                }
-
-                const start = pointOnEdge(entryEdge);
-                const end = pointOnEdge(exitEdge);
-
-                if (Math.random() < 0.35) {
-                    const cornerX = Math.random() < 0.5 ? 24 : width - 24;
-                    const cornerY = Math.random() < 0.5 ? 24 : height - 24;
-                    end.x = cornerX + (end.x - cornerX) * 0.25;
-                    end.y = cornerY + (end.y - cornerY) * 0.25;
-                }
-
-                return { start, end };
-            }
-
-            const stars = Array.from({ length: 95 }, () => ({
-                x: Math.random(),
-                y: Math.random(),
-                r: Math.random() * 1.1 + 0.25,
-                twinkle: Math.random() * Math.PI * 2,
-                speed: 0.02 + Math.random() * 0.025
-            }));
-
-            const PASS_FRAMES = 300; // ~5s a 60fps
-
-            let milkyWay = { active: false, frame: 0, angle: -0.32, dirX: 1, dirY: 0.2 };
-            let meteor = { active: false, x: 0, y: 0, vx: 0, vy: 0, angle: 0, sparks: [], frame: 0 };
-            let satellite = { active: false, x: 0, y: 0, vx: 0, vy: 0, angle: 0, frame: 0 };
-            let radarPulse = { active: false, x: 0, y: 0, frame: 0 };
-            let charAnim = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, frame: 0 };
-            let shockwave = { active: false, x: 0, y: 0, frame: 0, maxFrames: 36 };
-
-            function triggerMeteorHit(hx, hy) {
-                shockwave.active = true;
-                shockwave.x = hx;
-                shockwave.y = hy;
-                shockwave.frame = 0;
-
-                for (let i = 0; i < 14; i++) {
-                    const ang = (Math.PI * 2 * i) / 14 + Math.random() * 0.3;
-                    const spd = 1.2 + Math.random() * 2.4;
-                    meteor.sparks.push({
-                        x: hx,
-                        y: hy,
-                        vx: Math.cos(ang) * spd,
-                        vy: Math.sin(ang) * spd,
-                        size: Math.random() * 1.8 + 0.7,
-                        alpha: 0.75,
-                        shard: false
-                    });
-                }
-
-                showMeteorMessage();
-            }
-
-            window.addEventListener('click', (e) => {
-                if (!meteor.active) return;
-                const dist = Math.hypot(e.clientX - meteor.x, e.clientY - meteor.y);
-                if (dist <= 65) {
-                    triggerMeteorHit(meteor.x, meteor.y);
-                }
-            });
-
-            function triggerMilkyWay() {
-                milkyWay.active = true;
-                milkyWay.frame = 0;
-                milkyWay.dirX = Math.random() < 0.5 ? 1 : -1;
-                milkyWay.dirY = (Math.random() - 0.5) * 0.6;
-                milkyWay.angle = (Math.random() - 0.5) * 1.1;
-            }
-
-            function triggerMeteor() {
-                const { start, end } = randomEdgePath(150);
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-
-                meteor.active = true;
-                meteor.x = start.x;
-                meteor.y = start.y;
-                meteor.vx = dx / PASS_FRAMES;
-                meteor.vy = dy / PASS_FRAMES;
-                meteor.angle = Math.atan2(dy, dx);
-                meteor.sparks = [];
-                meteor.frame = 0;
-            }
-
-            function triggerSatellite() {
-                const { start, end } = randomEdgePath(100);
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-
-                satellite.active = true;
-                satellite.x = start.x;
-                satellite.y = start.y;
-                satellite.vx = dx / PASS_FRAMES;
-                satellite.vy = dy / PASS_FRAMES;
-                satellite.angle = Math.atan2(dy, dx);
-                satellite.frame = 0;
-            }
-
-            function triggerRadarPulse() {
-                radarPulse.active = true;
-                radarPulse.x = Math.random() * width;
-                radarPulse.y = Math.random() * height;
-                radarPulse.frame = 0;
-            }
-
-            function triggerCharacter() {
-                if (!charEl) return;
-                const { start, end } = randomEdgePath(210);
-                charAnim.active = true;
-                charAnim.startX = start.x;
-                charAnim.startY = start.y;
-                charAnim.endX = end.x;
-                charAnim.endY = end.y;
-                charAnim.frame = 0;
-                charEl.classList.add('is-clickable');
-            }
-
-            function updateCharacter() {
-                if (!charAnim.active || !charEl) return;
-
-                charAnim.frame++;
-                const p = charAnim.frame / PASS_FRAMES;
-                if (p >= 1) {
-                    charAnim.active = false;
-                    charEl.style.opacity = '0';
-                    charEl.classList.remove('is-clickable');
-                    return;
-                }
-
-                const x = charAnim.startX + (charAnim.endX - charAnim.startX) * p;
-                const y = charAnim.startY + (charAnim.endY - charAnim.startY) * p;
-                const fade = p < 0.1 ? p / 0.1 : p > 0.9 ? (1 - p) / 0.1 : 1;
-                const tilt = Math.sin(p * Math.PI * 2) * 5;
-
-                charEl.style.opacity = String(Math.max(0, Math.min(0.9, fade * 0.88)));
-                charEl.style.transform = `translate3d(${x - 48}px, ${y - 98}px, 0) rotate(${tilt}deg)`;
-            }
-
-            function drawMilkyWay() {
-                if (!milkyWay.active) return;
-
-                milkyWay.frame++;
-                const p = milkyWay.frame / PASS_FRAMES;
-                if (p >= 1) {
-                    milkyWay.active = false;
-                    return;
-                }
-
-                const envelope = Math.sin(p * Math.PI);
-                const alpha = Math.pow(envelope, 1.35) * 0.42;
-                const shiftX = (p - 0.5) * width * 0.75 * milkyWay.dirX;
-                const shiftY = (p - 0.5) * height * 0.55 * milkyWay.dirY;
-
-                ctx.save();
-                ctx.translate(width * 0.5 + shiftX, height * 0.5 + shiftY);
-                ctx.rotate(milkyWay.angle);
-
-                const bandW = Math.hypot(width, height) * 1.4;
-                const bandH = Math.max(180, height * 0.36);
-
-                const nebGrad = ctx.createLinearGradient(0, -bandH * 0.6, 0, bandH * 0.6);
-                nebGrad.addColorStop(0, 'rgba(14, 165, 233, 0)');
-                nebGrad.addColorStop(0.35, `rgba(56, 189, 248, ${0.14 * alpha})`);
-                nebGrad.addColorStop(0.65, `rgba(139, 92, 246, ${0.1 * alpha})`);
-                nebGrad.addColorStop(1, 'rgba(88, 28, 135, 0)');
-
-                ctx.fillStyle = nebGrad;
-                ctx.filter = 'blur(32px)';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, bandW * 0.5, bandH * 0.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.filter = 'none';
-
-                for (let i = 0; i < stars.length; i++) {
-                    const s = stars[i];
-                    s.twinkle += s.speed;
-                    const sx = (s.x - 0.5) * bandW * 0.8;
-                    const sy = Math.sin(s.y * Math.PI * 2) * (bandH * 0.25) + ((s.y - 0.5) * bandH * 0.3);
-                    const tw = 0.45 + 0.55 * Math.sin(s.twinkle);
-
-                    ctx.beginPath();
-                    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
-                    ctx.fillStyle = i % 5 === 0
-                        ? `rgba(216, 180, 254, ${tw * alpha * 0.85})`
-                        : `rgba(224, 242, 254, ${tw * alpha * 0.85})`;
-                    ctx.fill();
-                }
-
-                ctx.restore();
-            }
-
-            function drawMeteor() {
-                if (!meteor.active) return;
-
-                meteor.x += meteor.vx;
-                meteor.y += meteor.vy;
-                meteor.frame++;
-
-                if (meteor.frame % 4 === 0 && meteor.sparks.length < 18) {
-                    const backAngle = meteor.angle + Math.PI + (Math.random() - 0.5) * 0.45;
-                    const spd = 0.6 + Math.random() * 1.3;
-                    meteor.sparks.push({
-                        x: meteor.x - Math.cos(meteor.angle) * 14 + (Math.random() - 0.5) * 12,
-                        y: meteor.y - Math.sin(meteor.angle) * 14 + (Math.random() - 0.5) * 12,
-                        vx: Math.cos(backAngle) * spd,
-                        vy: Math.sin(backAngle) * spd,
-                        size: Math.random() * 1.4 + 0.5,
-                        alpha: 0.35,
-                        shard: false
-                    });
-                }
-
-                for (let i = meteor.sparks.length - 1; i >= 0; i--) {
-                    const sp = meteor.sparks[i];
-                    sp.x += sp.vx;
-                    sp.y += sp.vy;
-                    sp.alpha -= 0.025;
-                    if (sp.alpha <= 0) {
-                        meteor.sparks.splice(i, 1);
-                        continue;
-                    }
-
-                    ctx.fillStyle = `rgba(56, 189, 248, ${sp.alpha})`;
-                    ctx.beginPath();
-                    ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                ctx.save();
-                ctx.translate(meteor.x, meteor.y);
-                ctx.rotate(meteor.angle);
-
-                const tailLen = 135;
-                const tailGrad = ctx.createLinearGradient(10, 0, -tailLen, 0);
-                tailGrad.addColorStop(0, 'rgba(186, 230, 253, 0.28)');
-                tailGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.14)');
-                tailGrad.addColorStop(0.75, 'rgba(37, 99, 235, 0.05)');
-                tailGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
-
-                ctx.fillStyle = tailGrad;
-                ctx.filter = 'blur(5px)';
-                ctx.beginPath();
-                ctx.moveTo(12, -10);
-                ctx.quadraticCurveTo(-48, -20, -tailLen, -3);
-                ctx.lineTo(-tailLen, 4);
-                ctx.quadraticCurveTo(-50, 18, 12, 11);
-                ctx.closePath();
-                ctx.fill();
-                ctx.filter = 'none';
-
-                ctx.strokeStyle = 'rgba(186, 230, 253, 0.26)';
-                ctx.lineWidth = 0.9;
-                ctx.beginPath();
-                ctx.moveTo(6, 0);
-                ctx.quadraticCurveTo(-tailLen * 0.45, 2, -tailLen * 0.8, 0);
-                ctx.stroke();
-
-                ctx.fillStyle = 'rgba(56, 189, 248, 0.14)';
-                ctx.strokeStyle = 'rgba(186, 230, 253, 0.42)';
-                ctx.lineWidth = 1.1;
-
-                const pts = [
-                    [15, -4], [8, -12], [-4, -13], [-14, -5],
-                    [-15, 5], [-5, 13], [9, 11], [16, 3]
-                ];
-
-                ctx.beginPath();
-                pts.forEach(([px, py], idx) => {
-                    if (idx === 0) ctx.moveTo(px, py);
-                    else ctx.lineTo(px, py);
-                });
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                ctx.restore();
-
-                if (meteor.frame >= PASS_FRAMES) {
-                    meteor.active = false;
-                }
-            }
-
-            function drawShockwave() {
-                if (!shockwave.active) return;
-                shockwave.frame++;
-                const p = shockwave.frame / shockwave.maxFrames;
-                if (p >= 1) {
-                    shockwave.active = false;
-                    return;
-                }
-
-                const radius = 10 + p * 80;
-                const alpha = (1 - p) * 0.7;
-
-                ctx.save();
-                ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`;
-                ctx.lineWidth = 1.8;
-                ctx.beginPath();
-                ctx.arc(shockwave.x, shockwave.y, radius, 0, Math.PI * 2);
-                ctx.stroke();
-
-                ctx.strokeStyle = `rgba(168, 85, 247, ${alpha * 0.55})`;
-                ctx.lineWidth = 1.1;
-                ctx.beginPath();
-                ctx.arc(shockwave.x, shockwave.y, radius * 0.65, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.restore();
-            }
-
-            function drawSatellite() {
-                if (!satellite.active) return;
-
-                satellite.x += satellite.vx;
-                satellite.y += satellite.vy;
-                satellite.frame++;
-                const p = satellite.frame / PASS_FRAMES;
-                if (p >= 1) {
-                    satellite.active = false;
-                    return;
-                }
-
-                const alpha = Math.sin(p * Math.PI) * 0.45;
-                ctx.save();
-                ctx.translate(satellite.x, satellite.y);
-                ctx.rotate(satellite.angle);
-                ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`;
-                ctx.lineWidth = 1.1;
-
-                ctx.strokeRect(-26, -4, 14, 8);
-                ctx.strokeRect(12, -4, 14, 8);
-                ctx.strokeRect(-5.5, -5.5, 11, 11);
-                ctx.beginPath();
-                ctx.moveTo(0, -5.5);
-                ctx.lineTo(0, -11);
-                ctx.stroke();
-
-                ctx.restore();
-            }
-
-            function drawRadarPulse() {
-                if (!radarPulse.active) return;
-
-                radarPulse.frame++;
-                const p = radarPulse.frame / PASS_FRAMES;
-                if (p >= 1) {
-                    radarPulse.active = false;
-                    return;
-                }
-
-                const fade = Math.sin(p * Math.PI);
-                ctx.save();
-                ctx.translate(radarPulse.x, radarPulse.y);
-
-                for (let rIdx = 0; rIdx < 2; rIdx++) {
-                    const localP = Math.max(0, Math.min(1, p * 1.35 - rIdx * 0.25));
-                    const radius = 10 + localP * 90;
-                    const alpha = (1 - localP) * fade * 0.32;
-                    ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, radius, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-
-                ctx.fillStyle = `rgba(186, 230, 253, ${fade * 0.45})`;
-                ctx.beginPath();
-                ctx.arc(0, 0, 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.restore();
-            }
-
-            function renderLoop() {
-                ctx.clearRect(0, 0, width, height);
-                drawMilkyWay();
-                drawRadarPulse();
-                drawSatellite();
-                drawMeteor();
-                drawShockwave();
-                updateCharacter();
-                requestAnimationFrame(renderLoop);
-            }
-
-            renderLoop();
-
-            const minimalEvents = [
-                triggerMeteor,
-                triggerSatellite,
-                triggerRadarPulse,
-                triggerMilkyWay
-            ];
-
-            let lastMinimalIndex = -1;
-            let cyclePool = [];
-
-            function buildCyclePool() {
-                const pool = Array.from({ length: 29 }, () => 'minimal');
-                const galyssonSlot = Math.floor(Math.random() * 30);
-                pool.splice(galyssonSlot, 0, 'galysson');
-                return pool;
-            }
-
-            function runRandomEvent() {
-                if (cyclePool.length === 0) {
-                    cyclePool = buildCyclePool();
-                }
-
-                const nextType = cyclePool.shift();
-
-                if (nextType === 'galysson') {
-                    triggerCharacter();
-                    return;
-                }
-
-                let idx = Math.floor(Math.random() * minimalEvents.length);
-                if (minimalEvents.length > 1 && idx === lastMinimalIndex) {
-                    idx = (idx + 1) % minimalEvents.length;
-                }
-                lastMinimalIndex = idx;
-                minimalEvents[idx]();
-            }
-
-            // Começa após 2 minutos (120000 ms) e dispara um evento aleatório a cada 30s (30000 ms)
-            setTimeout(() => {
-                runRandomEvent();
-                setInterval(runRandomEvent, 30000);
-            }, 120000);
-        })();
-    </script>
-</body>
-</html>
+:root {
+    --bg-dark: #05070a;
+    --bg-gradient: radial-gradient(circle at 50% 35%, #091326 0%, #03060d 75%, #020409 100%);
+    --ultra-blue: #00d2ff;
+    --ultra-blue-deep: #0052d4;
+
+    /* Vidro Preto Fosco */
+    --card-bg: rgba(8, 13, 26, 0.78);
+    --card-border: rgba(56, 189, 248, 0.34);
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --input-border: rgba(255, 255, 255, 0.12);
+    --select-option-bg: #080d1a;
+    --text-main: #ffffff;
+    --text-sub: #8d9bb0;
+    --glow-shadow: rgba(0, 210, 255, 0.38);
+    --menu-bg: rgba(10, 17, 34, 0.96);
+}
+
+/* TEMA CLARO */
+[data-theme="light"] {
+    --bg-dark: #f0f4f8;
+    --bg-gradient: radial-gradient(circle at 80% 20%, #ffffff 0%, #e2e8f0 60%, #cbd5e1 100%);
+    --card-bg: rgba(255, 255, 255, 0.88);
+    --card-border: rgba(0, 162, 255, 0.4);
+    --input-bg: rgba(0, 0, 0, 0.04);
+    --input-border: rgba(0, 0, 0, 0.15);
+    --select-option-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+    --glow-shadow: rgba(0, 162, 255, 0.3);
+    --menu-bg: rgba(255, 255, 255, 0.97);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html, body {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    background: var(--bg-gradient);
+    background-color: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    color: var(--text-main);
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+#tech-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* CARD PRINCIPAL - VIDRO FOSCO */
+.card-container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 440px;
+    max-height: 96vh;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    padding: 20px 24px;
+    box-shadow: 0 0 38px rgba(0, 210, 255, 0.22), 0 20px 50px rgba(0, 0, 0, 0.65);
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.card-container:hover {
+    box-shadow: 0 0 48px rgba(0, 210, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.8);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.card-header h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.header-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--card-border);
+    color: var(--ultra-blue);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.theme-toggle:hover {
+    background: rgba(0, 210, 255, 0.2);
+}
+
+.gear-toggle[aria-expanded="true"] {
+    background: rgba(0, 210, 255, 0.22);
+    box-shadow: 0 0 12px var(--glow-shadow);
+}
+
+/* MENU SELETOR DE MÓDULOS */
+.module-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 196px;
+    background: var(--menu-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 210, 255, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 40;
+}
+
+.module-menu.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.module-menu-item {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 9px 11px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: left;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.module-menu-item:hover {
+    background: rgba(0, 210, 255, 0.12);
+    border-color: rgba(0, 210, 255, 0.32);
+}
+
+.module-menu-item.active {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.22) 0%, rgba(0, 82, 212, 0.28) 100%);
+    border-color: var(--ultra-blue);
+    color: var(--text-main);
+    box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);
+}
+
+.module-item-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(0, 210, 255, 0.14);
+    color: var(--ultra-blue);
+}
+
+/* TRANSIÇÃO SUAVE DE MÓDULOS */
+.module-transition {
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.module-transition.is-entering {
+    animation: moduleFadeIn 0.25s ease forwards;
+}
+
+@keyframes moduleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TELA PLACEHOLDER - PRÓXIMO PROJETO */
+.placeholder-panel {
+    padding: 12px 0;
+}
+
+.placeholder-box {
+    background: var(--input-bg);
+    border: 1px dashed var(--card-border);
+    border-radius: 14px;
+    padding: 24px 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.placeholder-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0, 210, 255, 0.16);
+    color: var(--ultra-blue);
+    border: 1px solid rgba(0, 210, 255, 0.35);
+}
+
+.placeholder-box h2 {
+    font-size: 1.05rem;
+    color: var(--text-main);
+}
+
+.placeholder-box p {
+    font-size: 0.84rem;
+    color: var(--text-sub);
+    line-height: 1.45;
+}
+
+/* NAVEGAÇÃO ABAS */
+.tabs-nav {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 16px;
+    gap: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    padding: 8px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #00d2ff 0%, #0052d4 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 15px var(--glow-shadow);
+}
+
+/* FORMULÁRIO E INPUTS */
+.form-group {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.field-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-sub);
+    opacity: 0.75;
+    z-index: 2;
+}
+
+input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--text-main);
+    font-size: 0.88rem;
+    outline: none;
+    transition: 0.2s;
+}
+
+.input-with-icon input[type="text"],
+.input-with-icon select {
+    padding-left: 36px;
+}
+
+select option {
+    background-color: var(--select-option-bg) !important;
+    color: var(--text-main) !important;
+    padding: 10px;
+}
+
+input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--ultra-blue);
+    box-shadow: 0 0 10px var(--glow-shadow);
+}
+
+/* RADIOS */
+.radio-toggle-group {
+    display: flex;
+    gap: 8px;
+}
+
+.radio-card {
+    position: relative !important;
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text-sub);
+    transition: 0.2s;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 9px 10px !important;
+    font-size: 11px !important;
+    font-weight: 700;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+
+.radio-card input[type="radio"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+}
+
+.radio-card svg,
+.radio-card span {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+}
+
+.radio-card.active {
+    border-color: var(--ultra-blue);
+    background: rgba(0, 210, 255, 0.15);
+    color: var(--text-main);
+}
+
+.grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* BOTÃO PRINCIPAL */
+.btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #00d2ff 0%, #0052d4 100%);
+    color: #fff;
+    border: none;
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 4px;
+    box-shadow: 0 6px 20px var(--glow-shadow);
+    transition: 0.2s;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary svg {
+    flex-shrink: 0;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* RESULTADOS E BOTÃO DE COPIAR */
+.resultado-box {
+    margin-top: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.res-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+}
+
+.res-item:last-child {
+    margin-bottom: 0;
+}
+
+.res-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.res-content small {
+    font-size: 0.65rem;
+    color: var(--text-sub);
+}
+
+.res-content strong {
+    font-size: 0.88rem;
+    color: #10b981;
+}
+
+.btn-copy-icon {
+    background: rgba(0, 210, 255, 0.15);
+    border: 1px solid var(--ultra-blue);
+    color: var(--text-main);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-copy-icon:hover {
+    background: var(--ultra-blue);
+    color: #000;
+    box-shadow: 0 0 10px var(--glow-shadow);
+}
+
+.card-footer {
+    text-align: center;
+    margin-top: 14px;
+    color: var(--text-sub);
+    font-size: 0.75rem;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #10b981;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 100;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+#panel-gpon .form-group {
+    margin-bottom: 8px;
+}
+
+#panel-gpon input[type="text"] {
+    padding: 7px 10px;
+    font-size: 0.82rem;
+}
+
+#panel-gpon textarea {
+    max-height: 75px;
+}
