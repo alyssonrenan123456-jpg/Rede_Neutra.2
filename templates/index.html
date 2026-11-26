@@ -34,9 +34,12 @@
 
         .card-container {
             z-index: 3 !important;
+            max-height: 92vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
         }
 
-        /* Seletor interno da aba Scripts (SIP / ONU Fast Datacom) */
         .script-mode-switch {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -270,12 +273,12 @@
         </div>
 
         <div class="tabs-nav">
-            <button type="button" id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
-            <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
-            <button type="button" id="tab-gpon" class="tab-btn" onclick="switchTab('gpon')">Scripts</button>
+            <button type="button" id="tab-login" class="tab-btn active" onclick="handleMainTab('login')">Login</button>
+            <button type="button" id="tab-mac" class="tab-btn" onclick="handleMainTab('mac')">MAC</button>
+            <button type="button" id="tab-gpon" class="tab-btn" onclick="handleMainTab('gpon')">Scripts</button>
         </div>
 
-        <div id="panel-login" class="tab-panel">
+        <div id="panel-login" class="tab-panel" style="display: block;">
             <form id="form-login">
                 <div class="form-group">
                     <label>NOME DO CLIENTE</label>
@@ -435,8 +438,7 @@
                 <button type="button" id="btn-mode-datacom" class="script-mode-btn" onclick="switchScriptMode('datacom')">ONU FAST DATACOM</button>
             </div>
 
-            <!-- Sub-painel SIP (original mantido) -->
-            <div id="script-subpanel-sip">
+            <div id="script-subpanel-sip" style="display: block;">
                 <form id="form-gpon" onsubmit="gerarGponConfig(event)">
                     <div class="grid-2col">
                         <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
@@ -471,7 +473,6 @@
                 </div>
             </div>
 
-            <!-- Sub-painel ONU Fast Datacom -->
             <div id="script-subpanel-datacom" style="display: none;">
                 <form id="form-datacom" onsubmit="gerarDatacomOnuFast(event)">
                     <div class="grid-2col">
@@ -517,8 +518,33 @@
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-    <!-- Alternância SIP / ONU Fast Datacom + Gerador Datacom -->
+    <!-- Controle exclusivo de abas e sub-modos SIP / ONU Fast Datacom -->
     <script>
+        function handleMainTab(tabName) {
+            if (typeof switchTab === 'function') {
+                switchTab(tabName);
+            }
+            const panels = {
+                login: document.getElementById('panel-login'),
+                mac: document.getElementById('panel-mac'),
+                gpon: document.getElementById('panel-gpon')
+            };
+            const tabs = {
+                login: document.getElementById('tab-login'),
+                mac: document.getElementById('tab-mac'),
+                gpon: document.getElementById('tab-gpon')
+            };
+
+            Object.keys(panels).forEach((key) => {
+                if (panels[key]) {
+                    panels[key].style.display = key === tabName ? 'block' : 'none';
+                }
+                if (tabs[key]) {
+                    tabs[key].classList.toggle('active', key === tabName);
+                }
+            });
+        }
+
         function switchScriptMode(mode) {
             const sipPanel = document.getElementById('script-subpanel-sip');
             const dcPanel = document.getElementById('script-subpanel-datacom');
