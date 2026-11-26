@@ -6,8 +6,10 @@
     <title>Painel de Provisionamento - Ultra</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Trava a tela sem barra de rolagem */
+        /* Garante tela cheia em 100% da largura e altura sem barra de rolagem */
         html, body {
+            width: 100%;
+            min-width: 100vw;
             height: 100vh;
             max-height: 100vh;
             overflow: hidden !important;
@@ -20,11 +22,14 @@
 
         /* Card compacto para caber com o resultado aberto sem estourar a altura */
         .card-container {
+            width: 100%;
+            max-width: 440px;
             max-height: 94vh;
             padding: 20px 24px !important;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-sizing: border-box;
         }
 
         .card-header { margin-bottom: 12px !important; }
@@ -32,7 +37,7 @@
         .form-group { margin-bottom: 11px !important; }
         .form-group label { margin-bottom: 4px !important; font-size: 11px !important; }
 
-        /* Alinhamento perfeito dos ícones dentro dos inputs e selects */
+        /* Alinhamento perfeito dos ícones sem cortar o texto do select */
         .input-with-icon {
             position: relative;
             display: flex;
@@ -44,7 +49,10 @@
         .input-with-icon select {
             width: 100%;
             padding-left: 36px !important;
-            height: 38px !important;
+            padding-top: 9px !important;
+            padding-bottom: 9px !important;
+            height: auto !important;
+            line-height: 1.3 !important;
             box-sizing: border-box;
         }
 
@@ -59,14 +67,14 @@
             z-index: 2;
         }
 
-        /* Alinhamento perfeito nos botões REDE NEUTRA e Gerar Acesso */
+        /* Alinhamento dos botões REDE NEUTRA e Gerar Acesso sem quebrar linha */
         .radio-card {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 7px !important;
-            height: 38px !important;
-            padding: 0 12px !important;
+            gap: 6px !important;
+            padding: 10px 10px !important;
+            white-space: nowrap !important;
             line-height: 1 !important;
         }
 
@@ -82,7 +90,7 @@
             justify-content: center !important;
             gap: 8px !important;
             width: 100%;
-            height: 40px !important;
+            padding: 11px 16px !important;
             line-height: 1 !important;
             margin-top: 2px;
         }
@@ -103,10 +111,10 @@
             padding-top: 0 !important;
         }
 
-        /* Ajuste específico para a aba SIP que tem mais campos */
+        /* Ajuste específico para a aba SIP */
         #panel-gpon .form-group { margin-bottom: 8px !important; }
-        #panel-gpon input { height: 34px !important; }
-        #panel-gpon textarea { rows: 4; max-height: 85px; }
+        #panel-gpon input { padding: 7px 10px !important; height: auto !important; }
+        #panel-gpon textarea { max-height: 85px; }
     </style>
 </head>
 <body>
