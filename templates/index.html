@@ -6,168 +6,209 @@
     <title>Painel de Provisionamento - Ultra</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        #holo-easter-layer {
+        html, body {
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        #tech-canvas,
+        #holo-fx-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        #tech-canvas {
+            z-index: 0;
+        }
+
+        #holo-fx-canvas {
+            z-index: 1;
+        }
+
+        .card-container {
+            z-index: 3 !important;
+        }
+
+        /* Camada do personagem holográfico (sem caixa fechada, só projeção limpa) */
+        #holo-char-layer {
             position: fixed;
             inset: 0;
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             pointer-events: none;
-            z-index: 1;
+            z-index: 2;
         }
 
-        .holo-egg {
+        #egg-personagem {
             position: absolute;
-            left: -160px;
-            top: 25%;
+            top: 18%;
+            left: -220px;
             opacity: 0;
             will-change: transform, opacity;
         }
 
-        .holo-meteoro-box,
-        .holo-solar-box,
-        .holo-char-box {
+        .holo-char-projection {
             position: relative;
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: rgba(56, 189, 248, 0.04);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            box-shadow: 0 0 18px rgba(56, 189, 248, 0.14), inset 0 0 12px rgba(168, 85, 247, 0.08);
-            color: rgba(125, 211, 252, 0.78);
-            overflow: hidden;
+            color: #38bdf8;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 22px rgba(0, 210, 255, 0.3));
         }
 
-        .holo-char-box {
-            padding: 6px 8px;
-        }
-
-        .holo-meteoro-box::after,
-        .holo-solar-box::after,
-        .holo-char-box::after {
+        .holo-char-projection::after {
             content: "";
             position: absolute;
-            inset: 0;
+            inset: -4px;
             background: repeating-linear-gradient(
                 to bottom,
                 transparent 0px,
-                transparent 2px,
-                rgba(56, 189, 248, 0.08) 3px,
-                rgba(56, 189, 248, 0.08) 4px
+                transparent 3px,
+                rgba(186, 230, 253, 0.12) 4px,
+                rgba(186, 230, 253, 0.12) 5px
             );
             pointer-events: none;
         }
 
-        .holo-label {
+        .holo-tag-floating {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 9px;
-            font-family: monospace;
-            letter-spacing: 0.12em;
-            color: rgba(186, 230, 253, 0.7);
+            letter-spacing: 0.16em;
+            color: rgba(186, 230, 253, 0.78);
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+            margin-bottom: 2px;
         }
 
-        .holo-svg {
-            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
-        }
-
-        .holo-char-svg {
-            height: auto;
-        }
-
-        .holo-egg.is-passing {
-            animation: holoFly 12s linear forwards;
-        }
-
-        @keyframes holoFly {
+        @keyframes passCharLTR {
             0% {
                 transform: translate3d(0, 0, 0) scale(0.96);
                 opacity: 0;
             }
             10% {
-                opacity: 0.72;
+                opacity: 0.82;
             }
             50% {
-                transform: translate3d(calc(50vw + 80px), 14px, 0) scale(1);
-                opacity: 0.78;
+                transform: translate3d(calc(50vw + 110px), 16px, 0) scale(1);
+                opacity: 0.88;
             }
             90% {
-                opacity: 0.72;
+                opacity: 0.82;
             }
             100% {
-                transform: translate3d(calc(100vw + 220px), -12px, 0) scale(0.96);
+                transform: translate3d(calc(100vw + 260px), -10px, 0) scale(0.96);
                 opacity: 0;
             }
+        }
+
+        @keyframes passCharRTL {
+            0% {
+                transform: translate3d(calc(100vw + 240px), 0, 0) scaleX(-1) scale(0.96);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.82;
+            }
+            50% {
+                transform: translate3d(calc(50vw - 60px), 16px, 0) scaleX(-1) scale(1);
+                opacity: 0.88;
+            }
+            90% {
+                opacity: 0.82;
+            }
+            100% {
+                transform: translate3d(-260px, -10px, 0) scaleX(-1) scale(0.96);
+                opacity: 0;
+            }
+        }
+
+        #egg-personagem.run-ltr {
+            animation: passCharLTR 12s linear forwards;
+        }
+
+        #egg-personagem.run-rtl {
+            animation: passCharRTL 12s linear forwards;
         }
     </style>
 </head>
 <body>
 
     <canvas id="tech-canvas"></canvas>
+    <canvas id="holo-fx-canvas"></canvas>
 
-    <div id="holo-easter-layer" aria-hidden="true">
-        <!-- 1. Meteoro -->
-        <div class="holo-egg" id="egg-meteoro">
-            <div class="holo-meteoro-box">
-                <span class="holo-label">METEOR // 0.42 AU</span>
-                <svg class="holo-svg" width="54" height="32" viewBox="0 0 64 36" fill="none">
-                    <line x1="4" y1="28" x2="26" y2="16" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
-                    <line x1="8" y1="33" x2="32" y2="20" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
-                    <polygon points="46,6 58,14 48,26 34,22 32,10" stroke="currentColor" stroke-width="1.6" fill="rgba(56,189,248,0.12)"/>
-                    <line x1="34" y1="10" x2="48" y2="26" stroke="currentColor" stroke-width="0.9" opacity="0.6"/>
-                    <line x1="46" y1="6" x2="34" y2="22" stroke="currentColor" stroke-width="0.9" opacity="0.6"/>
-                </svg>
-            </div>
-        </div>
+    <div id="holo-char-layer" aria-hidden="true">
+        <div id="egg-personagem">
+            <div class="holo-char-projection">
+                <span class="holo-tag-floating">HOLO // GALO-01</span>
+                <svg width="86" height="175" viewBox="0 0 110 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="holoGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.95"/>
+                            <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.82"/>
+                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.72"/>
+                        </linearGradient>
+                        <linearGradient id="holoFill" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22"/>
+                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.06"/>
+                        </linearGradient>
+                    </defs>
 
-        <!-- 2. Sistema Solar -->
-        <div class="holo-egg" id="egg-sistema-solar">
-            <div class="holo-solar-box">
-                <span class="holo-label">SYS // SOL-01</span>
-                <svg class="holo-svg" width="76" height="76" viewBox="0 0 80 80" fill="none">
-                    <circle cx="40" cy="40" r="6" stroke="currentColor" stroke-width="1.6" fill="rgba(56,189,248,0.22)"/>
-                    <ellipse cx="40" cy="40" rx="16" ry="9" transform="rotate(-18 40 40)" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" opacity="0.65"/>
-                    <ellipse cx="40" cy="40" rx="26" ry="15" transform="rotate(-18 40 40)" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" opacity="0.55"/>
-                    <ellipse cx="40" cy="40" rx="35" ry="20" transform="rotate(-18 40 40)" stroke="currentColor" stroke-width="1" opacity="0.45"/>
-                    <circle cx="55" cy="35" r="2.3" fill="currentColor"/>
-                    <circle cx="20" cy="48" r="3" stroke="currentColor" stroke-width="1.2" fill="rgba(168,85,247,0.35)"/>
-                    <circle cx="66" cy="52" r="2.5" fill="currentColor"/>
-                </svg>
-            </div>
-        </div>
+                    <!-- Rosto e cabelo estilizados -->
+                    <path d="M35 22 C35 9, 69 9, 70 23 L71 42 C71 53, 61 59, 52 59 C43 59, 35 52, 35 41 Z"
+                          fill="url(#holoFill)" stroke="url(#holoGrad)" stroke-width="2"/>
+                    <!-- Cabelo -->
+                    <path d="M34 23 C36 8, 54 5, 68 13 C72 16, 72 22, 70 25 C62 18, 46 18, 34 23 Z"
+                          fill="rgba(56, 189, 248, 0.28)" stroke="#bae6fd" stroke-width="1.5"/>
+                    <!-- Sobrancelhas e olhos -->
+                    <path d="M40 31 L48 30" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M57 30 L65 31" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
+                    <ellipse cx="44.5" cy="35" rx="2.6" ry="1.6" fill="#e0f2fe"/>
+                    <ellipse cx="60.5" cy="35" rx="2.6" ry="1.6" fill="#e0f2fe"/>
+                    <!-- Nariz e boca -->
+                    <path d="M52.5 34 L51.5 43 L55.5 44.5" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M47 49.5 Q52.5 52 58 49.5" stroke="#bae6fd" stroke-width="1.6" stroke-linecap="round"/>
 
-        <!-- 3. Personagem da brincadeira interna -->
-        <div class="holo-egg" id="egg-personagem" data-ready="true">
-            <div class="holo-char-box">
-                <span class="holo-label">UNIT // PIA-01</span>
-                <svg class="holo-svg holo-char-svg" width="54" height="96" viewBox="0 0 80 148" fill="none">
-                    <path d="M27 14 C27 7, 51 7, 51 14 L52 28 C52 35, 45 39, 39 39 C33 39, 27 35, 27 28 Z"
-                          stroke="currentColor" stroke-width="1.6" fill="rgba(56,189,248,0.14)"/>
-                    <path d="M26 15 C28 5, 51 4, 52 14 C46 11, 34 11, 26 15 Z"
-                          stroke="currentColor" stroke-width="1.3" fill="rgba(168,85,247,0.22)"/>
-                    <line x1="32" y1="21" x2="36" y2="21" stroke="currentColor" stroke-width="1.4"/>
-                    <line x1="42" y1="21" x2="46" y2="21" stroke="currentColor" stroke-width="1.4"/>
-                    <path d="M39 22 L38 27 L41 28" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
-                    <path d="M35 32 Q39 34 43 32" stroke="currentColor" stroke-width="1.3"/>
-                    <path d="M31 38 L28 76 L47 76 L47 38"
-                          stroke="currentColor" stroke-width="1.6" fill="rgba(56,189,248,0.1)"/>
-                    <line x1="36" y1="42" x2="34" y2="74" stroke="currentColor" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.5"/>
-                    <line x1="42" y1="42" x2="41" y2="74" stroke="currentColor" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.5"/>
-                    <path d="M28 76 C19 82, 18 98, 25 110 L48 112 C56 104, 57 86, 47 76 Z"
-                          stroke="currentColor" stroke-width="1.6" fill="rgba(168,85,247,0.14)"/>
-                    <path d="M34 83 C46 82, 53 90, 50 102 C42 103, 35 98, 34 83 Z"
-                          stroke="currentColor" stroke-width="1.3" fill="rgba(56,189,248,0.12)"/>
-                    <path d="M51 94 C63 87, 72 91, 74 101 C65 102, 58 103, 52 106"
-                          stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M52 101 C64 98, 71 103, 70 110 C62 108, 56 107, 50 109"
-                          stroke="currentColor" stroke-width="1.3" opacity="0.8"/>
-                    <line x1="31" y1="110" x2="29" y2="134" stroke="currentColor" stroke-width="2"/>
-                    <line x1="43" y1="112" x2="45" y2="135" stroke="currentColor" stroke-width="2"/>
-                    <path d="M29 134 L19 140 M29 134 L29 142 M29 134 L37 139"
-                          stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M45 135 L36 141 M45 135 L46 143 M45 135 L55 140"
-                          stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <!-- Pescoço longo -->
+                    <path d="M42 57 L37 118 L64 118 L63 57"
+                          fill="url(#holoFill)" stroke="url(#holoGrad)" stroke-width="2" stroke-linejoin="round"/>
+                    <!-- Linhas internas holográficas do pescoço -->
+                    <line x1="47" y1="62" x2="43" y2="115" stroke="#7dd3fc" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.55"/>
+                    <line x1="53" y1="62" x2="50" y2="115" stroke="#38bdf8" stroke-width="0.9" stroke-dasharray="5 3" opacity="0.45"/>
+                    <line x1="58" y1="62" x2="57" y2="115" stroke="#bae6fd" stroke-width="0.9" stroke-dasharray="3 4" opacity="0.5"/>
+
+                    <!-- Corpo / peito do galo -->
+                    <path d="M37 118 C24 126, 22 149, 32 167 L66 170 C78 158, 79 132, 64 118 Z"
+                          fill="rgba(56, 189, 248, 0.16)" stroke="url(#holoGrad)" stroke-width="2"/>
+                    <!-- Detalhes de plumagem no peito -->
+                    <path d="M35 132 L43 138 M32 142 L42 147 M34 152 L44 156" stroke="#7dd3fc" stroke-width="1.2" opacity="0.65"/>
+
+                    <!-- Asa -->
+                    <path d="M46 127 C64 125, 74 138, 70 156 C58 158, 47 149, 46 127 Z"
+                          fill="rgba(168, 85, 247, 0.14)" stroke="#7dd3fc" stroke-width="1.6"/>
+                    <path d="M52 134 C62 135, 66 143, 64 150" stroke="#bae6fd" stroke-width="1.1" opacity="0.7"/>
+
+                    <!-- Cauda de galo -->
+                    <path d="M71 144 C88 132, 102 138, 105 152 C92 154, 81 156, 72 161"
+                          stroke="#38bdf8" stroke-width="2" fill="rgba(56, 189, 248, 0.12)"/>
+                    <path d="M72 154 C90 148, 101 155, 99 166 C87 163, 78 162, 70 165"
+                          stroke="#bae6fd" stroke-width="1.6" fill="none"/>
+                    <path d="M70 161 C85 160, 94 166, 90 174 C80 170, 74 168, 68 169"
+                          stroke="#a855f7" stroke-width="1.4" fill="none" opacity="0.8"/>
+
+                    <!-- Pernas e pés -->
+                    <path d="M40 167 L37 201" stroke="#bae6fd" stroke-width="2.6" stroke-linecap="round"/>
+                    <path d="M58 169 L61 203" stroke="#bae6fd" stroke-width="2.6" stroke-linecap="round"/>
+                    <path d="M37 201 L23 210 M37 201 L37 213 M37 201 L49 209"
+                          stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M61 203 L48 212 M61 203 L62 215 M61 203 L75 211"
+                          stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </div>
         </div>
@@ -401,6 +442,7 @@
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+    <!-- Malha de Rede Lenta no Fundo -->
     <script>
         (function () {
             const canvas = document.getElementById('tech-canvas');
@@ -523,41 +565,323 @@
         })();
     </script>
 
+    <!-- Meteoro Holográfico de Plasma Azul + Passagem pela Via Láctea + Personagem -->
     <script>
         (function () {
-            const eggs = [
-                document.getElementById('egg-meteoro'),
-                document.getElementById('egg-sistema-solar'),
-                document.getElementById('egg-personagem')
-            ].filter(Boolean);
+            const canvas = document.getElementById('holo-fx-canvas');
+            const ctx = canvas.getContext('2d');
+            const charEl = document.getElementById('egg-personagem');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
 
-            let currentIndex = 2;
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
 
-            function runNextEgg() {
-                if (!eggs.length) return;
+            // Estrelas da Via Láctea
+            const stars = Array.from({ length: 140 }, () => ({
+                x: Math.random(),
+                y: Math.random(),
+                r: Math.random() * 1.4 + 0.3,
+                twinkle: Math.random() * Math.PI * 2,
+                speed: 0.015 + Math.random() * 0.025
+            }));
 
-                let tries = 0;
-                let el = eggs[currentIndex % eggs.length];
-                while (el.id === 'egg-personagem' && !el.dataset.ready && tries < eggs.length) {
-                    currentIndex++;
-                    el = eggs[currentIndex % eggs.length];
-                    tries++;
-                }
+            let milkyWay = {
+                active: false,
+                progress: 0,
+                duration: 0.0014, // ~12s de travessia suave
+                angle: -0.32,
+                dir: 1
+            };
 
-                const maxTop = el.id === 'egg-personagem' ? 38 : 62;
-                const topPercent = Math.floor(10 + Math.random() * maxTop);
-                el.style.top = topPercent + '%';
-                el.classList.remove('is-passing');
-                void el.offsetWidth;
-                el.classList.add('is-passing');
+            let meteor = {
+                active: false,
+                x: 0,
+                y: 0,
+                vx: 0,
+                vy: 0,
+                angle: 0,
+                sparks: [],
+                life: 0,
+                maxLife: 1
+            };
 
-                currentIndex++;
+            function triggerMilkyWay() {
+                milkyWay.active = true;
+                milkyWay.progress = 0;
+                milkyWay.dir = Math.random() < 0.5 ? 1 : -1;
+                milkyWay.angle = milkyWay.dir === 1 ? -0.32 : 0.32;
             }
 
+            function triggerMeteor() {
+                // Alterna entre vir da esquerda ou da direita
+                const fromLeft = Math.random() < 0.5;
+                const startY = height * (0.14 + Math.random() * 0.42);
+                const endY = startY + (Math.random() * 180 + 70);
+                const startX = fromLeft ? -140 : width + 140;
+                const endX = fromLeft ? width + 180 : -180;
+
+                const dx = endX - startX;
+                const dy = endY - startY;
+                const dist = Math.hypot(dx, dy);
+                const speed = Math.min(width, height) * 0.0046; // velocidade equilibrada e elegante
+
+                meteor.active = true;
+                meteor.x = startX;
+                meteor.y = startY;
+                meteor.vx = (dx / dist) * speed;
+                meteor.vy = (dy / dist) * speed;
+                meteor.angle = Math.atan2(dy, dx);
+                meteor.sparks = [];
+                meteor.life = 0;
+                meteor.maxLife = dist / speed;
+            }
+
+            function triggerCharacter() {
+                if (!charEl) return;
+                const fromLeft = Math.random() < 0.5;
+                const topPct = Math.floor(8 + Math.random() * 24);
+                charEl.style.top = topPct + '%';
+                charEl.classList.remove('run-ltr', 'run-rtl');
+                void charEl.offsetWidth;
+                charEl.classList.add(fromLeft ? 'run-ltr' : 'run-rtl');
+            }
+
+            function drawMilkyWay() {
+                if (!milkyWay.active) return;
+
+                milkyWay.progress += milkyWay.duration;
+                const p = milkyWay.progress;
+                if (p >= 1) {
+                    milkyWay.active = false;
+                    return;
+                }
+
+                // Fade in suave no início e fade out no fim
+                const envelope = Math.sin(p * Math.PI);
+                const alpha = Math.pow(envelope, 1.25) * 0.68;
+
+                // Deslocamento horizontal como se o site estivesse atravessando a faixa da Via Láctea
+                const shiftX = (p - 0.5) * width * 0.75 * milkyWay.dir;
+                const shiftY = (p - 0.5) * height * 0.14;
+
+                ctx.save();
+                ctx.translate(width * 0.5 + shiftX, height * 0.5 + shiftY);
+                ctx.rotate(milkyWay.angle);
+
+                const bandW = Math.hypot(width, height) * 1.45;
+                const bandH = Math.max(220, height * 0.44);
+
+                // Nebulosa azul-ciano e roxo cósmico
+                const nebGrad = ctx.createLinearGradient(0, -bandH * 0.6, 0, bandH * 0.6);
+                nebGrad.addColorStop(0, 'rgba(14, 165, 233, 0)');
+                nebGrad.addColorStop(0.28, `rgba(37, 99, 235, ${0.14 * alpha})`);
+                nebGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.22 * alpha})`);
+                nebGrad.addColorStop(0.68, `rgba(139, 92, 246, ${0.15 * alpha})`);
+                nebGrad.addColorStop(1, 'rgba(88, 28, 135, 0)');
+
+                ctx.fillStyle = nebGrad;
+                ctx.filter = 'blur(28px)';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, bandW * 0.5, bandH * 0.55, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.filter = 'none';
+
+                // Núcleo brilhante da faixa estelar
+                const coreGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, bandH * 0.45);
+                coreGrad.addColorStop(0, `rgba(186, 230, 253, ${0.2 * alpha})`);
+                coreGrad.addColorStop(0.55, `rgba(56, 189, 248, ${0.09 * alpha})`);
+                coreGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+                ctx.fillStyle = coreGrad;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, bandW * 0.42, bandH * 0.34, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Estrelas concentradas na faixa da Via Láctea
+                for (let i = 0; i < stars.length; i++) {
+                    const s = stars[i];
+                    s.twinkle += s.speed;
+                    const sx = (s.x - 0.5) * bandW * 0.85;
+                    const sy = Math.sin(s.y * Math.PI * 2) * (bandH * 0.28) + ((s.y - 0.5) * bandH * 0.35);
+                    const tw = 0.5 + 0.5 * Math.sin(s.twinkle);
+
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = i % 5 === 0
+                        ? `rgba(216, 180, 254, ${tw * alpha * 0.95})`
+                        : `rgba(224, 242, 254, ${tw * alpha})`;
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+
+            function drawMeteor() {
+                if (!meteor.active) return;
+
+                meteor.x += meteor.vx;
+                meteor.y += meteor.vy;
+                meteor.life++;
+
+                // Gera faíscas e fragmentos holográficos atrás do núcleo
+                if (meteor.life % 2 === 0 && meteor.sparks.length < 48) {
+                    const backAngle = meteor.angle + Math.PI + (Math.random() - 0.5) * 0.55;
+                    const spd = 0.8 + Math.random() * 2.2;
+                    meteor.sparks.push({
+                        x: meteor.x - Math.cos(meteor.angle) * 16 + (Math.random() - 0.5) * 18,
+                        y: meteor.y - Math.sin(meteor.angle) * 16 + (Math.random() - 0.5) * 18,
+                        vx: Math.cos(backAngle) * spd,
+                        vy: Math.sin(backAngle) * spd,
+                        size: Math.random() * 2.6 + 0.8,
+                        alpha: 0.9,
+                        shard: Math.random() < 0.25
+                    });
+                }
+
+                // Desenha faíscas e fragmentos
+                for (let i = meteor.sparks.length - 1; i >= 0; i--) {
+                    const sp = meteor.sparks[i];
+                    sp.x += sp.vx;
+                    sp.y += sp.vy;
+                    sp.alpha -= 0.022;
+                    if (sp.alpha <= 0) {
+                        meteor.sparks.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.save();
+                    ctx.translate(sp.x, sp.y);
+                    ctx.rotate(meteor.angle);
+                    if (sp.shard) {
+                        ctx.strokeStyle = `rgba(125, 211, 252, ${sp.alpha * 0.85})`;
+                        ctx.lineWidth = 1.1;
+                        ctx.beginPath();
+                        ctx.moveTo(-sp.size * 2, 0);
+                        ctx.lineTo(0, -sp.size);
+                        ctx.lineTo(sp.size * 1.5, 0);
+                        ctx.lineTo(0, sp.size);
+                        ctx.closePath();
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = `rgba(56, 189, 248, ${sp.alpha})`;
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = '#00d2ff';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, sp.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+
+                // Desenha cauda de plasma azul/ciano e núcleo rochoso holográfico
+                ctx.save();
+                ctx.translate(meteor.x, meteor.y);
+                ctx.rotate(meteor.angle);
+
+                const tailLen = 195;
+                const tailGrad = ctx.createLinearGradient(12, 0, -tailLen, 0);
+                tailGrad.addColorStop(0, 'rgba(186, 230, 253, 0.88)');
+                tailGrad.addColorStop(0.22, 'rgba(0, 210, 255, 0.65)');
+                tailGrad.addColorStop(0.62, 'rgba(37, 99, 235, 0.24)');
+                tailGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+                // Chama/cauda principal em leque
+                ctx.fillStyle = tailGrad;
+                ctx.filter = 'blur(4px)';
+                ctx.beginPath();
+                ctx.moveTo(14, -14);
+                ctx.quadraticCurveTo(-65, -34, -tailLen, -6);
+                ctx.lineTo(-tailLen, 8);
+                ctx.quadraticCurveTo(-70, 32, 14, 15);
+                ctx.closePath();
+                ctx.fill();
+                ctx.filter = 'none';
+
+                // Filamentos energéticos na cauda
+                for (let f = -2; f <= 2; f++) {
+                    const yOff = f * 5.5;
+                    ctx.strokeStyle = f === 0 ? 'rgba(224, 242, 254, 0.85)' : 'rgba(56, 189, 248, 0.55)';
+                    ctx.lineWidth = f === 0 ? 1.8 : 1;
+                    ctx.beginPath();
+                    ctx.moveTo(6, yOff * 0.7);
+                    ctx.quadraticCurveTo(-tailLen * 0.45, yOff * 1.9, -tailLen * 0.85, yOff * 0.4);
+                    ctx.stroke();
+                }
+
+                // Núcleo rochoso multifacetado holográfico
+                const rockGrad = ctx.createRadialGradient(-2, 0, 2, 0, 0, 22);
+                rockGrad.addColorStop(0, 'rgba(14, 165, 233, 0.35)');
+                rockGrad.addColorStop(0.7, 'rgba(2, 132, 199, 0.52)');
+                rockGrad.addColorStop(1, 'rgba(186, 230, 253, 0.92)');
+
+                ctx.fillStyle = rockGrad;
+                ctx.strokeStyle = '#bae6fd';
+                ctx.lineWidth = 1.8;
+                ctx.shadowBlur = 16;
+                ctx.shadowColor = '#00d2ff';
+
+                const pts = [
+                    [18, -5],
+                    [10, -15],
+                    [-5, -16],
+                    [-17, -7],
+                    [-18, 7],
+                    [-6, 16],
+                    [11, 14],
+                    [19, 4]
+                ];
+
+                ctx.beginPath();
+                pts.forEach(([px, py], idx) => {
+                    if (idx === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Facetas internas holográficas da rocha
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'rgba(125, 211, 252, 0.55)';
+                ctx.lineWidth = 0.9;
+                ctx.beginPath();
+                ctx.moveTo(18, -5); ctx.lineTo(-4, -2); ctx.lineTo(-17, -7);
+                ctx.moveTo(-4, -2); ctx.lineTo(-6, 16);
+                ctx.moveTo(-4, -2); ctx.lineTo(11, 14);
+                ctx.moveTo(10, -15); ctx.lineTo(-4, -2); ctx.lineTo(19, 4);
+                ctx.stroke();
+
+                ctx.restore();
+
+                if (meteor.life >= meteor.maxLife) {
+                    meteor.active = false;
+                }
+            }
+
+            function renderLoop() {
+                ctx.clearRect(0, 0, width, height);
+                drawMilkyWay();
+                drawMeteor();
+                requestAnimationFrame(renderLoop);
+            }
+
+            renderLoop();
+
+            // Sequência periódica alternando meteoro, personagem e passagem pela Via Láctea
+            const sequence = [triggerMeteor, triggerCharacter, triggerMilkyWay];
+            let step = 0;
+
             setTimeout(() => {
-                runNextEgg();
-                setInterval(runNextEgg, 35000);
-            }, 4000);
+                sequence[step % sequence.length]();
+                step++;
+
+                setInterval(() => {
+                    sequence[step % sequence.length]();
+                    step++;
+                }, 26000);
+            }, 6000);
         })();
     </script>
 </body>
