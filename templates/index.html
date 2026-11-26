@@ -34,6 +34,37 @@
 
         .card-container {
             z-index: 3 !important;
+            max-height: 94vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
+        }
+
+        .script-mode-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .script-mode-btn {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: rgba(15, 23, 42, 0.55);
+            color: rgba(186, 230, 253, 0.72);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .script-mode-btn.active {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: rgba(56, 189, 248, 0.7);
+            color: #e0f2fe;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.22);
         }
 
         .module-menu {
@@ -466,36 +497,74 @@
         </div>
 
         <div id="panel-gpon" class="tab-panel module-transition" style="display: none;">
-            <form id="form-gpon" onsubmit="gerarGponConfig(event)">
-                <div class="grid-2col">
-                    <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
-                    <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
-                </div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
-                    <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
-                </div>
-                <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
-                <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
-                    <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
-                </div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
-                    <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
-                </div>
+            <div class="script-mode-switch">
+                <button type="button" id="script-btn-sip" class="script-mode-btn active" onclick="switchScriptSubmode('sip')">SIP</button>
+                <button type="button" id="script-btn-datacom" class="script-mode-btn" onclick="switchScriptSubmode('datacom')">ONU FAST DATACOM</button>
+            </div>
 
-                <button type="submit" class="btn-primary">Gerar Script SIP</button>
-            </form>
-
-            <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
-                <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label style="margin-bottom: 0;">SCRIPT GERADO</label>
-                        <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
+            <div id="subpanel-sip" style="display: block;">
+                <form id="form-gpon" onsubmit="gerarGponConfig(event)">
+                    <div class="grid-2col">
+                        <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
+                        <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
                     </div>
-                    <textarea id="gpon-script-out" rows="4" readonly></textarea>
+                    <div class="grid-2col">
+                        <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
+                        <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
+                    </div>
+                    <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
+                    <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
+                    <div class="grid-2col">
+                        <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
+                        <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
+                        <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Gerar Script SIP</button>
+                </form>
+
+                <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="margin-bottom: 0;">SCRIPT GERADO</label>
+                            <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
+                        </div>
+                        <textarea id="gpon-script-out" rows="4" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="subpanel-datacom" style="display: none;">
+                <form id="form-datacom" onsubmit="gerarDatacomOnuFast(event)">
+                    <div class="grid-2col">
+                        <div class="form-group"><label>PON</label><input type="text" id="dc-pon" placeholder="1/1/4" required></div>
+                        <div class="form-group"><label>ONU ID</label><input type="text" id="dc-onu" placeholder="8" required></div>
+                    </div>
+                    <div class="grid-2col">
+                        <div class="form-group"><label>CAIXA</label><input type="text" id="dc-caixa" placeholder="VDA-AB04-5" required></div>
+                        <div class="form-group"><label>PORTA</label><input type="text" id="dc-porta" placeholder="9" required></div>
+                    </div>
+                    <div class="form-group"><label>LOGIN</label><input type="text" id="dc-login" placeholder="rodrigo.lima.vda" required></div>
+                    <div class="form-group"><label>SERIAL</label><input type="text" id="dc-serial" placeholder="FSTT00003095" required></div>
+                    <div class="grid-2col">
+                        <div class="form-group"><label>VLAN</label><input type="text" id="dc-vlan" placeholder="204" required></div>
+                        <div class="form-group"><label>SERVICE-PORT</label><input type="text" id="dc-sp" placeholder="103" required></div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Gerar Script ONU Fast</button>
+                </form>
+
+                <div id="resultado-datacom-bloco" class="resultado-box" style="display: none;">
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="margin-bottom: 0;">SCRIPT ONU FAST DATACOM</label>
+                            <button type="button" class="btn-copy-icon" onclick="copyValue('dc-script-out')">Copiar Script</button>
+                        </div>
+                        <textarea id="dc-script-out" rows="8" readonly></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -521,7 +590,7 @@
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-    <!-- Controle da Engrenagem e Modos -->
+    <!-- Controle da Engrenagem, Modos e Script ONU Fast Datacom -->
     <script>
         function toggleModuleMenu(event) {
             event.stopPropagation();
@@ -579,6 +648,55 @@
             const btn = document.getElementById('module-gear-btn');
             menu.classList.remove('open');
             btn.setAttribute('aria-expanded', 'false');
+        }
+
+        function switchScriptSubmode(submode) {
+            const sipPanel = document.getElementById('subpanel-sip');
+            const dcPanel = document.getElementById('subpanel-datacom');
+            const btnSip = document.getElementById('script-btn-sip');
+            const btnDc = document.getElementById('script-btn-datacom');
+
+            const isDc = submode === 'datacom';
+            sipPanel.style.display = isDc ? 'none' : 'block';
+            dcPanel.style.display = isDc ? 'block' : 'none';
+            btnSip.classList.toggle('active', !isDc);
+            btnDc.classList.toggle('active', isDc);
+        }
+
+        function gerarDatacomOnuFast(event) {
+            event.preventDefault();
+
+            const pon = document.getElementById('dc-pon').value.trim();
+            const onu = document.getElementById('dc-onu').value.trim();
+            const caixa = document.getElementById('dc-caixa').value.trim();
+            const porta = document.getElementById('dc-porta').value.trim();
+            const login = document.getElementById('dc-login').value.trim();
+            const serial = document.getElementById('dc-serial').value.trim();
+            const vlan = document.getElementById('dc-vlan').value.trim();
+            const sp = document.getElementById('dc-sp').value.trim();
+
+            const script = [
+                `interface gpon ${pon}`,
+                ` onu ${onu}`,
+                `  name "${caixa}|${porta}|${login}"`,
+                `  serial-number ${serial}`,
+                `  line-profile Banda-Maxima`,
+                `  ethernet 1`,
+                `   negotiation`,
+                `   no shutdown`,
+                `   native vlan vlan-id ${vlan}`,
+                `  !`,
+                ` !`,
+                `!`,
+                ``,
+                `service-port ${sp}`,
+                ` gpon ${pon} onu ${onu} gem 1 match vlan vlan-id ${vlan} action vlan replace vlan-id ${vlan}`
+            ].join('\n');
+
+            const out = document.getElementById('dc-script-out');
+            const bloco = document.getElementById('resultado-datacom-bloco');
+            out.value = script;
+            bloco.style.display = 'block';
         }
     </script>
 
