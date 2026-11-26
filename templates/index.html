@@ -42,7 +42,13 @@
             <form id="form-login">
                 <div class="form-group">
                     <label>NOME DO CLIENTE</label>
-                    <input type="text" name="nome" placeholder="Ex: João Silva" required autocomplete="off">
+                    <div class="input-with-icon">
+                        <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="text" name="nome" placeholder="Ex: João Silva" required autocomplete="off">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -50,6 +56,11 @@
                     <div class="radio-toggle-group">
                         <label class="radio-card active" id="card-neutra">
                             <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')">
+                            <svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
                             <span>REDE NEUTRA</span>
                         </label>
                         <label class="radio-card" id="card-padrao">
@@ -61,28 +72,54 @@
 
                 <div class="form-group" id="grupo-rede">
                     <label>REDE</label>
-                    <select name="rede" id="rede" onchange="atualizarCidades()" required>
-                        <option value="">Selecione a rede</option>
-                        {% for r in redes %}
-                            <option value="{{ r }}">{{ r }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="input-with-icon">
+                        <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                        </svg>
+                        <select name="rede" id="rede" onchange="atualizarCidades()" required>
+                            <option value="">Selecione a rede</option>
+                            {% for r in redes %}
+                                <option value="{{ r }}">{{ r }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group" id="grupo-id-atplus" style="display: none;">
                     <label>ID ATPLUS</label>
-                    <input type="text" name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
+                    <div class="input-with-icon">
+                        <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="9" x2="20" y2="9"></line>
+                            <line x1="4" y1="15" x2="20" y2="15"></line>
+                            <line x1="10" y1="3" x2="8" y2="21"></line>
+                            <line x1="16" y1="3" x2="14" y2="21"></line>
+                        </svg>
+                        <input type="text" name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>CIDADE</label>
-                    <select name="cidade" id="cidade" required>
-                        <option value="">Selecione...</option>
-                    </select>
+                    <div class="input-with-icon">
+                        <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                        <select name="cidade" id="cidade" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button type="submit" id="submit-btn" class="btn-primary">
                     <span id="btn-text">Gerar Acesso</span>
+                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                    </svg>
                     <span id="btn-loader" class="spinner" style="display: none;"></span>
                 </button>
             </form>
@@ -109,7 +146,21 @@
             <form id="form-mac">
                 <div class="form-group">
                     <label>ENDEREÇO MAC</label>
-                    <input type="text" name="mac" id="input-mac-raw" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF" required autocomplete="off">
+                    <div class="input-with-icon">
+                        <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="14" x2="23" y2="14"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="14" x2="4" y2="14"></line>
+                        </svg>
+                        <input type="text" name="mac" id="input-mac-raw" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF" required autocomplete="off">
+                    </div>
                 </div>
 
                 <button type="submit" id="submit-mac-btn" class="btn-primary">
