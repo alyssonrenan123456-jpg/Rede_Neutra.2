@@ -58,13 +58,10 @@
 
         .card-header,
         .tabs-nav,
-        .tab-panel,
         .form-group,
         .card-footer {
-            display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
-            max-height: none !important;
         }
 
         .tabs-nav {
@@ -137,8 +134,9 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 6px !important;
-            padding: 9px 10px !important;
+            gap: 5px !important;
+            padding: 9px 8px !important;
+            font-size: 10px !important;
             white-space: nowrap !important;
             line-height: 1 !important;
             box-sizing: border-box !important;
@@ -231,7 +229,7 @@
                     <div class="radio-toggle-group">
                         <label class="radio-card active" id="card-neutra">
                             <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="2" y1="12" x2="22" y2="12"></line>
                                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -436,8 +434,8 @@
                     nodes.push({
                         x: Math.random() * width,
                         y: Math.random() * height,
-                        vx: (Math.random() - 0.5) * 0.45,
-                        vy: (Math.random() - 0.5) * 0.45,
+                        vx: (Math.random() - 0.5) * 0.16,
+                        vy: (Math.random() - 0.5) * 0.16,
                         r: Math.random() * 1.8 + 1.1,
                         color: isPurple ? '168, 85, 247' : '56, 189, 248'
                     });
@@ -481,8 +479,8 @@
                             ctx.lineTo(b.x, b.y);
                             ctx.stroke();
 
-                            if (pulses.length < 18 && Math.random() < 0.0006) {
-                                pulses.push({ ax: a.x, ay: a.y, bx: b.x, by: b.y, t: 0, speed: 0.015 + Math.random() * 0.015 });
+                            if (pulses.length < 14 && Math.random() < 0.00022) {
+                                pulses.push({ ax: a.x, ay: a.y, bx: b.x, by: b.y, t: 0, speed: 0.005 + Math.random() * 0.005 });
                             }
                         }
                     }
