@@ -6,7 +6,7 @@
     <title>Painel de Provisionamento - Ultra</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Garante tela cheia em 100% da largura e altura sem barra de rolagem */
+        /* Tela cheia estática sem barra de rolagem */
         html, body {
             width: 100%;
             min-width: 100vw;
@@ -18,15 +18,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #05080f;
-            background-image:
-                linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
-                radial-gradient(circle at 50% 45%, rgba(14, 165, 233, 0.14), transparent 65%);
-            background-size: 36px 36px, 36px 36px, 100% 100%;
+            background: radial-gradient(circle at 50% 35%, #091326 0%, #03060d 75%, #020409 100%);
         }
 
-        /* Card compacto para caber com o resultado aberto sem estourar a altura */
+        /* Canvas tecnológico animado no fundo */
+        #tech-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Vinheta sutil nas bordas para destacar o card central */
+        .bg-vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at center, transparent 45%, rgba(2, 4, 10, 0.72) 100%);
+        }
+
+        /* Card em vidro fosco escuro acima da animação */
         .card-container {
             width: 100%;
             max-width: 440px;
@@ -38,6 +52,11 @@
             box-sizing: border-box;
             position: relative;
             z-index: 1;
+            background: rgba(8, 13, 26, 0.76) !important;
+            backdrop-filter: blur(18px) !important;
+            -webkit-backdrop-filter: blur(18px) !important;
+            border: 1px solid rgba(56, 189, 248, 0.32) !important;
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.14), inset 0 0 18px rgba(139, 92, 246, 0.06) !important;
         }
 
         .card-header { margin-bottom: 12px !important; }
@@ -45,7 +64,7 @@
         .form-group { margin-bottom: 11px !important; }
         .form-group label { margin-bottom: 4px !important; font-size: 11px !important; }
 
-        /* Alinhamento perfeito dos ícones sem cortar o texto do select */
+        /* Alinhamento dos ícones internos nos inputs e selects */
         .input-with-icon {
             position: relative;
             display: flex;
@@ -75,7 +94,7 @@
             z-index: 2;
         }
 
-        /* Alinhamento dos botões REDE NEUTRA e Gerar Acesso sem quebrar linha */
+        /* Alinhamento dos botões REDE NEUTRA e Gerar Acesso */
         .radio-card {
             display: inline-flex !important;
             align-items: center !important;
@@ -127,6 +146,9 @@
 </head>
 <body>
 
+    <canvas id="tech-canvas"></canvas>
+    <div class="bg-vignette"></div>
+
     <div class="card-container">
         <div class="card-header">
             <h1 id="app-title">Gerador de Login</h1>
@@ -139,220 +161,4 @@
                         <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"></line>
                         <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"></line>
                         <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="tabs-nav">
-            <button type="button" id="tab-login" class="tab-btn active" onclick="switchTab('login')">Login</button>
-            <button type="button" id="tab-mac" class="tab-btn" onclick="switchTab('mac')">MAC</button>
-            <button type="button" id="tab-gpon" class="tab-btn" onclick="switchTab('gpon')">SIP</button>
-        </div>
-
-        <div id="panel-login" class="tab-panel">
-            <form id="form-login">
-                <div class="form-group">
-                    <label>NOME DO CLIENTE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <input type="text" name="nome" placeholder="Ex: João Silva" required autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>TIPO DE LOGIN</label>
-                    <div class="radio-toggle-group">
-                        <label class="radio-card active" id="card-neutra">
-                            <input type="radio" name="tipo_login" value="neutra" checked onclick="selecionarTipo('neutra')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="2" y1="12" x2="22" y2="12"></line>
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                            </svg>
-                            <span>REDE NEUTRA</span>
-                        </label>
-                        <label class="radio-card" id="card-padrao">
-                            <input type="radio" name="tipo_login" value="padrao" onclick="selecionarTipo('padrao')">
-                            <span>PADRÃO / LOCAL</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group" id="grupo-rede">
-                    <label>REDE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                            <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                            <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                        </svg>
-                        <select name="rede" id="rede" onchange="atualizarCidades()" required>
-                            <option value="">Selecione a rede</option>
-                            {% for r in redes %}
-                                <option value="{{ r }}">{{ r }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" id="grupo-id-atplus" style="display: none;">
-                    <label>ID ATPLUS</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="4" y1="9" x2="20" y2="9"></line>
-                            <line x1="4" y1="15" x2="20" y2="15"></line>
-                            <line x1="10" y1="3" x2="8" y2="21"></line>
-                            <line x1="16" y1="3" x2="14" y2="21"></line>
-                        </svg>
-                        <input type="text" name="id_atplus" id="input-id-atplus" placeholder="Ex: 25282" autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>CIDADE</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                            <line x1="8" y1="2" x2="8" y2="18"></line>
-                            <line x1="16" y1="6" x2="16" y2="22"></line>
-                        </svg>
-                        <select name="cidade" id="cidade" required>
-                            <option value="">Selecione...</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-btn" class="btn-primary">
-                    <span id="btn-text">Gerar Acesso</span>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-                    </svg>
-                    <span id="btn-loader" class="spinner" style="display: none;"></span>
-                </button>
-            </form>
-
-            <div id="resultado-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item">
-                    <div class="res-content">
-                        <small>LOGIN GENERATED</small>
-                        <strong id="login">-</strong>
-                    </div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('login')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content">
-                        <small>PASSWORD GENERATED</small>
-                        <strong id="senha">-</strong>
-                    </div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('senha')">Copiar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-mac" class="tab-panel" style="display: none;">
-            <form id="form-mac">
-                <div class="form-group">
-                    <label>ENDEREÇO MAC</label>
-                    <div class="input-with-icon">
-                        <svg class="field-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                            <rect x="9" y="9" width="6" height="6"></rect>
-                            <line x1="9" y1="1" x2="9" y2="4"></line>
-                            <line x1="15" y1="1" x2="15" y2="4"></line>
-                            <line x1="9" y1="20" x2="9" y2="23"></line>
-                            <line x1="15" y1="20" x2="15" y2="23"></line>
-                            <line x1="20" y1="9" x2="23" y2="9"></line>
-                            <line x1="20" y1="14" x2="23" y2="14"></line>
-                            <line x1="1" y1="9" x2="4" y2="9"></line>
-                            <line x1="1" y1="14" x2="4" y2="14"></line>
-                        </svg>
-                        <input type="text" name="mac" id="input-mac-raw" placeholder="Ex: AA:BB:CC:DD:EE:FF ou AABBCCDDEEFF" required autocomplete="off">
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-mac-btn" class="btn-primary">
-                    <span id="btn-mac-text">Formatar MAC</span>
-                    <span id="btn-mac-loader" class="spinner" style="display: none;"></span>
-                </button>
-            </form>
-
-            <div id="resultado-mac-bloco" class="resultado-box" style="display: none;">
-                <div class="res-item">
-                    <div class="res-content"><small>CISCO</small><strong id="mac-cisco">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-cisco')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>LINUX</small><strong id="mac-linux">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-linux')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>WINDOWS</small><strong id="mac-windows">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-windows')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>HUAWEI</small><strong id="mac-huawei">-</strong></div>
-                    <button type="button" class="btn-copy-icon" onclick="copyValue('mac-huawei')">Copiar</button>
-                </div>
-                <div class="res-item">
-                    <div class="res-content"><small>FABRICANTE (OUI)</small><strong id="mac-vendor">-</strong></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-gpon" class="tab-panel" style="display: none;">
-            <form id="form-gpon" onsubmit="gerarGponConfig(event)">
-                <div class="grid-2col">
-                    <div class="form-group"><label>PON</label><input type="text" id="gpon-pon" placeholder="1/1/1" required></div>
-                    <div class="form-group"><label>ONU ID</label><input type="text" id="gpon-onu" placeholder="1" required></div>
-                </div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>CAIXA</label><input type="text" id="gpon-caixa" placeholder="CTO-01" required></div>
-                    <div class="form-group"><label>PORTA</label><input type="text" id="gpon-porta" placeholder="01" required></div>
-                </div>
-                <div class="form-group"><label>LOGIN</label><input type="text" id="gpon-login" placeholder="cliente.mca" required></div>
-                <div class="form-group"><label>SERIAL / MAC</label><input type="text" id="gpon-serial" placeholder="4857544312345678" required></div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>VLAN</label><input type="text" id="gpon-vlan" placeholder="100" required></div>
-                    <div class="form-group"><label>USUÁRIO SIP</label><input type="text" id="gpon-sip" placeholder="558830000000" required></div>
-                </div>
-                <div class="grid-2col">
-                    <div class="form-group"><label>SP VOIP</label><input type="text" id="gpon-sp-voip" placeholder="10" required></div>
-                    <div class="form-group"><label>SP DADOS</label><input type="text" id="gpon-sp-dados" placeholder="11" required></div>
-                </div>
-
-                <button type="submit" class="btn-primary">Gerar Script SIP</button>
-            </form>
-
-            <div id="resultado-gpon-bloco" class="resultado-box" style="display: none;">
-                <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label style="margin-bottom: 0;">SCRIPT GERADO</label>
-                        <button type="button" class="btn-copy-icon" onclick="copyValue('gpon-script-out')">Copiar Script</button>
-                    </div>
-                    <textarea id="gpon-script-out" rows="4" readonly></textarea>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-footer">
-            <small>Desenvolvido por Alysson Cordeiro 🛠️</small>
-        </div>
-    </div>
-
-    <div id="toast" class="toast">Copiado para a área de transferência!</div>
-
-    <script>
-        const redesCidades = {{ redes_cidades | tojson }};
-        const cidadesSiglas = {{ cidades | tojson }};
-    </script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+                        <line x1
