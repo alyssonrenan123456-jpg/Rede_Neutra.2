@@ -36,7 +36,6 @@
             z-index: 3 !important;
         }
 
-        /* Camada do personagem holográfico (sem caixa fechada, só projeção limpa) */
         #holo-char-layer {
             position: fixed;
             inset: 0;
@@ -44,15 +43,22 @@
             height: 100vh;
             overflow: hidden;
             pointer-events: none;
-            z-index: 2;
+            z-index: 4;
         }
 
         #egg-personagem {
-            position: absolute;
-            top: 18%;
-            left: -220px;
+            position: fixed;
+            top: 0;
+            left: 0;
             opacity: 0;
+            pointer-events: none;
+            cursor: pointer;
+            transform-origin: center center;
             will-change: transform, opacity;
+        }
+
+        #egg-personagem.is-clickable {
+            pointer-events: auto;
         }
 
         .holo-char-projection {
@@ -62,6 +68,11 @@
             align-items: center;
             color: #38bdf8;
             filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 22px rgba(0, 210, 255, 0.3));
+            transition: filter 0.15s ease;
+        }
+
+        #egg-personagem:hover .holo-char-projection {
+            filter: drop-shadow(0 0 16px rgba(186, 230, 253, 0.9)) drop-shadow(0 0 28px rgba(0, 210, 255, 0.55));
         }
 
         .holo-char-projection::after {
@@ -87,54 +98,29 @@
             margin-bottom: 2px;
         }
 
-        @keyframes passCharLTR {
-            0% {
-                transform: translate3d(0, 0, 0) scale(0.96);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.82;
-            }
-            50% {
-                transform: translate3d(calc(50vw + 110px), 16px, 0) scale(1);
-                opacity: 0.88;
-            }
-            90% {
-                opacity: 0.82;
-            }
-            100% {
-                transform: translate3d(calc(100vw + 260px), -10px, 0) scale(0.96);
-                opacity: 0;
-            }
+        #galysson-found-banner {
+            position: fixed;
+            top: 22px;
+            left: 50%;
+            transform: translate3d(-50%, -24px, 0);
+            z-index: 90;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(8, 13, 26, 0.92);
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 24px rgba(0, 210, 255, 0.38);
+            color: #e0f2fe;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
 
-        @keyframes passCharRTL {
-            0% {
-                transform: translate3d(calc(100vw + 240px), 0, 0) scaleX(-1) scale(0.96);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.82;
-            }
-            50% {
-                transform: translate3d(calc(50vw - 60px), 16px, 0) scaleX(-1) scale(1);
-                opacity: 0.88;
-            }
-            90% {
-                opacity: 0.82;
-            }
-            100% {
-                transform: translate3d(-260px, -10px, 0) scaleX(-1) scale(0.96);
-                opacity: 0;
-            }
-        }
-
-        #egg-personagem.run-ltr {
-            animation: passCharLTR 12s linear forwards;
-        }
-
-        #egg-personagem.run-rtl {
-            animation: passCharRTL 12s linear forwards;
+        #galysson-found-banner.show {
+            opacity: 1;
+            transform: translate3d(-50%, 0, 0);
         }
     </style>
 </head>
@@ -143,72 +129,90 @@
     <canvas id="tech-canvas"></canvas>
     <canvas id="holo-fx-canvas"></canvas>
 
-    <div id="holo-char-layer" aria-hidden="true">
-        <div id="egg-personagem">
+    <div id="galysson-found-banner" role="status" aria-live="polite">
+        parabens vc encontrou o galysson
+    </div>
+
+    <div id="holo-char-layer">
+        <div id="egg-personagem" title="Clique aqui!">
             <div class="holo-char-projection">
                 <span class="holo-tag-floating">HOLO // GALO-01</span>
-                <svg width="86" height="175" viewBox="0 0 110 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="96" height="196" viewBox="0 0 120 245" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="holoGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.95"/>
-                            <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.82"/>
-                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.72"/>
+                        <linearGradient id="holoBodyGrad" x1="20" y1="8" x2="100" y2="235" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.95"/>
+                            <stop offset="35%" stop-color="#38bdf8" stop-opacity="0.82"/>
+                            <stop offset="75%" stop-color="#0284c7" stop-opacity="0.68"/>
+                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.75"/>
                         </linearGradient>
-                        <linearGradient id="holoFill" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22"/>
-                            <stop offset="100%" stop-color="#0284c7" stop-opacity="0.06"/>
+                        <linearGradient id="holoGlassFill" x1="30" y1="10" x2="90" y2="220" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.28"/>
+                            <stop offset="55%" stop-color="#38bdf8" stop-opacity="0.12"/>
+                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.16"/>
                         </linearGradient>
+                        <clipPath id="neckClip">
+                            <path d="M44 58 L38 128 L68 128 L66 58 Z"/>
+                        </clipPath>
                     </defs>
 
-                    <!-- Rosto e cabelo estilizados -->
-                    <path d="M35 22 C35 9, 69 9, 70 23 L71 42 C71 53, 61 59, 52 59 C43 59, 35 52, 35 41 Z"
-                          fill="url(#holoFill)" stroke="url(#holoGrad)" stroke-width="2"/>
-                    <!-- Cabelo -->
-                    <path d="M34 23 C36 8, 54 5, 68 13 C72 16, 72 22, 70 25 C62 18, 46 18, 34 23 Z"
-                          fill="rgba(56, 189, 248, 0.28)" stroke="#bae6fd" stroke-width="1.5"/>
-                    <!-- Sobrancelhas e olhos -->
-                    <path d="M40 31 L48 30" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M57 30 L65 31" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
-                    <ellipse cx="44.5" cy="35" rx="2.6" ry="1.6" fill="#e0f2fe"/>
-                    <ellipse cx="60.5" cy="35" rx="2.6" ry="1.6" fill="#e0f2fe"/>
-                    <!-- Nariz e boca -->
-                    <path d="M52.5 34 L51.5 43 L55.5 44.5" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M47 49.5 Q52.5 52 58 49.5" stroke="#bae6fd" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M38 22 C38 9, 72 9, 72 23 L73 43 C73 54, 63 60, 54 60 C45 60, 38 53, 38 41 Z"
+                          fill="url(#holoGlassFill)" stroke="url(#holoBodyGrad)" stroke-width="2.1"/>
+                    <path d="M37 22 C38 8, 55 4, 70 11 C74 14, 74 20, 72 24 C66 18, 56 17, 47 19 C42 20, 39 22, 37 22 Z"
+                          fill="rgba(56, 189, 248, 0.34)" stroke="#e0f2fe" stroke-width="1.5" stroke-linejoin="round"/>
+                    <path d="M45 11 L49 18 M54 9 L56 18 M62 11 L62 19"
+                          stroke="#bae6fd" stroke-width="1.1" stroke-linecap="round" opacity="0.75"/>
 
-                    <!-- Pescoço longo -->
-                    <path d="M42 57 L37 118 L64 118 L63 57"
-                          fill="url(#holoFill)" stroke="url(#holoGrad)" stroke-width="2" stroke-linejoin="round"/>
-                    <!-- Linhas internas holográficas do pescoço -->
-                    <line x1="47" y1="62" x2="43" y2="115" stroke="#7dd3fc" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.55"/>
-                    <line x1="53" y1="62" x2="50" y2="115" stroke="#38bdf8" stroke-width="0.9" stroke-dasharray="5 3" opacity="0.45"/>
-                    <line x1="58" y1="62" x2="57" y2="115" stroke="#bae6fd" stroke-width="0.9" stroke-dasharray="3 4" opacity="0.5"/>
+                    <path d="M42 31 C45 29, 49 29, 51 30" stroke="#f0f9ff" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M59 30 C62 29, 66 29, 69 31" stroke="#f0f9ff" stroke-width="1.6" stroke-linecap="round"/>
 
-                    <!-- Corpo / peito do galo -->
-                    <path d="M37 118 C24 126, 22 149, 32 167 L66 170 C78 158, 79 132, 64 118 Z"
-                          fill="rgba(56, 189, 248, 0.16)" stroke="url(#holoGrad)" stroke-width="2"/>
-                    <!-- Detalhes de plumagem no peito -->
-                    <path d="M35 132 L43 138 M32 142 L42 147 M34 152 L44 156" stroke="#7dd3fc" stroke-width="1.2" opacity="0.65"/>
+                    <ellipse cx="46.5" cy="34.5" rx="3" ry="1.7" fill="#e0f2fe"/>
+                    <circle cx="46.8" cy="34.5" r="1.1" fill="#0369a1"/>
+                    <ellipse cx="63.5" cy="34.5" rx="3" ry="1.7" fill="#e0f2fe"/>
+                    <circle cx="63.8" cy="34.5" r="1.1" fill="#0369a1"/>
 
-                    <!-- Asa -->
-                    <path d="M46 127 C64 125, 74 138, 70 156 C58 158, 47 149, 46 127 Z"
-                          fill="rgba(168, 85, 247, 0.14)" stroke="#7dd3fc" stroke-width="1.6"/>
-                    <path d="M52 134 C62 135, 66 143, 64 150" stroke="#bae6fd" stroke-width="1.1" opacity="0.7"/>
+                    <path d="M55 33 L54 44.5 L58 46" stroke="#bae6fd" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="53.5" cy="45" r="1" fill="#7dd3fc"/>
+                    <path d="M49 51.5 Q55 53.5 61 51.5" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round"/>
 
-                    <!-- Cauda de galo -->
-                    <path d="M71 144 C88 132, 102 138, 105 152 C92 154, 81 156, 72 161"
-                          stroke="#38bdf8" stroke-width="2" fill="rgba(56, 189, 248, 0.12)"/>
-                    <path d="M72 154 C90 148, 101 155, 99 166 C87 163, 78 162, 70 165"
-                          stroke="#bae6fd" stroke-width="1.6" fill="none"/>
-                    <path d="M70 161 C85 160, 94 166, 90 174 C80 170, 74 168, 68 169"
-                          stroke="#a855f7" stroke-width="1.4" fill="none" opacity="0.8"/>
+                    <path d="M44 58 L38 128 L68 128 L66 58 Z"
+                          fill="url(#holoGlassFill)" stroke="url(#holoBodyGrad)" stroke-width="2.1" stroke-linejoin="round"/>
 
-                    <!-- Pernas e pés -->
-                    <path d="M40 167 L37 201" stroke="#bae6fd" stroke-width="2.6" stroke-linecap="round"/>
-                    <path d="M58 169 L61 203" stroke="#bae6fd" stroke-width="2.6" stroke-linecap="round"/>
-                    <path d="M37 201 L23 210 M37 201 L37 213 M37 201 L49 209"
-                          stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M61 203 L48 212 M61 203 L62 215 M61 203 L75 211"
-                          stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                    <g clip-path="url(#neckClip)">
+                        <line x1="48" y1="58" x2="43" y2="128" stroke="#7dd3fc" stroke-width="1" stroke-dasharray="5 4" opacity="0.55"/>
+                        <line x1="54" y1="58" x2="51" y2="128" stroke="#38bdf8" stroke-width="1" stroke-dasharray="7 4" opacity="0.45"/>
+                        <line x1="60" y1="58" x2="59" y2="128" stroke="#bae6fd" stroke-width="1" stroke-dasharray="4 4" opacity="0.55"/>
+                        <line x1="36" y1="74" x2="70" y2="74" stroke="#7dd3fc" stroke-width="0.8" opacity="0.25"/>
+                        <line x1="36" y1="94" x2="70" y2="94" stroke="#38bdf8" stroke-width="0.8" opacity="0.25"/>
+                        <line x1="36" y1="114" x2="70" y2="114" stroke="#bae6fd" stroke-width="0.8" opacity="0.25"/>
+                    </g>
+
+                    <path d="M38 126 C31 131, 25 142, 26 156 C27 169, 34 179, 44 183 L72 185 C84 176, 87 156, 81 140 C77 131, 72 127, 68 126"
+                          fill="rgba(56, 189, 248, 0.18)" stroke="url(#holoBodyGrad)" stroke-width="2.1" stroke-linejoin="round"/>
+
+                    <path d="M36 134 L45 141 M32 145 L43 151 M31 156 L43 161 M34 167 L46 171"
+                          stroke="#7dd3fc" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
+                    <path d="M64 134 L56 141 M68 145 L58 151"
+                          stroke="#bae6fd" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+
+                    <path d="M49 138 C68 135, 81 148, 77 170 C64 173, 50 163, 49 138 Z"
+                          fill="rgba(168, 85, 247, 0.16)" stroke="#bae6fd" stroke-width="1.7" stroke-linejoin="round"/>
+                    <path d="M55 146 C66 146, 72 154, 70 163" stroke="#7dd3fc" stroke-width="1.2" opacity="0.75"/>
+                    <path d="M53 154 C62 155, 66 161, 65 167" stroke="#38bdf8" stroke-width="1.1" opacity="0.65"/>
+
+                    <path d="M79 154 C96 139, 111 144, 114 159 C100 162, 88 165, 79 171"
+                          fill="rgba(56, 189, 248, 0.16)" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M80 165 C98 157, 110 164, 108 176 C95 174, 85 173, 77 177"
+                          fill="rgba(168, 85, 247, 0.12)" stroke="#bae6fd" stroke-width="1.7" stroke-linejoin="round"/>
+                    <path d="M77 173 C93 171, 102 178, 98 187 C88 183, 81 181, 74 183"
+                          stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
+
+                    <path d="M43 182 L40 222" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M63 184 L66 224" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+
+                    <path d="M40 222 L24 232 M40 222 L39 236 M40 222 L53 231"
+                          stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M66 224 L51 234 M66 224 L67 238 M66 224 L80 233"
+                          stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
         </div>
@@ -565,35 +569,89 @@
         })();
     </script>
 
-    <!-- Meteoro Holográfico de Plasma Azul + Passagem pela Via Láctea + Personagem -->
+    <!-- Trajetórias Aleatórias de Todas as Bordas (incluindo cantinhos), 5s cada e Clique no Galysson -->
     <script>
         (function () {
             const canvas = document.getElementById('holo-fx-canvas');
             const ctx = canvas.getContext('2d');
             const charEl = document.getElementById('egg-personagem');
+            const bannerEl = document.getElementById('galysson-found-banner');
+
             let width = canvas.width = window.innerWidth;
             let height = canvas.height = window.innerHeight;
+            let bannerTimer = null;
 
             window.addEventListener('resize', () => {
                 width = canvas.width = window.innerWidth;
                 height = canvas.height = window.innerHeight;
             });
 
-            // Estrelas da Via Láctea
+            function showGalyssonMessage() {
+                if (!bannerEl) return;
+                bannerEl.classList.add('show');
+                clearTimeout(bannerTimer);
+                bannerTimer = setTimeout(() => {
+                    bannerEl.classList.remove('show');
+                }, 3200);
+            }
+
+            if (charEl) {
+                charEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showGalyssonMessage();
+                });
+            }
+
+            // Gera um ponto de entrada e outro de saída aleatórios em qualquer borda ou cantinho
+            function randomEdgePath(margin) {
+                const edges = ['left', 'right', 'top', 'bottom'];
+                const entryEdge = edges[Math.floor(Math.random() * edges.length)];
+                const otherEdges = edges.filter((e) => e !== entryEdge);
+                const exitEdge = otherEdges[Math.floor(Math.random() * otherEdges.length)];
+
+                function pointOnEdge(edge) {
+                    if (edge === 'left') {
+                        return { x: -margin, y: Math.random() * height };
+                    }
+                    if (edge === 'right') {
+                        return { x: width + margin, y: Math.random() * height };
+                    }
+                    if (edge === 'top') {
+                        return { x: Math.random() * width, y: -margin };
+                    }
+                    return { x: Math.random() * width, y: height + margin };
+                }
+
+                const start = pointOnEdge(entryEdge);
+                const end = pointOnEdge(exitEdge);
+
+                // Pequena variação para permitir passagens rentes aos cantos da tela
+                if (Math.random() < 0.35) {
+                    const cornerX = Math.random() < 0.5 ? 24 : width - 24;
+                    const cornerY = Math.random() < 0.5 ? 24 : height - 24;
+                    end.x = cornerX + (end.x - cornerX) * 0.25;
+                    end.y = cornerY + (end.y - cornerY) * 0.25;
+                }
+
+                return { start, end };
+            }
+
             const stars = Array.from({ length: 140 }, () => ({
                 x: Math.random(),
                 y: Math.random(),
                 r: Math.random() * 1.4 + 0.3,
                 twinkle: Math.random() * Math.PI * 2,
-                speed: 0.015 + Math.random() * 0.025
+                speed: 0.025 + Math.random() * 0.03
             }));
+
+            const PASS_FRAMES = 300; // ~5s a 60fps
 
             let milkyWay = {
                 active: false,
-                progress: 0,
-                duration: 0.0014, // ~12s de travessia suave
+                frame: 0,
                 angle: -0.32,
-                dir: 1
+                dirX: 1,
+                dirY: 0.2
             };
 
             let meteor = {
@@ -604,68 +662,127 @@
                 vy: 0,
                 angle: 0,
                 sparks: [],
-                life: 0,
-                maxLife: 1
+                frame: 0
+            };
+
+            let satellite = {
+                active: false,
+                x: 0,
+                y: 0,
+                vx: 0,
+                vy: 0,
+                angle: 0,
+                frame: 0
+            };
+
+            let radarPulse = {
+                active: false,
+                x: 0,
+                y: 0,
+                frame: 0
+            };
+
+            let charAnim = {
+                active: false,
+                startX: 0,
+                startY: 0,
+                endX: 0,
+                endY: 0,
+                frame: 0
             };
 
             function triggerMilkyWay() {
                 milkyWay.active = true;
-                milkyWay.progress = 0;
-                milkyWay.dir = Math.random() < 0.5 ? 1 : -1;
-                milkyWay.angle = milkyWay.dir === 1 ? -0.32 : 0.32;
+                milkyWay.frame = 0;
+                milkyWay.dirX = Math.random() < 0.5 ? 1 : -1;
+                milkyWay.dirY = (Math.random() - 0.5) * 0.6;
+                milkyWay.angle = (Math.random() - 0.5) * 1.1;
             }
 
             function triggerMeteor() {
-                // Alterna entre vir da esquerda ou da direita
-                const fromLeft = Math.random() < 0.5;
-                const startY = height * (0.14 + Math.random() * 0.42);
-                const endY = startY + (Math.random() * 180 + 70);
-                const startX = fromLeft ? -140 : width + 140;
-                const endX = fromLeft ? width + 180 : -180;
-
-                const dx = endX - startX;
-                const dy = endY - startY;
-                const dist = Math.hypot(dx, dy);
-                const speed = Math.min(width, height) * 0.0046; // velocidade equilibrada e elegante
+                const { start, end } = randomEdgePath(150);
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
 
                 meteor.active = true;
-                meteor.x = startX;
-                meteor.y = startY;
-                meteor.vx = (dx / dist) * speed;
-                meteor.vy = (dy / dist) * speed;
+                meteor.x = start.x;
+                meteor.y = start.y;
+                meteor.vx = dx / PASS_FRAMES;
+                meteor.vy = dy / PASS_FRAMES;
                 meteor.angle = Math.atan2(dy, dx);
                 meteor.sparks = [];
-                meteor.life = 0;
-                meteor.maxLife = dist / speed;
+                meteor.frame = 0;
+            }
+
+            function triggerSatellite() {
+                const { start, end } = randomEdgePath(100);
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+
+                satellite.active = true;
+                satellite.x = start.x;
+                satellite.y = start.y;
+                satellite.vx = dx / PASS_FRAMES;
+                satellite.vy = dy / PASS_FRAMES;
+                satellite.angle = Math.atan2(dy, dx);
+                satellite.frame = 0;
+            }
+
+            function triggerRadarPulse() {
+                radarPulse.active = true;
+                // Pode surgir em qualquer ponto, inclusive perto de cantos/bordas
+                radarPulse.x = Math.random() * width;
+                radarPulse.y = Math.random() * height;
+                radarPulse.frame = 0;
             }
 
             function triggerCharacter() {
                 if (!charEl) return;
-                const fromLeft = Math.random() < 0.5;
-                const topPct = Math.floor(8 + Math.random() * 24);
-                charEl.style.top = topPct + '%';
-                charEl.classList.remove('run-ltr', 'run-rtl');
-                void charEl.offsetWidth;
-                charEl.classList.add(fromLeft ? 'run-ltr' : 'run-rtl');
+                const { start, end } = randomEdgePath(210);
+                charAnim.active = true;
+                charAnim.startX = start.x;
+                charAnim.startY = start.y;
+                charAnim.endX = end.x;
+                charAnim.endY = end.y;
+                charAnim.frame = 0;
+                charEl.classList.add('is-clickable');
+            }
+
+            function updateCharacter() {
+                if (!charAnim.active || !charEl) return;
+
+                charAnim.frame++;
+                const p = charAnim.frame / PASS_FRAMES;
+                if (p >= 1) {
+                    charAnim.active = false;
+                    charEl.style.opacity = '0';
+                    charEl.classList.remove('is-clickable');
+                    return;
+                }
+
+                const x = charAnim.startX + (charAnim.endX - charAnim.startX) * p;
+                const y = charAnim.startY + (charAnim.endY - charAnim.startY) * p;
+                const fade = p < 0.1 ? p / 0.1 : p > 0.9 ? (1 - p) / 0.1 : 1;
+                const tilt = Math.sin(p * Math.PI * 2) * 5;
+
+                charEl.style.opacity = String(Math.max(0, Math.min(0.9, fade * 0.88)));
+                charEl.style.transform = `translate3d(${x - 48}px, ${y - 98}px, 0) rotate(${tilt}deg)`;
             }
 
             function drawMilkyWay() {
                 if (!milkyWay.active) return;
 
-                milkyWay.progress += milkyWay.duration;
-                const p = milkyWay.progress;
+                milkyWay.frame++;
+                const p = milkyWay.frame / PASS_FRAMES;
                 if (p >= 1) {
                     milkyWay.active = false;
                     return;
                 }
 
-                // Fade in suave no início e fade out no fim
                 const envelope = Math.sin(p * Math.PI);
-                const alpha = Math.pow(envelope, 1.25) * 0.68;
-
-                // Deslocamento horizontal como se o site estivesse atravessando a faixa da Via Láctea
-                const shiftX = (p - 0.5) * width * 0.75 * milkyWay.dir;
-                const shiftY = (p - 0.5) * height * 0.14;
+                const alpha = Math.pow(envelope, 1.2) * 0.72;
+                const shiftX = (p - 0.5) * width * 0.85 * milkyWay.dirX;
+                const shiftY = (p - 0.5) * height * 0.65 * milkyWay.dirY;
 
                 ctx.save();
                 ctx.translate(width * 0.5 + shiftX, height * 0.5 + shiftY);
@@ -674,12 +791,11 @@
                 const bandW = Math.hypot(width, height) * 1.45;
                 const bandH = Math.max(220, height * 0.44);
 
-                // Nebulosa azul-ciano e roxo cósmico
                 const nebGrad = ctx.createLinearGradient(0, -bandH * 0.6, 0, bandH * 0.6);
                 nebGrad.addColorStop(0, 'rgba(14, 165, 233, 0)');
-                nebGrad.addColorStop(0.28, `rgba(37, 99, 235, ${0.14 * alpha})`);
-                nebGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.22 * alpha})`);
-                nebGrad.addColorStop(0.68, `rgba(139, 92, 246, ${0.15 * alpha})`);
+                nebGrad.addColorStop(0.28, `rgba(37, 99, 235, ${0.15 * alpha})`);
+                nebGrad.addColorStop(0.5, `rgba(56, 189, 248, ${0.24 * alpha})`);
+                nebGrad.addColorStop(0.68, `rgba(139, 92, 246, ${0.16 * alpha})`);
                 nebGrad.addColorStop(1, 'rgba(88, 28, 135, 0)');
 
                 ctx.fillStyle = nebGrad;
@@ -689,17 +805,15 @@
                 ctx.fill();
                 ctx.filter = 'none';
 
-                // Núcleo brilhante da faixa estelar
                 const coreGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, bandH * 0.45);
-                coreGrad.addColorStop(0, `rgba(186, 230, 253, ${0.2 * alpha})`);
-                coreGrad.addColorStop(0.55, `rgba(56, 189, 248, ${0.09 * alpha})`);
+                coreGrad.addColorStop(0, `rgba(186, 230, 253, ${0.22 * alpha})`);
+                coreGrad.addColorStop(0.55, `rgba(56, 189, 248, ${0.1 * alpha})`);
                 coreGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
                 ctx.fillStyle = coreGrad;
                 ctx.beginPath();
                 ctx.ellipse(0, 0, bandW * 0.42, bandH * 0.34, 0, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Estrelas concentradas na faixa da Via Láctea
                 for (let i = 0; i < stars.length; i++) {
                     const s = stars[i];
                     s.twinkle += s.speed;
@@ -723,12 +837,11 @@
 
                 meteor.x += meteor.vx;
                 meteor.y += meteor.vy;
-                meteor.life++;
+                meteor.frame++;
 
-                // Gera faíscas e fragmentos holográficos atrás do núcleo
-                if (meteor.life % 2 === 0 && meteor.sparks.length < 48) {
+                if (meteor.frame % 2 === 0 && meteor.sparks.length < 48) {
                     const backAngle = meteor.angle + Math.PI + (Math.random() - 0.5) * 0.55;
-                    const spd = 0.8 + Math.random() * 2.2;
+                    const spd = 0.9 + Math.random() * 2.2;
                     meteor.sparks.push({
                         x: meteor.x - Math.cos(meteor.angle) * 16 + (Math.random() - 0.5) * 18,
                         y: meteor.y - Math.sin(meteor.angle) * 16 + (Math.random() - 0.5) * 18,
@@ -740,12 +853,11 @@
                     });
                 }
 
-                // Desenha faíscas e fragmentos
                 for (let i = meteor.sparks.length - 1; i >= 0; i--) {
                     const sp = meteor.sparks[i];
                     sp.x += sp.vx;
                     sp.y += sp.vy;
-                    sp.alpha -= 0.022;
+                    sp.alpha -= 0.032;
                     if (sp.alpha <= 0) {
                         meteor.sparks.splice(i, 1);
                         continue;
@@ -775,7 +887,6 @@
                     ctx.restore();
                 }
 
-                // Desenha cauda de plasma azul/ciano e núcleo rochoso holográfico
                 ctx.save();
                 ctx.translate(meteor.x, meteor.y);
                 ctx.rotate(meteor.angle);
@@ -787,7 +898,6 @@
                 tailGrad.addColorStop(0.62, 'rgba(37, 99, 235, 0.24)');
                 tailGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
 
-                // Chama/cauda principal em leque
                 ctx.fillStyle = tailGrad;
                 ctx.filter = 'blur(4px)';
                 ctx.beginPath();
@@ -799,7 +909,6 @@
                 ctx.fill();
                 ctx.filter = 'none';
 
-                // Filamentos energéticos na cauda
                 for (let f = -2; f <= 2; f++) {
                     const yOff = f * 5.5;
                     ctx.strokeStyle = f === 0 ? 'rgba(224, 242, 254, 0.85)' : 'rgba(56, 189, 248, 0.55)';
@@ -810,7 +919,6 @@
                     ctx.stroke();
                 }
 
-                // Núcleo rochoso multifacetado holográfico
                 const rockGrad = ctx.createRadialGradient(-2, 0, 2, 0, 0, 22);
                 rockGrad.addColorStop(0, 'rgba(14, 165, 233, 0.35)');
                 rockGrad.addColorStop(0.7, 'rgba(2, 132, 199, 0.52)');
@@ -823,14 +931,8 @@
                 ctx.shadowColor = '#00d2ff';
 
                 const pts = [
-                    [18, -5],
-                    [10, -15],
-                    [-5, -16],
-                    [-17, -7],
-                    [-18, 7],
-                    [-6, 16],
-                    [11, 14],
-                    [19, 4]
+                    [18, -5], [10, -15], [-5, -16], [-17, -7],
+                    [-18, 7], [-6, 16], [11, 14], [19, 4]
                 ];
 
                 ctx.beginPath();
@@ -842,7 +944,6 @@
                 ctx.fill();
                 ctx.stroke();
 
-                // Facetas internas holográficas da rocha
                 ctx.shadowBlur = 0;
                 ctx.strokeStyle = 'rgba(125, 211, 252, 0.55)';
                 ctx.lineWidth = 0.9;
@@ -855,22 +956,96 @@
 
                 ctx.restore();
 
-                if (meteor.life >= meteor.maxLife) {
+                if (meteor.frame >= PASS_FRAMES) {
                     meteor.active = false;
                 }
+            }
+
+            function drawSatellite() {
+                if (!satellite.active) return;
+
+                satellite.x += satellite.vx;
+                satellite.y += satellite.vy;
+                satellite.frame++;
+                const p = satellite.frame / PASS_FRAMES;
+                if (p >= 1) {
+                    satellite.active = false;
+                    return;
+                }
+
+                const alpha = Math.sin(p * Math.PI) * 0.68;
+                ctx.save();
+                ctx.translate(satellite.x, satellite.y);
+                ctx.rotate(satellite.angle);
+                ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`;
+                ctx.fillStyle = `rgba(56, 189, 248, ${alpha * 0.16})`;
+                ctx.lineWidth = 1.3;
+
+                ctx.strokeRect(-32, -5, 18, 10);
+                ctx.strokeRect(14, -5, 18, 10);
+                ctx.fillRect(-7, -7, 14, 14);
+                ctx.strokeRect(-7, -7, 14, 14);
+                ctx.beginPath();
+                ctx.moveTo(0, -7);
+                ctx.lineTo(0, -14);
+                ctx.arc(0, -15, 2.5, Math.PI, 0, false);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            function drawRadarPulse() {
+                if (!radarPulse.active) return;
+
+                radarPulse.frame++;
+                const p = radarPulse.frame / PASS_FRAMES;
+                if (p >= 1) {
+                    radarPulse.active = false;
+                    return;
+                }
+
+                const fade = Math.sin(p * Math.PI);
+                ctx.save();
+                ctx.translate(radarPulse.x, radarPulse.y);
+
+                for (let rIdx = 0; rIdx < 2; rIdx++) {
+                    const localP = Math.max(0, Math.min(1, p * 1.35 - rIdx * 0.25));
+                    const radius = 12 + localP * 110;
+                    const alpha = (1 - localP) * fade * 0.45;
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = `rgba(186, 230, 253, ${fade * 0.65})`;
+                ctx.beginPath();
+                ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
             }
 
             function renderLoop() {
                 ctx.clearRect(0, 0, width, height);
                 drawMilkyWay();
+                drawRadarPulse();
+                drawSatellite();
                 drawMeteor();
+                updateCharacter();
                 requestAnimationFrame(renderLoop);
             }
 
             renderLoop();
 
-            // Sequência periódica alternando meteoro, personagem e passagem pela Via Láctea
-            const sequence = [triggerMeteor, triggerCharacter, triggerMilkyWay];
+            const sequence = [
+                triggerMeteor,
+                triggerCharacter,
+                triggerMilkyWay,
+                triggerSatellite,
+                triggerRadarPulse
+            ];
             let step = 0;
 
             setTimeout(() => {
@@ -880,8 +1055,8 @@
                 setInterval(() => {
                     sequence[step % sequence.length]();
                     step++;
-                }, 26000);
-            }, 6000);
+                }, 11000);
+            }, 2500);
         })();
     </script>
 </body>
