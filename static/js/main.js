@@ -9,34 +9,126 @@ function toggleTema() {
 }
 
 // ==========================================
-// ALTERNAR ABAS E TÍTULO
+// SELETOR DE MÓDULOS (MENU ENGRENAGEM)
+// ==========================================
+let currentModule = 'login-mac';
+let currentSubTab = 'login';
+
+function toggleModuleMenu(event) {
+    if (event) event.stopPropagation();
+
+    const menu = document.getElementById('module-menu');
+    const gearBtn = document.getElementById('module-gear-btn');
+    if (!menu) return;
+
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) {
+        closeModuleMenu();
+    } else {
+        menu.classList.add('open');
+        if (gearBtn) gearBtn.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function closeModuleMenu() {
+    const menu = document.getElementById('module-menu');
+    const gearBtn = document.getElementById('module-gear-btn');
+    if (menu) menu.classList.remove('open');
+    if (gearBtn) gearBtn.setAttribute('aria-expanded', 'false');
+}
+
+function triggerPanelTransition(panel) {
+    if (!panel) return;
+    panel.classList.remove('is-entering');
+    void panel.offsetWidth;
+    panel.classList.add('is-entering');
+}
+
+function switchModule(moduleName) {
+    currentModule = moduleName;
+
+    const tabsNav = document.getElementById('login-mac-tabs');
+    const panelLogin = document.getElementById('panel-login');
+    const panelMac = document.getElementById('panel-mac');
+    const panelGpon = document.getElementById('panel-gpon');
+    const panelNext = document.getElementById('panel-next-project');
+    const appTitle = document.getElementById('app-title');
+
+    const menuLoginMac = document.getElementById('menu-login-mac');
+    const menuSip = document.getElementById('menu-sip');
+    const menuNext = document.getElementById('menu-next-project');
+
+    [menuLoginMac, menuSip, menuNext].forEach(item => {
+        if (item) item.classList.remove('active');
+    });
+
+    [panelLogin, panelMac, panelGpon, panelNext].forEach(panel => {
+        if (panel) panel.style.display = 'none';
+    });
+
+    if (moduleName === 'sip') {
+        if (menuSip) menuSip.classList.add('active');
+        if (tabsNav) tabsNav.style.display = 'none';
+        if (panelGpon) {
+            panelGpon.style.display = 'block';
+            triggerPanelTransition(panelGpon);
+        }
+        if (appTitle) appTitle.innerText = 'GPON SIP Generator';
+    } else if (moduleName === 'next-project') {
+        if (menuNext) menuNext.classList.add('active');
+        if (tabsNav) tabsNav.style.display = 'none';
+        if (panelNext) {
+            panelNext.style.display = 'block';
+            triggerPanelTransition(panelNext);
+        }
+        if (appTitle) appTitle.innerText = 'Próximo Projeto';
+    } else {
+        currentModule = 'login-mac';
+        if (menuLoginMac) menuLoginMac.classList.add('active');
+        if (tabsNav) tabsNav.style.display = 'flex';
+        if (appTitle) {
+            appTitle.innerText = currentSubTab === 'mac' ? 'Formatador de MAC' : 'Gerador de Login';
+        }
+        switchTab(currentSubTab);
+    }
+
+    closeModuleMenu();
+}
+
+// ==========================================
+// ALTERNAR ABAS E TÍTULO (LOGIN / MAC)
 // ==========================================
 function switchTab(target) {
+    if (target === 'gpon') {
+        switchModule('sip');
+        return;
+    }
+
+    currentSubTab = target === 'mac' ? 'mac' : 'login';
+
     const tabLogin = document.getElementById("tab-login");
     const tabMac = document.getElementById("tab-mac");
-    const tabGpon = document.getElementById("tab-gpon");
-
     const panelLogin = document.getElementById("panel-login");
     const panelMac = document.getElementById("panel-mac");
-    const panelGpon = document.getElementById("panel-gpon");
-
     const appTitle = document.getElementById("app-title");
 
-    [panelLogin, panelMac, panelGpon].forEach(p => { if (p) p.style.display = "none"; });
-    [tabLogin, tabMac, tabGpon].forEach(t => { if (t) t.classList.remove("active"); });
+    [panelLogin, panelMac].forEach(p => { if (p) p.style.display = "none"; });
+    [tabLogin, tabMac].forEach(t => { if (t) t.classList.remove("active"); });
 
-    if (target === 'login') {
-        tabLogin.classList.add("active");
-        panelLogin.style.display = "block";
-        appTitle.innerText = "Gerador de Login";
-    } else if (target === 'mac') {
-        tabMac.classList.add("active");
-        panelMac.style.display = "block";
-        appTitle.innerText = "Formatador de MAC";
-    } else if (target === 'gpon') {
-        tabGpon.classList.add("active");
-        panelGpon.style.display = "block";
-        appTitle.innerText = "GPON SIP Generator";
+    if (currentSubTab === 'login') {
+        if (tabLogin) tabLogin.classList.add("active");
+        if (panelLogin) {
+            panelLogin.style.display = "block";
+            triggerPanelTransition(panelLogin);
+        }
+        if (appTitle && currentModule === 'login-mac') appTitle.innerText = "Gerador de Login";
+    } else if (currentSubTab === 'mac') {
+        if (tabMac) tabMac.classList.add("active");
+        if (panelMac) {
+            panelMac.style.display = "block";
+            triggerPanelTransition(panelMac);
+        }
+        if (appTitle && currentModule === 'login-mac') appTitle.innerText = "Formatador de MAC";
     }
 }
 
@@ -69,7 +161,7 @@ function toggleRede(mostrar) {
         grupoRede.style.display = "none";
         redeSelect.required = false;
         redeSelect.value = "";
-        
+
         const grupoAtplus = document.getElementById("grupo-id-atplus");
         if (grupoAtplus) grupoAtplus.style.display = "none";
 
@@ -155,10 +247,25 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('invalid', function() {
             this.setCustomValidity('falta aqui cabaço');
         });
-        
+
         input.addEventListener('input', function() {
             this.setCustomValidity('');
         });
+    });
+
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('module-menu');
+        const gearBtn = document.getElementById('module-gear-btn');
+        if (!menu || !menu.classList.contains('open')) return;
+        if (!menu.contains(e.target) && (!gearBtn || !gearBtn.contains(e.target))) {
+            closeModuleMenu();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModuleMenu();
+        }
     });
 });
 
