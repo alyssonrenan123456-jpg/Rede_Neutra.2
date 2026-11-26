@@ -13,6 +13,7 @@
     --text-main: #ffffff;
     --text-sub: #8d9bb0;
     --glow-shadow: rgba(0, 210, 255, 0.38);
+    --menu-bg: rgba(10, 17, 34, 0.96);
 }
 
 /* TEMA CLARO */
@@ -27,6 +28,7 @@
     --text-main: #0f172a;
     --text-sub: #475569;
     --glow-shadow: rgba(0, 162, 255, 0.3);
+    --menu-bg: rgba(255, 255, 255, 0.97);
 }
 
 *, *::before, *::after {
@@ -98,6 +100,13 @@ body {
     color: var(--text-main);
 }
 
+.header-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .theme-toggle {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid var(--card-border);
@@ -114,6 +123,138 @@ body {
 
 .theme-toggle:hover {
     background: rgba(0, 210, 255, 0.2);
+}
+
+.gear-toggle[aria-expanded="true"] {
+    background: rgba(0, 210, 255, 0.22);
+    box-shadow: 0 0 12px var(--glow-shadow);
+}
+
+/* MENU SELETOR DE MÓDULOS */
+.module-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 196px;
+    background: var(--menu-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 210, 255, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 40;
+}
+
+.module-menu.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.module-menu-item {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 9px 11px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: left;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.module-menu-item:hover {
+    background: rgba(0, 210, 255, 0.12);
+    border-color: rgba(0, 210, 255, 0.32);
+}
+
+.module-menu-item.active {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.22) 0%, rgba(0, 82, 212, 0.28) 100%);
+    border-color: var(--ultra-blue);
+    color: var(--text-main);
+    box-shadow: 0 0 12px rgba(0, 210, 255, 0.2);
+}
+
+.module-item-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(0, 210, 255, 0.14);
+    color: var(--ultra-blue);
+}
+
+/* TRANSIÇÃO SUAVE DE MÓDULOS */
+.module-transition {
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.module-transition.is-entering {
+    animation: moduleFadeIn 0.25s ease forwards;
+}
+
+@keyframes moduleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TELA PLACEHOLDER - PRÓXIMO PROJETO */
+.placeholder-panel {
+    padding: 12px 0;
+}
+
+.placeholder-box {
+    background: var(--input-bg);
+    border: 1px dashed var(--card-border);
+    border-radius: 14px;
+    padding: 24px 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.placeholder-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0, 210, 255, 0.16);
+    color: var(--ultra-blue);
+    border: 1px solid rgba(0, 210, 255, 0.35);
+}
+
+.placeholder-box h2 {
+    font-size: 1.05rem;
+    color: var(--text-main);
+}
+
+.placeholder-box p {
+    font-size: 0.84rem;
+    color: var(--text-sub);
+    line-height: 1.45;
 }
 
 /* NAVEGAÇÃO ABAS */
